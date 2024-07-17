@@ -1,8 +1,7 @@
 import React from "react";
 import cx from "classnames";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAuthMe, logout, selectIsAuth } from '../redux/slices/auth';
+
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
@@ -38,17 +37,10 @@ export default function Dashboard(props) {
   const [fixedClasses, setFixedClasses] = React.useState("dropdown");
   const [logo, setLogo] = React.useState(require("assets/img/logo-white.svg"));
 
-  const dispath = useDispatch()
-  const isAuth = useSelector(selectIsAuth);
+  // const dispath = useDispatch()
+  const isAuth = 543+'fd'
 
-  // React.useEffect(() => {
-  //   if (localStorage.getItem('token')) {
-  //     dispath(fetchAuthMe())
-  //   }
-
-  // }, [])
-
-  console.log(isAuth)
+ 
   // styles
   const classes = useStyles();
   const mainPanelClasses =
