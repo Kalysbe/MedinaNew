@@ -37,9 +37,15 @@ import Image from "@material-ui/icons/Image";
 import Place from "@material-ui/icons/Place";
 import Timeline from "@material-ui/icons/Timeline";
 import WidgetsIcon from "@material-ui/icons/Widgets";
+//
+import EmitentList from "views/Pages/EmitentList.js";
 
+//Emitent
+import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 var dashRoutes = [
+
   {
+
     path: "/dashboard",
     name: "Dashboard",
     rtlName: "لوحة القيادة",
@@ -48,24 +54,31 @@ var dashRoutes = [
     layout: "/admin"
   },
   {
+    path: "/emitent-list",
+    name: "Список эмитентов",
+    icon: DashboardIcon,
+    component: EmitentList,
+    layout: "/admin"
+  },
+  {
     collapse: true,
-    name: "Pages",
+    name: "Эмитент",
     rtlName: "صفحات",
     icon: Image,
     state: "pageCollapse",
     views: [
       {
-        path: "/pricing-page",
-        name: "Pricing Page",
+        path: "/emitent-detail/",
+        name: "Анкетные данные",
         rtlName: "عالتسعير",
         mini: "PP",
         rtlMini: "ع",
-        component: PricingPage,
-        layout: "/auth"
+        component: EmitentDetail,
+        layout: "/admin"
       },
       {
         path: "/rtl-support-page",
-        name: "RTL Support",
+        name: "Ценные бумаги",
         rtlName: "صودعم رتل",
         mini: "RS",
         rtlMini: "صو",

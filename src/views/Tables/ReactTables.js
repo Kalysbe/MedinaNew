@@ -134,7 +134,7 @@ export default function ReactTables() {
           <CardBody>
             <ReactTable
               data={data}
-              filterable
+              // filterable
               columns={[
                 {
                   Header: "Name",

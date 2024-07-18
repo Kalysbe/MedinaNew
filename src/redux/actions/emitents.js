@@ -32,7 +32,7 @@ export const fetchEmitentEmissions = createAsyncThunk("emitents/fetchEmitentEmis
 })
 
 export const fetchAddEmitentEmissions = createAsyncThunk("emitents/fetchAddEmitentEmissions", async (data) => {
-  const response = await axios.post(`/emissions`,data);
+  const response = await axios.post(`/emissions`, data);
   return response.data;
 })
 
@@ -40,3 +40,19 @@ export const fetchUpdateEmitentEmissions = createAsyncThunk("emitents/fetchUpdat
   const { data } = await axios.put(`/emitents/${id}/emissions`);
   return data;
 })
+
+export const loadEmitentFromLocalStorage = createAsyncThunk(
+  'emitents/loadFromLocalStorage',
+  async () => {
+    const savedEmitent = JSON.parse(localStorage.getItem('emitent'));
+    return savedEmitent;
+  }
+);
+
+export const saveEmitentToLocalStorage = createAsyncThunk(
+  'emitents/saveToLocalStorage',
+  async (emitent) => {
+    localStorage.setItem('emitent', JSON.stringify(emitent));
+    return emitent;
+  }
+);

@@ -1,5 +1,6 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { Redirect } from "react-router-dom";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -22,26 +23,77 @@ import CardFooter from "components/Card/CardFooter.js";
 
 import styles from "assets/jss/material-dashboard-pro-react/views/loginPageStyle.js";
 
+import { fetchAuth } from "redux/slices/auth";
+
 const useStyles = makeStyles(styles);
 
 export default function LoginPage() {
+  const dispatch = useDispatch();
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState({ login: '', password: '' });
+  const isAuth = useSelector(state => state.auth?.data);
+  const [isMounted, setIsMounted] = useState(true);
   const [cardAnimaton, setCardAnimation] = React.useState("cardHidden");
-  setTimeout(function() {
+  setTimeout(function () {
     setCardAnimation("");
   }, 700);
   const classes = useStyles();
+
+
+
+  useEffect(() => {
+    return () => {
+      setIsMounted(false); // Устанавливаем isMounted в false при размонтировании компонента
+    };
+  }, []);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError({ login: '', password: '' }); // Сброс ошибок
+
+    if (!login) {
+      setError(prevState => ({ ...prevState, login: 'Введите логин' }));
+      return;
+    }
+
+    if (!password) {
+      setError(prevState => ({ ...prevState, password: 'Введите пароль' }));
+      return;
+    }
+
+    try {
+      const data = await dispatch(fetchAuth({ login, password })).unwrap(); // Используйте unwrap() для получения payload
+      if (isMounted) { // Проверяем, размонтирован ли компонент перед обновлением состояния
+        if (!data || !data.token) {
+          setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
+        } else {
+          window.localStorage.setItem('token', data.token);
+        }
+      }
+    } catch (err) {
+      if (isMounted) { // Проверяем, размонтирован ли компонент перед обновлением состояния
+        setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
+      }
+    }
+  };
+
+  if (isAuth) {
+    return <Redirect to="/dashboard" />; // Перенаправление на страницу логина
+  }
+
   return (
     <div className={classes.container}>
       <GridContainer justify="center">
         <GridItem xs={12} sm={6} md={4}>
-          <form>
+          <form onSubmit={handleSubmit}>
             <Card login className={classes[cardAnimaton]}>
               <CardHeader
                 className={`${classes.cardHeader} ${classes.textCenter}`}
                 color="rose"
               >
-                <h4 className={classes.cardTitle}>Log in</h4>
-                <div className={classes.socialLine}>
+                <h4 className={classes.cardTitle}>Авторизация</h4>
+                {/* <div className={classes.socialLine}>
                   {[
                     "fab fa-facebook-square",
                     "fab fa-twitter",
@@ -58,61 +110,53 @@ export default function LoginPage() {
                       </Button>
                     );
                   })}
-                </div>
+                </div> */}
               </CardHeader>
               <CardBody>
-                <CustomInput
-                  labelText="First Name.."
-                  id="firstname"
-                  formControlProps={{
-                    fullWidth: true
-                  }}
-                  inputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Face className={classes.inputAdornmentIcon} />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-                <CustomInput
-                  labelText="Email..."
-                  id="email"
-                  formControlProps={{
-                    fullWidth: true
-                  }}
-                  inputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Email className={classes.inputAdornmentIcon} />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-                <CustomInput
-                  labelText="Password"
-                  id="password"
-                  formControlProps={{
-                    fullWidth: true
-                  }}
-                  inputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Icon className={classes.inputAdornmentIcon}>
-                          lock_outline
-                        </Icon>
-                      </InputAdornment>
-                    ),
-                    type: "password",
-                    autoComplete: "off"
-                  }}
-                />
-              </CardBody>
-              <CardFooter className={classes.justifyContentCenter}>
-                <Button color="rose" simple size="lg" block>
-                  Let{"'"}s Go
-                </Button>
-              </CardFooter>
+        <CustomInput
+          labelText="Логин..."
+          id="login"
+          formControlProps={{
+            fullWidth: true
+          }}
+          inputProps={{
+            value: login,
+            onChange: (e) => setLogin(e.target.value),
+            endAdornment: (
+              <InputAdornment position="end">
+                <Email />
+              </InputAdornment>
+            ),
+            // helperText: error.login,
+            error: !!error.login
+          }}
+        />
+        <CustomInput
+          labelText="Пароль"
+          id="password"
+          formControlProps={{
+            fullWidth: true
+          }}
+          inputProps={{
+            value: password,
+            onChange: (e) => setPassword(e.target.value),
+            type: "password",
+            autoComplete: "off",
+            endAdornment: (
+              <InputAdornment position="end">
+                <Icon>lock_outline</Icon>
+              </InputAdornment>
+            ),
+            // helperText: error.password,
+            error: !!error.password
+          }}
+        />
+      </CardBody>
+      <CardFooter>
+        <Button color="rose" simple size="lg" block type="submit">
+          Войти
+        </Button>
+      </CardFooter>
             </Card>
           </form>
         </GridItem>

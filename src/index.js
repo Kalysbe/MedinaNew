@@ -24,7 +24,7 @@ import AuthLayout from "layouts/Auth.js";
 import RtlLayout from "layouts/RTL.js";
 import AdminLayout from "layouts/Admin.js";
 
-import store from "./redux/store";
+import store from "../src/redux/store";
 
 import "assets/scss/material-dashboard-pro-react.scss?v=1.8.0";
 

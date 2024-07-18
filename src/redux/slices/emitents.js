@@ -1,5 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchEmitents, fetchEmitentById, fetchAddEmitent, fetchUpdateEmitent, fetchDeleteEmitent, fetchEmitentEmissions ,fetchAddEmitentEmissions} from '../actions/emitents'
+import {
+  fetchEmitents,
+  fetchEmitentById,
+  fetchAddEmitent,
+  fetchUpdateEmitent,
+  fetchDeleteEmitent,
+  fetchEmitentEmissions,
+  fetchAddEmitentEmissions,
+  loadEmitentFromLocalStorage,
+  saveEmitentToLocalStorage
+} from '../actions/emitents'
 
 
 const initialState = {
@@ -14,7 +24,8 @@ const initialState = {
   emitentEmissions: {
     items: [],
     status: "loading"
-  }
+  },
+  store: null
 }
 
 const emitentsSlice = createSlice({
@@ -73,7 +84,7 @@ const emitentsSlice = createSlice({
       .addCase(fetchUpdateEmitent.rejected, (state) => {
         state.status = "error";
       });
-      builder
+    builder
       .addCase(fetchEmitentEmissions.pending, (state) => {
         state.emitentEmissions.items = [];
         state.emitentEmissions.status = "loading";
@@ -87,7 +98,7 @@ const emitentsSlice = createSlice({
         state.emitentEmissions.status = "error";
       });
 
-      builder
+    builder
       .addCase(fetchAddEmitentEmissions.pending, (state) => {
         state.status = "loading";
       })
@@ -99,7 +110,15 @@ const emitentsSlice = createSlice({
         state.status = "error";
       });
 
-    
+    builder
+      .addCase(loadEmitentFromLocalStorage.fulfilled, (state, action) => {
+        state.store = action.payload;
+      })
+      .addCase(saveEmitentToLocalStorage.fulfilled, (state, action) => {
+        state.store = action.payload;
+      })
+
+
     // Действия для удаления эмитента
     builder.addCase(fetchDeleteEmitent.pending, (state, action) => {
       const postIdToRemove = action.meta.arg;

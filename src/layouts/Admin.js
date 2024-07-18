@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import cx from "classnames";
 import { Switch, Route, Redirect } from "react-router-dom";
 
@@ -8,17 +8,24 @@ import "perfect-scrollbar/css/perfect-scrollbar.css";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-
+import Home from "@material-ui/icons/Home";
 // core components
 import AdminNavbar from "components/Navbars/AdminNavbar.js";
 import Footer from "components/Footer/Footer.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
 
+import Button from "components/CustomButtons/Button.js";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import Danger from "components/Typography/Danger.js";
 import routes from "routes.js";
+import { NavLink } from "react-router-dom";
 
 import styles from "assets/jss/material-dashboard-pro-react/layouts/adminStyle.js";
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAuthMe } from "../redux/slices/auth";
+import { loadEmitentFromLocalStorage } from "../redux/actions/emitents";
 var ps;
 
 const useStyles = makeStyles(styles);
@@ -27,6 +34,8 @@ const useStyles = makeStyles(styles);
 
 export default function Dashboard(props) {
   const { ...rest } = props;
+  const dispatch = useDispatch();
+
   // states and functions
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [miniActive, setMiniActive] = React.useState(false);
@@ -36,11 +45,15 @@ export default function Dashboard(props) {
   // const [hasImage, setHasImage] = React.useState(true);
   const [fixedClasses, setFixedClasses] = React.useState("dropdown");
   const [logo, setLogo] = React.useState(require("assets/img/logo-white.svg"));
-
+  const [savedEmitent, setSavedEmitent] = useState(null);
   // const dispath = useDispatch()
-  const isAuth = 543+'fd'
+  const isAuth = useSelector(state => state.auth?.data);
+  const EmitentData = useSelector(state => state.emitents.store);
+  useEffect(() => {
+    dispatch(fetchAuthMe());
+  }, [dispatch]);
 
- 
+
   // styles
   const classes = useStyles();
   const mainPanelClasses =
@@ -121,6 +134,26 @@ export default function Dashboard(props) {
     }
     return activeRoute;
   };
+
+  const getActivepath = routes => {
+    let activeRoute = "Default Brand Text";
+    for (let i = 0; i < routes.length; i++) {
+      if (routes[i].collapse) {
+        let collapseActiveRoute = getActiveRoute(routes[i].views);
+        if (collapseActiveRoute !== activeRoute) {
+          return collapseActiveRoute;
+        }
+      } else {
+        if (
+          window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
+        ) {
+          return routes[i].path;
+        }
+      }
+    }
+    return activeRoute;
+  };
+
   const getRoutes = routes => {
     return routes.map((prop, key) => {
       if (prop.collapse) {
@@ -148,11 +181,19 @@ export default function Dashboard(props) {
     }
   };
 
+  useEffect(() => {
+    dispatch(loadEmitentFromLocalStorage())
+  }, []);
+
+  if (!isAuth) {
+    // return <Redirect to="/auth/login-page" />; 
+  }
+
   return (
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"Creative Tim"}
+        logoText={"Medina"}
         logo={logo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}
@@ -160,6 +201,7 @@ export default function Dashboard(props) {
         color={color}
         bgColor={bgColor}
         miniActive={miniActive}
+        emitentName={EmitentData?.name}
         {...rest}
       />
       <div className={mainPanelClasses} ref={mainPanel}>
@@ -174,17 +216,41 @@ export default function Dashboard(props) {
         {getRoute() ? (
           <div className={classes.content}>
             <div className={classes.container}>
-              <Switch>
-                {getRoutes(routes)}
-                <Redirect from="/admin" to="/admin/dashboard" />
-              </Switch>
+              {!EmitentData && !EmitentData?.id && getActivepath(routes) !== '/emitent-list' && getActivepath(routes) !== '/dashboard' ? (
+                <Card >
+                  <CardBody style={{ display: 'flex', justifyContent: "center" }}>
+                    <div style={{ display: 'flex', justifyContent: "center", flexDirection: 'column' }}>
+                      <Danger>
+                        <h3 style={{ textAlign: 'center' }}>
+                          Вы не выбрали эмитента!
+                        </h3>
+                      </Danger>
+                      <p style={{ textAlign: 'center' }}>
+                        Чтобы продолжить работу необходимо выбрать эмитента.
+                      </p>
+                      <div style={{ display: 'flex', justifyContent: "center", flexDirection: 'column' }}>
+                        <NavLink to={'/admin/emitent-list'}>
+                          <Button fullWidth round color="rose">
+                            Выбрать
+                          </Button>
+                        </NavLink>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : (
+                <Switch>
+                  {getRoutes(routes)}
+                  {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
+                </Switch>
+              )}
             </div>
           </div>
         ) : (
           <div className={classes.map}>
             <Switch>
               {getRoutes(routes)}
-              <Redirect from="/admin" to="/admin/dashboard" />
+              {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
             </Switch>
           </div>
         )}

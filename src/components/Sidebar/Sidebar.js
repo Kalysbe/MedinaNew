@@ -62,10 +62,37 @@ class Sidebar extends React.Component {
     this.state = {
       openAvatar: false,
       miniActive: true,
+      userName: '',
       ...this.getCollapseStates(props.routes)
     };
   }
+
+  setUserNameFromLocalStorage = () => {
+    const savedUser = JSON.parse(localStorage.getItem('emitent'));
+    if (savedUser && savedUser.name) {
+      this.setState({ userName: savedUser.name });
+    }
+  };
+
+  componentDidMount() {
+    this.setUserNameFromLocalStorage();
+
+    // Adding event listener to update state on localStorage change
+    window.addEventListener('storage', this.handleStorageChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('storage', this.handleStorageChange);
+  }
+
+  handleStorageChange = (event) => {
+    if (event.key === 'emitent') {
+      this.setUserNameFromLocalStorage();
+    }
+  };
+
   mainPanel = React.createRef();
+  
   // this creates the intial state of this component based on the collapse routes
   // that it gets through this.props.routes
   getCollapseStates = routes => {
@@ -296,6 +323,8 @@ class Sidebar extends React.Component {
       );
     });
   };
+
+
   render() {
     const {
       classes,
@@ -304,7 +333,8 @@ class Sidebar extends React.Component {
       logoText,
       routes,
       bgColor,
-      rtlActive
+      rtlActive,
+      emitentName
     } = this.props;
     const itemText =
       classes.itemText +
@@ -349,11 +379,10 @@ class Sidebar extends React.Component {
       cx({
         [classes.photoRTL]: rtlActive
       });
+
     var user = (
       <div className={userWrapperClass}>
-        <div className={photo}>
-          <img src={avatar} className={classes.avatarImg} alt="..." />
-        </div>
+      
         <List className={classes.list}>
           <ListItem className={classes.item + " " + classes.userItem}>
             <NavLink
@@ -362,7 +391,7 @@ class Sidebar extends React.Component {
               onClick={() => this.openCollapse("openAvatar")}
             >
               <ListItemText
-                primary={rtlActive ? "تانيا أندرو" : "Бегайым"}
+                primary={emitentName ? emitentName :  "Эмитент не выбран"}
                 secondary={
                   <b
                     className={
@@ -388,16 +417,16 @@ class Sidebar extends React.Component {
                     }
                   >
                     <span className={collapseItemMini}>
-                      {rtlActive ? "مع" : "MP"}
+                      {rtlActive ? "مع" : "ВЭ"}
                     </span>
                     <ListItemText
-                      primary={rtlActive ? "ملفي" : "My Profile"}
+                      primary={rtlActive ? "ملفي" : "Выбрать эмитента"}
                       disableTypography={true}
                       className={collapseItemText}
                     />
                   </NavLink>
                 </ListItem>
-                <ListItem className={classes.collapseItem}>
+                {/* <ListItem className={classes.collapseItem}>
                   <NavLink
                     to="#"
                     className={
@@ -415,8 +444,8 @@ class Sidebar extends React.Component {
                       className={collapseItemText}
                     />
                   </NavLink>
-                </ListItem>
-                <ListItem className={classes.collapseItem}>
+                </ListItem> */}
+                {/* <ListItem className={classes.collapseItem}>
                   <NavLink
                     to="#"
                     className={
@@ -432,7 +461,7 @@ class Sidebar extends React.Component {
                       className={collapseItemText}
                     />
                   </NavLink>
-                </ListItem>
+                </ListItem> */}
               </List>
             </Collapse>
           </ListItem>
@@ -583,7 +612,8 @@ Sidebar.propTypes = {
   routes: PropTypes.arrayOf(PropTypes.object),
   miniActive: PropTypes.bool,
   open: PropTypes.bool,
-  handleDrawerToggle: PropTypes.func
+  handleDrawerToggle: PropTypes.func,
+  emitentName: PropTypes.string,
 };
 
 SidebarWrapper.propTypes = {
