@@ -92,7 +92,7 @@ class Sidebar extends React.Component {
   };
 
   mainPanel = React.createRef();
-  
+
   // this creates the intial state of this component based on the collapse routes
   // that it gets through this.props.routes
   getCollapseStates = routes => {
@@ -285,41 +285,45 @@ class Sidebar extends React.Component {
           [classes.itemIconRTL]: rtlActive
         });
       return (
-        <ListItem
-          key={key}
-          className={cx(
-            { [classes.item]: prop.icon !== undefined },
-            { [classes.collapseItem]: prop.icon === undefined }
-          )}
-        >
-          <NavLink
-            to={prop.layout + prop.path}
-            className={cx(
-              { [navLinkClasses]: prop.icon !== undefined },
-              { [innerNavLinkClasses]: prop.icon === undefined }
-            )}
-          >
-            {prop.icon !== undefined ? (
-              typeof prop.icon === "string" ? (
-                <Icon className={itemIcon}>{prop.icon}</Icon>
-              ) : (
-                <prop.icon className={itemIcon} />
-              )
-            ) : (
-              <span className={collapseItemMini}>
-                {rtlActive ? prop.rtlMini : prop.mini}
-              </span>
-            )}
-            <ListItemText
-              primary={rtlActive ? prop.rtlName : prop.name}
-              disableTypography={true}
+        <>
+          {prop.dashboard && (
+            <ListItem
+              key={key}
               className={cx(
-                { [itemText]: prop.icon !== undefined },
-                { [collapseItemText]: prop.icon === undefined }
+                { [classes.item]: prop.icon !== undefined },
+                { [classes.collapseItem]: prop.icon === undefined }
               )}
-            />
-          </NavLink>
-        </ListItem>
+            >
+              <NavLink
+                to={prop.layout + prop.path}
+                className={cx(
+                  { [navLinkClasses]: prop.icon !== undefined },
+                  { [innerNavLinkClasses]: prop.icon === undefined }
+                )}
+              >
+                {prop.icon !== undefined ? (
+                  typeof prop.icon === "string" ? (
+                    <Icon className={itemIcon}>{prop.icon}</Icon>
+                  ) : (
+                    <prop.icon className={itemIcon} />
+                  )
+                ) : (
+                  <span className={collapseItemMini}>
+                    {rtlActive ? prop.rtlMini : prop.mini}
+                  </span>
+                )}
+                <ListItemText
+                  primary={rtlActive ? prop.rtlName : prop.name}
+                  disableTypography={true}
+                  className={cx(
+                    { [itemText]: prop.icon !== undefined },
+                    { [collapseItemText]: prop.icon === undefined }
+                  )}
+                />
+              </NavLink>
+            </ListItem>
+          )}
+        </>
       );
     });
   };
@@ -382,7 +386,7 @@ class Sidebar extends React.Component {
 
     var user = (
       <div className={userWrapperClass}>
-      
+
         <List className={classes.list}>
           <ListItem className={classes.item + " " + classes.userItem}>
             <NavLink
@@ -391,7 +395,7 @@ class Sidebar extends React.Component {
               onClick={() => this.openCollapse("openAvatar")}
             >
               <ListItemText
-                primary={emitentName ? emitentName :  "Эмитент не выбран"}
+                primary={emitentName ? emitentName : "Эмитент не выбран"}
                 secondary={
                   <b
                     className={
@@ -411,7 +415,7 @@ class Sidebar extends React.Component {
               <List className={classes.list + " " + classes.collapseList}>
                 <ListItem className={classes.collapseItem}>
                   <NavLink
-                    to="#"
+                    to="/admin/emitent-list"
                     className={
                       classes.itemLink + " " + classes.userCollapseLinks
                     }

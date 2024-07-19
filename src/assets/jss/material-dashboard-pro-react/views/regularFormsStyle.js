@@ -4,9 +4,10 @@ import {
   dangerColor
 } from "assets/jss/material-dashboard-pro-react.js";
 import customCheckboxRadioSwitch from "assets/jss/material-dashboard-pro-react/customCheckboxRadioSwitch.js";
-
+import customSelectStyle from "assets/jss/material-dashboard-pro-react/customSelectStyle.js";
 const regularFormsStyle = {
   ...customCheckboxRadioSwitch,
+  ...customSelectStyle,
   cardIconTitle: {
     ...cardTitle,
     marginTop: "15px",

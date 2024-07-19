@@ -7,13 +7,11 @@ export const fetchTransactions = createAsyncThunk("transactions/fetchTransaction
 })
 
 export const fetchTransactionById = createAsyncThunk("transactions/fetchTransactionById", async (id) => {
-    console.log(id,'12')
     const response = await axios.get(`/transactions/${id}`);
     return response.data;
 })
 
 export const fetchCreateTransaction = createAsyncThunk("transactions/fetchCreateTransaction", async (data) => {
-    console.log(data)
     const response = await axios.post("/transactions", data);
     return response.data;
 })

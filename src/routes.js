@@ -42,6 +42,10 @@ import EmitentList from "views/Pages/EmitentList.js";
 
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
+import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
+import Transactions from "views/Pages/Log/Transactions/index"
+import Holders from "views/Pages/Holders.js"
+import OperationTransfer from "views/Pages/Operation/transfer/index.js"
 var dashRoutes = [
 
   {
@@ -51,7 +55,8 @@ var dashRoutes = [
     rtlName: "لوحة القيادة",
     icon: DashboardIcon,
     component: Dashboard,
-    layout: "/admin"
+    layout: "/admin",
+    dashboard:true
   },
   {
     path: "/emitent-list",
@@ -74,7 +79,18 @@ var dashRoutes = [
         mini: "PP",
         rtlMini: "ع",
         component: EmitentDetail,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
+      },
+      {
+        path: "/emitent-stocks/",
+        name: "Ценные бумаги",
+        rtlName: "عالتسعير",
+        mini: "PP",
+        rtlMini: "ع",
+        component: EmitentStocks,
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/rtl-support-page",
@@ -83,7 +99,7 @@ var dashRoutes = [
         mini: "RS",
         rtlMini: "صو",
         component: RTLSupport,
-        layout: "/rtl"
+        layout: "/admin"
       },
       {
         path: "/timeline-page",
@@ -143,38 +159,39 @@ var dashRoutes = [
   },
   {
     collapse: true,
-    name: "Components",
+    name: "Журналы",
     rtlName: "المكونات",
     icon: Apps,
     state: "componentsCollapse",
     views: [
+      // {
+      //   collapse: true,
+      //   name: "Multi Level Collapse",
+      //   rtlName: "انهيار متعدد المستويات",
+      //   mini: "MC",
+      //   rtlMini: "ر",
+      //   state: "multiCollapse",
+      //   views: [
+      //     {
+      //       path: "/buttons",
+      //       name: "Buttons",
+      //       rtlName: "وصفت",
+      //       mini: "B",
+      //       rtlMini: "ب",
+      //       component: Buttons,
+      //       layout: "/admin"
+      //     }
+      //   ]
+      // },
       {
-        collapse: true,
-        name: "Multi Level Collapse",
-        rtlName: "انهيار متعدد المستويات",
-        mini: "MC",
-        rtlMini: "ر",
-        state: "multiCollapse",
-        views: [
-          {
-            path: "/buttons",
-            name: "Buttons",
-            rtlName: "وصفت",
-            mini: "B",
-            rtlMini: "ب",
-            component: Buttons,
-            layout: "/admin"
-          }
-        ]
-      },
-      {
-        path: "/buttons",
-        name: "Buttons",
+        path: "/transactions",
+        name: "Операции с акциями",
         rtlName: "وصفت",
         mini: "B",
         rtlMini: "ب",
-        component: Buttons,
-        layout: "/admin"
+        component: Transactions,
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/grid-system",
@@ -233,47 +250,70 @@ var dashRoutes = [
     ]
   },
   {
+    path: "/holders",
+    name: "Реестр",
+    rtlName: "الحاجيات",
+    icon: WidgetsIcon,
+    component: Holders,
+    layout: "/admin",
+    dashboard:true
+  },
+  {
     collapse: true,
-    name: "Forms",
+    name: "Операции",
     rtlName: "إستمارات",
     icon: "content_paste",
     state: "formsCollapse",
     views: [
       {
+        path: "/operation-transfer",
+        name: "Передача",
+        rtlName: "أشكال عادية",
+        mini: "RF",
+        rtlMini: "صو",
+        component: OperationTransfer,
+        layout: "/admin",
+        dashboard:true
+      },
+      {
         path: "/regular-forms",
-        name: "Regular Forms",
+        name: "Залог",
         rtlName: "أشكال عادية",
         mini: "RF",
         rtlMini: "صو",
         component: RegularForms,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/extended-forms",
-        name: "Extended Forms",
+        name: "Высвобождение из залога",
         rtlName: "نماذج موسعة",
         mini: "EF",
         rtlMini: "هوو",
         component: ExtendedForms,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/validation-forms",
-        name: "Validation Forms",
+        name: "Конвертация",
         rtlName: "نماذج التحقق من الصحة",
         mini: "VF",
         rtlMini: "تو",
         component: ValidationForms,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/wizard",
-        name: "Wizard",
+        name: "Одноместная операция",
         rtlName: "ساحر",
         mini: "W",
         rtlMini: "ث",
         component: Wizard,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
       }
     ]
   },
@@ -371,7 +411,17 @@ var dashRoutes = [
     rtlName: "التقويم",
     icon: DateRange,
     component: Calendar,
-    layout: "/admin"
-  }
+    layout: "/admin",
+    dashboard:false
+  },
+  {
+    path: "/widgets",
+    name: "widgets",
+    rtlName: "الحاجيات",
+    icon: WidgetsIcon,
+    component: Widgets,
+    layout: "/admin",
+    dashboard:true
+  },
 ];
 export default dashRoutes;
