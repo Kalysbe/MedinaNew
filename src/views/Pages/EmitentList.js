@@ -57,7 +57,7 @@ export default function RegularTables() {
         dispatch(fetchEmitents());
     }, []);
 
-    const selectEmitent = (id,name) => {
+    const selectEmitent = (id, name) => {
         const emitentData = { id, name };
         dispatch(saveEmitentToLocalStorage(emitentData))
         setSavedEmitent(emitentData);
@@ -71,10 +71,13 @@ export default function RegularTables() {
             <GridItem xs={12}>
                 <Card>
                     <CardHeader color="rose" icon>
-                        <CardIcon color="rose">
-                            <Assignment />
-                        </CardIcon>
-                        <h4 className={classes.cardIconTitle}>Эмитенты</h4>
+                        <NavLink  to={'/admin/emitent/add'}>
+                        <Button color='success'>
+                            Добавить
+                        </Button>
+                        </NavLink>
+                       
+
                     </CardHeader>
                     <CardBody>
                         {Emitents.items && (
@@ -100,9 +103,9 @@ export default function RegularTables() {
                                                     variant="outlined"
                                                     color={savedEmitent && savedEmitent.id === item.id ? 'warning' : 'info'}
                                                     size="small"
-                                                    onClick={() => selectEmitent(item.id,item.full_name)}
+                                                    onClick={() => selectEmitent(item.id, item.full_name)}
                                                     disabled={savedEmitent && savedEmitent.id === item.id}>
-                                                    {savedEmitent && savedEmitent.id === item.id ? 'Выбрано' : 'Выбрать'} 
+                                                    {savedEmitent && savedEmitent.id === item.id ? 'Выбрано' : 'Выбрать'}
                                                 </Button>
 
                                                 {/* <MDButton variant="outlined" color="error" size="small" style={{ marginLeft: '8px' }} onClick={() => onDelete(item.id)}>

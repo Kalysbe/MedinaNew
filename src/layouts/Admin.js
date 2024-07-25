@@ -216,13 +216,13 @@ export default function Dashboard(props) {
         {getRoute() ? (
           <div className={classes.content}>
             <div className={classes.container}>
-              {!EmitentData && !EmitentData?.id && getActivepath(routes) !== '/emitent-list' && getActivepath(routes) !== '/dashboard' ? (
+              {!EmitentData && !EmitentData?.id && getActivepath(routes) !== '/emitent-list' && getActivepath(routes) !== '/dashboard' && getActivepath(routes) !== '/emitent/add' ? (
                 <Card >
                   <CardBody style={{ display: 'flex', justifyContent: "center" }}>
                     <div style={{ display: 'flex', justifyContent: "center", flexDirection: 'column' }}>
                       <Danger>
                         <h3 style={{ textAlign: 'center' }}>
-                          Вы не выбрали эмитента!
+                          Вы не выбрали эмитента! 
                         </h3>
                       </Danger>
                       <p style={{ textAlign: 'center' }}>

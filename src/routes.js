@@ -39,7 +39,7 @@ import Timeline from "@material-ui/icons/Timeline";
 import WidgetsIcon from "@material-ui/icons/Widgets";
 //
 import EmitentList from "views/Pages/EmitentList.js";
-
+import EditEmitent from "views/Pages/EditEmitent.js"
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
@@ -70,6 +70,12 @@ var dashRoutes = [
     component: EmitentList,
     layout: "/admin"
   },
+  {
+    path: "/emitent/add",
+    name: "Детали транзакции",
+    component: EditEmitent,
+    layout: "/admin"
+    },
   {
     collapse: true,
     name: "Эмитент",
@@ -439,6 +445,7 @@ var dashRoutes = [
     layout: "/admin",
     dashboard:true
   },
+
   {
     path: "/transaction/:id",
     name: "Детали транзакции",
