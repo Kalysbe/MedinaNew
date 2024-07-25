@@ -91,12 +91,14 @@ export default function RegularTables() {
                                                 {item.operation?.name}
                                             </TableCell>
                                             <TableCell>
+                                            <NavLink to={`/admin/transaction/${item.id}`}>
                                                 <Button
                                                     variant="outlined"
                                                     color='info'
                                                     size="sm">
                                                     Открыть
                                                 </Button>
+                                                </NavLink>
                                             </TableCell>
 
                                         </TableRow>

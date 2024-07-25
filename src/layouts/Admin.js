@@ -117,7 +117,7 @@ export default function Dashboard(props) {
     return window.location.pathname !== "/admin/full-screen-maps";
   };
   const getActiveRoute = routes => {
-    let activeRoute = "Default Brand Text";
+    let activeRoute = "Default Brand Text1";
     for (let i = 0; i < routes.length; i++) {
       if (routes[i].collapse) {
         let collapseActiveRoute = getActiveRoute(routes[i].views);
@@ -136,7 +136,7 @@ export default function Dashboard(props) {
   };
 
   const getActivepath = routes => {
-    let activeRoute = "Default Brand Text";
+    let activeRoute = "Default Brand Text2";
     for (let i = 0; i < routes.length; i++) {
       if (routes[i].collapse) {
         let collapseActiveRoute = getActiveRoute(routes[i].views);
@@ -254,7 +254,7 @@ export default function Dashboard(props) {
             </Switch>
           </div>
         )}
-        {getRoute() ? <Footer fluid /> : null}
+        {/* {getRoute() ? <Footer fluid /> : null} */}
         <FixedPlugin
           handleImageClick={handleImageClick}
           handleColorClick={handleColorClick}

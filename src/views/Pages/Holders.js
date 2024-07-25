@@ -126,11 +126,23 @@ export default function RegularTables() {
         <GridContainer>
             <GridItem xs={12}>
                 <Card>
-                    <CardHeader color="rose" icon>
+                    <CardHeader color="rose" icon style={{display:'flex',justifyContent:'space-between'}}>
+                      <div style={{width:'300px'}}>
                         <CardIcon color="rose">
                             <Assignment />
                         </CardIcon>
                         <h4 className={classes.cardIconTitle}>Реестр по фамилиям</h4>
+                        </div>
+                        <NavLink to={'/admin/emitent-stock/add'}>
+                        <Button
+                            variant="outlined"
+                            color={'info'}
+
+                            // onClick={onAdd}
+                        >
+                            Добавить
+                        </Button>
+                        </NavLink>
                     </CardHeader>
                     <CardBody>
                         {Holders.items && (
@@ -154,7 +166,7 @@ export default function RegularTables() {
                                                 <b>{item.name}</b>
                                             </TableCell>
                                             <TableCell>
-                                                {item.ordinary}
+                                                {window.formatNumber(item.ordinary)}
                                             </TableCell>
                                             <TableCell>
                                                 {window.formatNumber(item.ordinary_nominal)}

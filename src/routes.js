@@ -43,15 +43,20 @@ import EmitentList from "views/Pages/EmitentList.js";
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
+import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
+
+
 import Transactions from "views/Pages/Log/Transactions/index"
+import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
 import Holders from "views/Pages/Holders.js"
 import OperationTransfer from "views/Pages/Operation/transfer/index.js"
+import OperationSingle from "views/Pages/Operation/single/index.js"
 var dashRoutes = [
 
   {
 
     path: "/dashboard",
-    name: "Dashboard",
+    name: "Главная",
     rtlName: "لوحة القيادة",
     icon: DashboardIcon,
     component: Dashboard,
@@ -91,6 +96,16 @@ var dashRoutes = [
         component: EmitentStocks,
         layout: "/admin",
         dashboard:true
+      },
+      {
+        path: "/emitent-stock/add/",
+        name: "Новая бумага",
+        rtlName: "عالتسعير",
+        mini: "PP",
+        rtlMini: "ع",
+        component: EmitentStockEdit,
+        layout: "/admin",
+        dashboard:false
       },
       {
         path: "/rtl-support-page",
@@ -193,6 +208,7 @@ var dashRoutes = [
         layout: "/admin",
         dashboard:true
       },
+ 
       {
         path: "/grid-system",
         name: "Grid System",
@@ -306,12 +322,12 @@ var dashRoutes = [
         dashboard:true
       },
       {
-        path: "/wizard",
+        path: "/operation-single",
         name: "Одноместная операция",
         rtlName: "ساحر",
         mini: "W",
         rtlMini: "ث",
-        component: Wizard,
+        component: OperationSingle,
         layout: "/admin",
         dashboard:true
       }
@@ -423,5 +439,15 @@ var dashRoutes = [
     layout: "/admin",
     dashboard:true
   },
+  {
+    path: "/transaction/:id",
+    name: "Детали транзакции",
+    rtlName: "وصفت",
+    mini: "B",
+    rtlMini: "ب",
+    component: TransactionDetail,
+    layout: "/admin",
+    dashboard:false
+    },
 ];
 export default dashRoutes;

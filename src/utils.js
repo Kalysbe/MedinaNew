@@ -1,8 +1,9 @@
 window.formatNumber = function (number) {
+  console.log(number)
   if (number === null || number < 0) {
     return "0";
   }
-  return number.toLocaleString();
+  return Number(number).toLocaleString();
 };
 
 window.formatDate = function (dateString) {

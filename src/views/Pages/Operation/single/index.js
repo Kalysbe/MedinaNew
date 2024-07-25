@@ -37,7 +37,7 @@ import { fetchHolders } from "redux/actions/holders";
 import { fetchEmissionsByHolderId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 
-import { transferTypes } from "constants/operations.js"
+import { singleTypes } from "constants/operations.js"
 
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
 
@@ -59,19 +59,10 @@ export default function RegularForms() {
     const { operationTypes } = useSelector(state => state.transactions)
     const { emissions } = useSelector(state => state.emissions)
 
-    const uniqueHolders = holders?.items.reduce((acc, current) => {
-        const x = acc.find(item => item.holder_id === current.holder_id);
-        if (!x) {
-            return acc.concat([current]);
-        } else {
-            return acc;
-        }
-    }, []);
-
     const optionsMap = {
-        holders: uniqueHolders,
+        holders: holders?.items,
         stocks: emissions?.items,
-        typeOperations: transferTypes,
+        typeOperations: singleTypes,
     };
 
     const [formData, setFormData] = useState({
@@ -182,7 +173,7 @@ export default function RegularForms() {
             <CardBody>
                 <form>
                     <GridContainer>
-                        <GridItem xs={12} sm={12} md={12}>
+                        <GridItem xs={12} sm={12} md={6}>
                             <FormControl
                                 fullWidth
                                 className={classes.selectFormControl}
@@ -212,39 +203,6 @@ export default function RegularForms() {
                                             }}
                                             value={opt.id}>
                                             {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Кто отдает
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='holder_from_id'
-                                    value={formData['holder_from_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.holder_id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.holder_id}>
-                                            {opt.holder_name}
                                         </MenuItem>
                                     ))}
                                 </Select>

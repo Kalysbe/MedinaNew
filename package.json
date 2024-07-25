@@ -22,11 +22,12 @@
     "react-google-maps": "9.4.5",
     "react-jvectormap": "0.0.12",
     "react-redux": "^7.2.4",
-    "react-router-dom": "5.0.1",
+    "react-router-dom": "^5.3.4",
     "react-scripts": "3.1.0",
     "react-swipeable-views": "0.13.3",
     "react-table": "6.10.0",
-    "react-tagsinput": "3.19.0"
+    "react-tagsinput": "3.19.0",
+    "sweetalert2": "^11.12.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -48,9 +49,6 @@
     "typescript": "3.5.3"
   },
   "devDependencies": {
-    "eslint": "^9.7.0",
-    "eslint-config-prettier": "6.0.0",
-    "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-prettier": "3.1.0",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.8",

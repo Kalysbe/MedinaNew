@@ -106,13 +106,11 @@ class Step1 extends React.Component {
       <GridContainer justify="center">
         <GridItem xs={12} sm={12}>
           <h4 className={classes.infoText}>
-            Let{"'"}s start with the basic information (with validation)
+           Выберите участников
           </h4>
         </GridItem>
-        <GridItem xs={12} sm={4}>
-          <PictureUpload />
-        </GridItem>
-        <GridItem xs={12} sm={6}>
+  
+        <GridItem xs={12} sm={12} lg={10}>
           <CustomInput
             success={this.state.firstnameState === "success"}
             error={this.state.firstnameState === "error"}

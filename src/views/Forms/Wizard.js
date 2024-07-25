@@ -16,9 +16,9 @@ export default function WizardView() {
         <Wizard
           validate
           steps={[
-            { stepName: "About", stepComponent: Step1, stepId: "about" },
-            { stepName: "Account", stepComponent: Step2, stepId: "account" },
-            { stepName: "Address", stepComponent: Step3, stepId: "address" }
+            { stepName: "Участники", stepComponent: Step1, stepId: "about" },
+            { stepName: "Детали операции", stepComponent: Step2, stepId: "account" },
+            { stepName: "Подтверждение", stepComponent: Step3, stepId: "address" }
           ]}
           title="Build Your Profile"
           subtitle="This information will let us know more about you."
