@@ -1,6 +1,6 @@
 window.formatNumber = function (number) {
   console.log(number)
-  if (number === null || number < 0) {
+  if (number === null || number < 0 || isNaN(number)) {
     return "0";
   }
   return Number(number).toLocaleString();

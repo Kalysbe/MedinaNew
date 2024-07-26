@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, NavLink, useHistory  } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Card, Container, Typography, Button, TextField } from '@material-ui/core';
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Datetime from "react-datetime";
+import CustomInput from "components/CustomInput/CustomInput.js";
 import Swal from 'sweetalert2';
 
 import { selectIsAuth } from 'redux/slices/auth';
 import { fetchEmitentById, fetchAddEmitent, fetchUpdateEmitent } from 'redux/actions/emitents';
+
+import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
+
+const useStyles = makeStyles(styles);
 
 const formConfig = [
   { key: "full_name", label: "Наименование эмитента", type: "text" },
@@ -70,6 +79,14 @@ const EditEmitent = () => {
     }));
   };
 
+  const handleChangeDate = (name, value) => {
+    const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
+    setFormData((prevData) => ({
+        ...prevData,
+        [name]: newValue,
+    }));
+};
+
   const handleSubmit = async () => {
     setLoading(true);
     let newId = id
@@ -105,8 +122,10 @@ const EditEmitent = () => {
     }
   };
 
+  const classes = useStyles();
+
   return (
-    <Container>
+
       <Card style={{ padding: 30 }}>
         <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
           {isEditing ? 'Редактирование' : 'Добавление'} эмитента
@@ -114,23 +133,45 @@ const EditEmitent = () => {
         <form>
           <Grid container spacing={2}>
             {formConfig.map(({ key, label, type }) => (
-              <Grid item xs={12} md={4} key={key}>
-                <TextField
-                  fullWidth
-                  label={label}
-                  type={type}
-                  name={key}
-                  value={formData[key]}
-                  onChange={handleChange}
-                />
+              (type == 'text' ? (
+                <Grid item xs={12} md={4} key={key}>
+                <CustomInput
+                            labelText={label}
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChange(event)
+                                },
+                                name: key,
+                                type: type,
+                                value: formData[key]
+                            }}
+                        />
               </Grid>
+              ) : (
+                <Grid item xs={12} md={4} key={key}>
+                <InputLabel className={classes.label}>Дата операции</InputLabel>
+                            <br />
+                            <FormControl fullWidth>
+                                <Datetime
+                                    value={formData[key]}
+                                    onChange={(date) => handleChangeDate(key, date)}
+                                    timeFormat={false}
+                                    inputProps={{ placeholder: "Дата операции" }}
+                                />
+                            </FormControl>
+                            </Grid>
+              ) )
+              
             ))}
           </Grid>
           <div style={{ marginTop: 20, textAlign: 'right' }}>
             <Button
               color="secondary"
               component={NavLink}
-              to={isEditing ? `/emitent/personalData/${id}` : '/emitents'}
+              to={`/admin/emitent-list/`}
               style={{ marginRight: 12 }}
             >
               Назад
@@ -146,7 +187,7 @@ const EditEmitent = () => {
           </div>
         </form>
       </Card>
-    </Container>
+
   );
 };
 

@@ -34,7 +34,7 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
 import { fetchHolders } from "redux/actions/holders";
-import { fetchEmissionsByHolderId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
+import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 
 import { transferTypes } from "constants/operations.js"
@@ -59,17 +59,17 @@ export default function RegularForms() {
     const { operationTypes } = useSelector(state => state.transactions)
     const { emissions } = useSelector(state => state.emissions)
 
-    const uniqueHolders = holders?.items.reduce((acc, current) => {
-        const x = acc.find(item => item.holder_id === current.holder_id);
-        if (!x) {
-            return acc.concat([current]);
-        } else {
-            return acc;
-        }
-    }, []);
+    // const uniqueHolders = holders?.items.reduce((acc, current) => {
+    //     const x = acc.find(item => item.holder_id === current.holder_id);
+    //     if (!x) {
+    //         return acc.concat([current]);
+    //     } else {
+    //         return acc;
+    //     }
+    // }, []);
 
     const optionsMap = {
-        holders: uniqueHolders,
+        holders: holders?.items,
         stocks: emissions?.items,
         typeOperations: transferTypes,
     };
@@ -96,7 +96,7 @@ export default function RegularForms() {
         if (formData.operation_id === 1) {
             dispatch(fetchEmissionsByEmitentId(Emitent?.id))
         } else if (formData.holder_from_id) {
-            dispatch(fetchEmissionsByHolderId(formData.holder_from_id))
+            dispatch(fetchSecuritiesByEmitentId(formData.holder_from_id))
         }
     }, [formData.operation_id, formData.holder_from_id])
 
@@ -105,7 +105,9 @@ export default function RegularForms() {
         if (newEmissionValue && newEmissionValue.reg_number) {
             setFormData(prevData => ({
                 ...prevData,
-                emission: newEmissionValue.reg_number
+                emission: newEmissionValue.reg_number,
+                quantity: newEmissionValue?.quantity,
+                amount: newEmissionValue?.quantity * newEmissionValue?.nominal
             }));
         }
     }, [formData.emission_id]);
@@ -238,13 +240,13 @@ export default function RegularForms() {
                                     onChange={handleChange}
                                 >
                                     {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.holder_id}
+                                        <MenuItem key={opt.id}
                                             classes={{
                                                 root: classes.selectMenuItem,
                                                 selected: classes.selectMenuItemSelected
                                             }}
-                                            value={opt.holder_id}>
-                                            {opt.holder_name}
+                                            value={opt.id}>
+                                            {opt.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -271,13 +273,13 @@ export default function RegularForms() {
                                     onChange={handleChange}
                                 >
                                     {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.holder_id}
+                                        <MenuItem key={opt.id}
                                             classes={{
                                                 root: classes.selectMenuItem,
                                                 selected: classes.selectMenuItemSelected
                                             }}
-                                            value={opt.holder_id}>
-                                            {opt.holder_name}
+                                            value={opt.id}>
+                                            {opt.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -310,7 +312,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.count} шт.
+                                            {opt.reg_number} - {opt.quantity} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>

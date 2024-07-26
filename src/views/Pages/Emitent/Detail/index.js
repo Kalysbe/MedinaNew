@@ -55,7 +55,7 @@ const formData = [
     { key: 'contract_date', name: 'Номер договора с регистратором' },
     { key: 'contract_date', name: 'Дата заключения договора' },
     { key: 'capital', name: 'Размер уставного капитала' },
-    { key: 'director_registrar', name: 'Ф.И.О директора "Медина"' },
+    // { key: 'director_registrar', name: 'Ф.И.О директора "Медина"' },
     { key: 'accountant', name: 'Ф.И.О гл. бухгалтера АО' },
     { key: 'director_company', name: 'Ф.И.О руководителя АО' }
 ]

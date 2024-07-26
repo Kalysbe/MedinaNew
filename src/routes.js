@@ -49,6 +49,8 @@ import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
 import Transactions from "views/Pages/Log/Transactions/index"
 import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
 import Holders from "views/Pages/Holders.js"
+import EmitentHolders from "views/Pages/EmitentHolders.js"
+import EditHolder from "views/Pages/EditHolder.js"
 import OperationTransfer from "views/Pages/Operation/transfer/index.js"
 import OperationSingle from "views/Pages/Operation/single/index.js"
 var dashRoutes = [
@@ -72,8 +74,14 @@ var dashRoutes = [
   },
   {
     path: "/emitent/add",
-    name: "Детали транзакции",
+    name: "Новый эмитент",
     component: EditEmitent,
+    layout: "/admin"
+    },
+  {
+    path: "/holder/add",
+    name: "Новый акционер",
+    component: EditHolder,
     layout: "/admin"
     },
   {
@@ -305,7 +313,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: RegularForms,
         layout: "/admin",
-        dashboard:true
+        dashboard:false
       },
       {
         path: "/extended-forms",
@@ -315,7 +323,7 @@ var dashRoutes = [
         rtlMini: "هوو",
         component: ExtendedForms,
         layout: "/admin",
-        dashboard:true
+        dashboard:false
       },
       {
         path: "/validation-forms",
@@ -325,7 +333,7 @@ var dashRoutes = [
         rtlMini: "تو",
         component: ValidationForms,
         layout: "/admin",
-        dashboard:true
+        dashboard:false
       },
       {
         path: "/operation-single",
@@ -339,78 +347,78 @@ var dashRoutes = [
       }
     ]
   },
-  {
-    collapse: true,
-    name: "Tables",
-    rtlName: "الجداول",
-    icon: GridOn,
-    state: "tablesCollapse",
-    views: [
-      {
-        path: "/regular-tables",
-        name: "Regular Tables",
-        rtlName: "طاولات عادية",
-        mini: "RT",
-        rtlMini: "صر",
-        component: RegularTables,
-        layout: "/admin"
-      },
-      {
-        path: "/extended-tables",
-        name: "Extended Tables",
-        rtlName: "جداول ممتدة",
-        mini: "ET",
-        rtlMini: "هور",
-        component: ExtendedTables,
-        layout: "/admin"
-      },
-      {
-        path: "/react-tables",
-        name: "React Tables",
-        rtlName: "رد فعل الطاولة",
-        mini: "RT",
-        rtlMini: "در",
-        component: ReactTables,
-        layout: "/admin"
-      }
-    ]
-  },
-  {
-    collapse: true,
-    name: "Maps",
-    rtlName: "خرائط",
-    icon: Place,
-    state: "mapsCollapse",
-    views: [
-      {
-        path: "/google-maps",
-        name: "Google Maps",
-        rtlName: "خرائط جوجل",
-        mini: "GM",
-        rtlMini: "زم",
-        component: GoogleMaps,
-        layout: "/admin"
-      },
-      {
-        path: "/full-screen-maps",
-        name: "Full Screen Map",
-        rtlName: "خريطة كاملة الشاشة",
-        mini: "FSM",
-        rtlMini: "ووم",
-        component: FullScreenMap,
-        layout: "/admin"
-      },
-      {
-        path: "/vector-maps",
-        name: "Vector Map",
-        rtlName: "خريطة المتجه",
-        mini: "VM",
-        rtlMini: "تم",
-        component: VectorMap,
-        layout: "/admin"
-      }
-    ]
-  },
+  // {
+  //   collapse: true,
+  //   name: "Tables",
+  //   rtlName: "الجداول",
+  //   icon: GridOn,
+  //   state: "tablesCollapse",
+  //   views: [
+  //     {
+  //       path: "/regular-tables",
+  //       name: "Regular Tables",
+  //       rtlName: "طاولات عادية",
+  //       mini: "RT",
+  //       rtlMini: "صر",
+  //       component: RegularTables,
+  //       layout: "/admin"
+  //     },
+  //     {
+  //       path: "/extended-tables",
+  //       name: "Extended Tables",
+  //       rtlName: "جداول ممتدة",
+  //       mini: "ET",
+  //       rtlMini: "هور",
+  //       component: ExtendedTables,
+  //       layout: "/admin"
+  //     },
+  //     {
+  //       path: "/react-tables",
+  //       name: "React Tables",
+  //       rtlName: "رد فعل الطاولة",
+  //       mini: "RT",
+  //       rtlMini: "در",
+  //       component: ReactTables,
+  //       layout: "/admin"
+  //     }
+  //   ]
+  // },
+  // {
+  //   collapse: true,
+  //   name: "Maps",
+  //   rtlName: "خرائط",
+  //   icon: Place,
+  //   state: "mapsCollapse",
+  //   views: [
+  //     {
+  //       path: "/google-maps",
+  //       name: "Google Maps",
+  //       rtlName: "خرائط جوجل",
+  //       mini: "GM",
+  //       rtlMini: "زم",
+  //       component: GoogleMaps,
+  //       layout: "/admin"
+  //     },
+  //     {
+  //       path: "/full-screen-maps",
+  //       name: "Full Screen Map",
+  //       rtlName: "خريطة كاملة الشاشة",
+  //       mini: "FSM",
+  //       rtlMini: "ووم",
+  //       component: FullScreenMap,
+  //       layout: "/admin"
+  //     },
+  //     {
+  //       path: "/vector-maps",
+  //       name: "Vector Map",
+  //       rtlName: "خريطة المتجه",
+  //       mini: "VM",
+  //       rtlMini: "تم",
+  //       component: VectorMap,
+  //       layout: "/admin"
+  //     }
+  //   ]
+  // },
   {
     path: "/widgets",
     name: "Widgets",
@@ -442,6 +450,15 @@ var dashRoutes = [
     rtlName: "الحاجيات",
     icon: WidgetsIcon,
     component: Widgets,
+    layout: "/admin",
+    dashboard:false
+  },
+  {
+    path: "/all-holders",
+    name: "Все акционеры",
+    rtlName: "الحاجيات",
+    icon: WidgetsIcon,
+    component: EmitentHolders,
     layout: "/admin",
     dashboard:true
   },

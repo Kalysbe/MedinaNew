@@ -32,7 +32,7 @@ import TableRow from "@material-ui/core/TableRow";
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchHoldersByEmitentId } from "redux/actions/holders";
+import { fetchHolders } from "redux/actions/holders";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
@@ -50,7 +50,7 @@ export default function RegularTables() {
     const Holders = useSelector(state => state.holders?.holders);
 
     useEffect(() => {
-        dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: 1 }));
+        dispatch(fetchHolders(Emitent?.id ));
     }, []);
 
     useEffect(() => {
@@ -84,7 +84,7 @@ export default function RegularTables() {
               <CardIcon color="info">
               <Icon>info_outline</Icon>
               </CardIcon>
-              <p className={classes.cardCategory}>Количество держателей</p>
+              <p className={classes.cardCategory}>Количество акционеров</p>
               <h3 className={classes.cardTitle}>
                 {totalHolders}
               </h3>
@@ -94,7 +94,7 @@ export default function RegularTables() {
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={4}>
+        {/* <GridItem xs={12} sm={6} md={6} lg={4}>
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -121,7 +121,7 @@ export default function RegularTables() {
               
             </CardFooter>
           </Card>
-        </GridItem>
+        </GridItem> */}
       </GridContainer>
         <GridContainer>
             <GridItem xs={12}>
@@ -131,9 +131,18 @@ export default function RegularTables() {
                         <CardIcon color="rose">
                             <Assignment />
                         </CardIcon>
-                        <h4 className={classes.cardIconTitle}>Реестр по фамилиям</h4>
+                        <h4 className={classes.cardIconTitle}>Все акционеры</h4>
                         </div>
-                       
+                        <NavLink to={'/admin/holder/add'}>
+                        <Button
+                            variant="outlined"
+                            color={'info'}
+
+                            // onClick={onAdd}
+                        >
+                            Добавить
+                        </Button>
+                        </NavLink>
                     </CardHeader>
                     <CardBody>
                         {Holders.items && (
@@ -142,9 +151,6 @@ export default function RegularTables() {
                                     <TableRow>
                                         <TableCell>Счет</TableCell>
                                         <TableCell>Наименование</TableCell>
-                                        <TableCell>Простых</TableCell>
-                                        <TableCell>Номинал простых</TableCell>
-                                        <TableCell>% от кол-во</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -156,15 +162,7 @@ export default function RegularTables() {
                                             <TableCell>
                                                 <b>{item.name}</b>
                                             </TableCell>
-                                            <TableCell>
-                                                {window.formatNumber(item.ordinary)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {window.formatNumber(item.ordinary_nominal)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.percentage} %
-                                            </TableCell>
+                                            
                                         </TableRow>
                                     ))}
                                 </TableBody>

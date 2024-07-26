@@ -424,7 +424,7 @@ class Sidebar extends React.Component {
                       {rtlActive ? "مع" : "ВЭ"}
                     </span>
                     <ListItemText
-                      primary={rtlActive ? "ملفي" : "Выбрать эмитента"}
+                      primary={rtlActive ? "ملفي" : "Список эмитентов"}
                       disableTypography={true}
                       className={collapseItemText}
                     />

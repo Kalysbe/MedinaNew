@@ -34,7 +34,7 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
 import { fetchHolders } from "redux/actions/holders";
-import { fetchEmissionsByHolderId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
+import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 
 import { singleTypes } from "constants/operations.js"
@@ -87,7 +87,7 @@ export default function RegularForms() {
         if (formData.operation_id === 1) {
             dispatch(fetchEmissionsByEmitentId(Emitent?.id))
         } else if (formData.holder_from_id) {
-            dispatch(fetchEmissionsByHolderId(formData.holder_from_id))
+            dispatch(fetchSecuritiesByEmitentId(formData.holder_from_id))
         }
     }, [formData.operation_id, formData.holder_from_id])
 
@@ -96,9 +96,12 @@ export default function RegularForms() {
         if (newEmissionValue && newEmissionValue.reg_number) {
             setFormData(prevData => ({
                 ...prevData,
-                emission: newEmissionValue.reg_number
+                emission: newEmissionValue.reg_number,
+                quantity: newEmissionValue?.count,
+                amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
         }
+        
     }, [formData.emission_id]);
 
     const handleChange = (e) => {
@@ -234,8 +237,8 @@ export default function RegularForms() {
                                                 root: classes.selectMenuItem,
                                                 selected: classes.selectMenuItemSelected
                                             }}
-                                            value={opt.holder_id}>
-                                            {opt.holder_name}
+                                            value={opt.id}>
+                                            {opt.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
