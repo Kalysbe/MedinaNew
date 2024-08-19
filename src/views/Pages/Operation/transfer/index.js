@@ -20,6 +20,7 @@ import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
 
 
 import InputLabel from "@material-ui/core/InputLabel";
+import SelectSearch from 'react-select'
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 // core components
@@ -121,6 +122,14 @@ export default function RegularForms() {
         }));
     };
 
+    const handleSelectChange = (selectedOption) => {
+        console.log(selectedOption)
+        // setFormData((prevData) => ({
+        //     ...prevData,
+        //     transferType: selectedOption ? selectedOption.id : null  // Устанавливаем ID выбранного варианта
+        // }));
+    };
+
     const handleChangeDate = (name, value) => {
         const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
         setFormData((prevData) => ({
@@ -189,100 +198,47 @@ export default function RegularForms() {
                                 fullWidth
                                 className={classes.selectFormControl}
                             >
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}
+                                <label
+                                    
                                 >
                                     Операция
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='operation_id'
-                                    value={formData['operation_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.typeOperations).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                </label>
+                                <SelectSearch 
+                                    placeholder="Выберите"
+                                options={optionsMap.typeOperations}
+                                 getOptionLabel={(option) => option.name}
+                                 getOptionValue={(option) => option.id} />
+                           
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
                             <FormControl
                                 fullWidth
                                 className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Кто отдает
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='holder_from_id'
-                                    value={formData['holder_from_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                              
+                                <label>Кто отдает</label>
+                                <SelectSearch 
+                                    placeholder="Выберите"
+                                    options={optionsMap.holders}
+                                 getOptionLabel={(option) => option.name}
+                                 getOptionValue={(option) => option.id} 
+                                 onChange={handleSelectChange}
+                                 />
+                               
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
                             <FormControl
                                 fullWidth
                                 className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
+                                <label>
                                     Кто принимает
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='holder_to_id'
-                                    value={formData['holder_to_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                </label>
+                                <SelectSearch 
+                                    placeholder="Выберите"
+                                options={optionsMap.holders}
+                                 getOptionLabel={(option) => option.name}
+                                 getOptionValue={(option) => option.id} />
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>

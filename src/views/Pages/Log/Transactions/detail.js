@@ -206,7 +206,8 @@ export default function RegularTables() {
                 Сумма сделки: {data.amount}
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                Дата сделки: {data.contract_date}
+                Дата сделки: 
+                {window.formatDate(data.contract_date)}
               </Typography>
               <Typography variant="body2" color="textSecondary">
                 Основание перехода права собственности: Договор дарения
