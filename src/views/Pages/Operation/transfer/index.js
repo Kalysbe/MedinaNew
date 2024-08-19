@@ -113,14 +113,16 @@ export default function RegularForms() {
         }
     }, [formData.emission_id]);
 
-    const handleChange = (e) => {
-        const { name, value, type } = e.target;
+    const handleChange = (e, isSelect = false) => {
+        const { name, value, type } = isSelect ? { name: e.name, value: e.value, type: 'select' } : e.target;
         const newValue = type === 'number' ? Number(value) : value;
+        console.log(newValue)
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
         }));
     };
+    
 
     const handleSelectChange = (selectedOption) => {
         console.log(selectedOption)
@@ -218,11 +220,12 @@ export default function RegularForms() {
                               
                                 <label>Кто отдает</label>
                                 <SelectSearch 
+                                 name="holder_from_id"
                                     placeholder="Выберите"
                                     options={optionsMap.holders}
                                  getOptionLabel={(option) => option.name}
                                  getOptionValue={(option) => option.id} 
-                                 onChange={handleSelectChange}
+                                 onChange={(selectedOption) => handleChange({ name: 'holder_from_id', value: selectedOption ? selectedOption.id : '' }, true)}
                                  />
                                
                             </FormControl>
