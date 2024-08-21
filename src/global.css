@@ -1,0 +1,17 @@
+/* Стили, которые будут применяться только при печати */
+@media print {
+    .print-only {
+      display: block;
+    }
+  }
+  
+  /* Стили для экрана */
+  .printable-content {
+    padding: 20px;
+    background-color: #f8f8f8;
+  }
+  
+  .print-only {
+    display: none; /* Этот текст скрыт на экране */
+  }
+  

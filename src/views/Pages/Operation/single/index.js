@@ -20,6 +20,7 @@ import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
 
 
 import InputLabel from "@material-ui/core/InputLabel";
+import SelectSearch from 'react-select'
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 // core components
@@ -59,6 +60,9 @@ export default function RegularForms() {
     const { operationTypes } = useSelector(state => state.transactions)
     const { emissions } = useSelector(state => state.emissions)
 
+    const [maxCount, setMaxCount] = useState(null);
+    const [price, setPrice] = useState(null);
+
     const optionsMap = {
         holders: holders?.items,
         stocks: emissions?.items,
@@ -73,7 +77,7 @@ export default function RegularForms() {
         emission: "",
         quantity: 0,
         amount: 0,
-        is_family: 1,
+        is_family: true,
         id_number: "",
         contract_date: "2024-06-12"
     });
@@ -100,13 +104,25 @@ export default function RegularForms() {
                 quantity: newEmissionValue?.count,
                 amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
+            setMaxCount(newEmissionValue?.count)
+            setPrice(newEmissionValue?.nominal)
         }
         
     }, [formData.emission_id]);
+    useEffect(() => {
 
-    const handleChange = (e) => {
-        const { name, value, type } = e.target;
+            setFormData(prevData => ({
+                ...prevData,
+    
+                amount:formData.quantity *price
+            }));
+        
+    }, [formData.quantity]);
+
+    const handleChange = (e, isSelect = false) => {
+        const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
         const newValue = type === 'number' ? Number(value) : value;
+        console.log(newValue)
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
@@ -215,33 +231,21 @@ export default function RegularForms() {
                             <FormControl
                                 fullWidth
                                 className={classes.selectFormControl}>
-                                <InputLabel
+                                <label
                                     htmlFor="simple-select"
                                     className={classes.selectLabel}>
                                     Кто принимает
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='holder_to_id'
-                                    value={formData['holder_to_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.holders).map(opt => (
-                                        <MenuItem key={opt.holder_id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                </label>
+                                
+                                <SelectSearch
+                                 name="holder_to_id"
+                                    placeholder="Выберите"
+                                    options={optionsMap.holders}
+                                    getOptionLabel={(option) => option.name}
+                                    getOptionValue={(option) => option.id} 
+                                    onChange={(selectedOption) => handleChange({ name: 'holder_to_id', value: selectedOption ? selectedOption.id : '' }, true)}
+                                    />
+
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
@@ -333,7 +337,7 @@ export default function RegularForms() {
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
                             <CustomInput
-                                labelText='Количество'
+                                labelText={`Количество  ${maxCount}`}
                                 formControlProps={{
                                     fullWidth: true,
                                 }}
@@ -389,7 +393,7 @@ export default function RegularForms() {
                                             root: classes.selectMenuItem,
                                             selected: classes.selectMenuItemSelected
                                         }}
-                                        value={1}>
+                                        value={true}>
                                         Да
                                     </MenuItem>
                                     < MenuItem
@@ -397,7 +401,7 @@ export default function RegularForms() {
                                             root: classes.selectMenuItem,
                                             selected: classes.selectMenuItemSelected
                                         }}
-                                        value={2}>
+                                        value={false}>
                                         Нет
                                     </MenuItem>
 

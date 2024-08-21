@@ -122,7 +122,7 @@ export default function RegularForms() {
             [name]: newValue,
         }));
     };
-    
+
 
     const handleSelectChange = (selectedOption) => {
         console.log(selectedOption)
@@ -201,33 +201,36 @@ export default function RegularForms() {
                                 className={classes.selectFormControl}
                             >
                                 <label
-                                    
+
                                 >
                                     Операция
                                 </label>
-                                <SelectSearch 
+                                <SelectSearch
+                                 name="operation_id"
                                     placeholder="Выберите"
-                                options={optionsMap.typeOperations}
-                                 getOptionLabel={(option) => option.name}
-                                 getOptionValue={(option) => option.id} />
-                           
+                                    options={optionsMap.typeOperations}
+                                    getOptionLabel={(option) => option.name}
+                                    getOptionValue={(option) => option.id} 
+                                    onChange={(selectedOption) => handleChange({ name: 'operation_id', value: selectedOption ? selectedOption.id : '' }, true)}
+                                    />
+
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
                             <FormControl
                                 fullWidth
                                 className={classes.selectFormControl}>
-                              
+
                                 <label>Кто отдает</label>
-                                <SelectSearch 
-                                 name="holder_from_id"
+                                <SelectSearch
+                                    name="holder_from_id"
                                     placeholder="Выберите"
                                     options={optionsMap.holders}
-                                 getOptionLabel={(option) => option.name}
-                                 getOptionValue={(option) => option.id} 
-                                 onChange={(selectedOption) => handleChange({ name: 'holder_from_id', value: selectedOption ? selectedOption.id : '' }, true)}
-                                 />
-                               
+                                    getOptionLabel={(option) => option.name}
+                                    getOptionValue={(option) => option.id}
+                                    onChange={(selectedOption) => handleChange({ name: 'holder_from_id', value: selectedOption ? selectedOption.id : '' }, true)}
+                                />
+
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>
@@ -237,11 +240,14 @@ export default function RegularForms() {
                                 <label>
                                     Кто принимает
                                 </label>
-                                <SelectSearch 
+                                <SelectSearch
+                                    name="holder_to_id"
                                     placeholder="Выберите"
-                                options={optionsMap.holders}
-                                 getOptionLabel={(option) => option.name}
-                                 getOptionValue={(option) => option.id} />
+                                    options={optionsMap.holders}
+                                    getOptionLabel={(option) => option.name}
+                                    getOptionValue={(option) => option.id}
+                                    onChange={(selectedOption) => handleChange({ name: 'holder_to_id', value: selectedOption ? selectedOption.id : '' }, true)}
+                                    />
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>

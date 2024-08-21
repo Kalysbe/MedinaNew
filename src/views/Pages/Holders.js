@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -12,7 +12,13 @@ import DateRange from "@material-ui/icons/DateRange";
 import LocalOffer from "@material-ui/icons/LocalOffer";
 import Store from "@material-ui/icons/Store";
 import Update from "@material-ui/icons/Update";
+import Select from "@material-ui/core/Select";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
 // core components
+
+import ReactToPrint from 'react-to-print';
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 // import Table from "components/Table/Table.js";
@@ -37,145 +43,258 @@ import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle
 
 const useStyles = makeStyles(styles);
 
+const headers = [
+  {id:1,headers:[],rows: []}
+]
+
 export default function RegularTables() {
-    const classes = useStyles();
-    const dispatch = useDispatch();
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const componentRef = useRef();
+
+  const [totalHolders, setTotalHolders] = useState(0)
+  const [totalOrdinary, setTotalOrdinary] = useState(0)
+  const [totalPrivileged, setTotalPrivileged] = useState(0)
+
+  const [reportType, setReportType] = useState(1)
+
+  const Emitent = useSelector(state => state.emitents?.store);
+  const Holders = useSelector(state => state.holders?.holders);
+
+  useEffect(() => {
+    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: 1 }));
+  }, []);
+
+  useEffect(() => {
+    // Подсчитываем количество элементов в массиве
+    const holdersCount = Holders?.items.length;
+    // Функция для вычисления сумм значений по каждому ключу
+    const calculateSums = (data) => {
+      return data.reduce(
+        (acc, item) => {
+          acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
+          //   acc.privileged = (acc.privileged || 0) + (item.privileged || 0);
+          return acc;
+        },
+        { ordinary: 0, privileged: 0 }
+      );
+    };
+
+    // Вычисляем суммы и обновляем состояния
+    const newSums = calculateSums(Holders?.items);
+    setTotalHolders(holdersCount);
+    setTotalOrdinary(newSums.ordinary);
+    // setTotalPrivileged(newSums.privileged);
+  }, [Holders]);
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setReportType(value);
+  }
 
 
-    const [totalHolders, setTotalHolders] = useState(0)
-    const [totalOrdinary, setTotalOrdinary] = useState(0)
-    const [totalPrivileged, setTotalPrivileged] = useState(0)
-
-    const Emitent = useSelector(state => state.emitents?.store);
-    const Holders = useSelector(state => state.holders?.holders);
-
-    useEffect(() => {
-        dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: 1 }));
-    }, []);
-
-    useEffect(() => {
-        // Подсчитываем количество элементов в массиве
-        const holdersCount = Holders?.items.length;
-    
-        // Функция для вычисления сумм значений по каждому ключу
-        const calculateSums = (data) => {
-          return data.reduce(
-            (acc, item) => {
-                acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
-            //   acc.privileged = (acc.privileged || 0) + (item.privileged || 0);
-              return acc;
-            },
-            { ordinary: 0, privileged: 0 }
-          );
-        };
-    
-        // Вычисляем суммы и обновляем состояния
-        const newSums = calculateSums(Holders?.items);
-        setTotalHolders(holdersCount);
-        setTotalOrdinary(newSums.ordinary);
-        // setTotalPrivileged(newSums.privileged);
-      }, [Holders]);
-
-    return (<>
-      <GridContainer>
-        <GridItem xs={12} sm={6} md={6} lg={4}>
-          <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
+  return (<>
+    <GridContainer>
+      <GridItem xs={12} sm={6} md={6} lg={4}>
+        <Card>
+          <CardHeader color="info" stats icon>
+            <CardIcon color="info">
               <Icon>info_outline</Icon>
-              </CardIcon>
-              <p className={classes.cardCategory}>Количество держателей</p>
-              <h3 className={classes.cardTitle}>
-                {totalHolders}
-              </h3>
-            </CardHeader>
-            <CardFooter stats>
-           
-            </CardFooter>
-          </Card>
-        </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={4}>
-          <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
+            </CardIcon>
+            <p className={classes.cardCategory}>Количество держателей</p>
+            <h3 className={classes.cardTitle}>
+              {totalHolders}
+            </h3>
+          </CardHeader>
+          <CardFooter stats>
+
+          </CardFooter>
+        </Card>
+      </GridItem>
+      <GridItem xs={12} sm={6} md={6} lg={4}>
+        <Card>
+          <CardHeader color="info" stats icon>
+            <CardIcon color="info">
               <Icon>info_outline</Icon>
+            </CardIcon>
+            <p className={classes.cardCategory}>Общее кол-во простых</p>
+            <h3 className={classes.cardTitle}>{window.formatNumber(totalOrdinary)}</h3>
+          </CardHeader>
+          <CardFooter stats>
+
+          </CardFooter>
+        </Card>
+      </GridItem>
+      <GridItem xs={12} sm={6} md={6} lg={4}>
+        <Card>
+          <CardHeader color="info" stats icon>
+            <CardIcon color="info">
+              <Icon>info_outline</Icon>
+            </CardIcon>
+            <p className={classes.cardCategory}>Общее кол-во привилег</p>
+            <h3 className={classes.cardTitle}>{window.formatNumber(totalPrivileged)}</h3>
+          </CardHeader>
+          <CardFooter stats>
+
+          </CardFooter>
+        </Card>
+      </GridItem>
+    </GridContainer>
+    <GridContainer>
+      <GridItem xs={12}>
+        <Card>
+          <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ width: '300px' }}>
+              <CardIcon color="rose">
+                <Assignment />
               </CardIcon>
-              <p className={classes.cardCategory}>Общее кол-во простых</p>
-              <h3 className={classes.cardTitle}>{window.formatNumber(totalOrdinary)}</h3>
-            </CardHeader>
-            <CardFooter stats>
-              
-            </CardFooter>
-          </Card>
-        </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={4}>
-          <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
-                <Icon>info_outline</Icon>
-              </CardIcon>
-              <p className={classes.cardCategory}>Общее кол-во привилег</p>
-              <h3 className={classes.cardTitle}>{window.formatNumber(totalPrivileged)}</h3>
-            </CardHeader>
-            <CardFooter stats>
-              
-            </CardFooter>
-          </Card>
-        </GridItem>
-      </GridContainer>
-        <GridContainer>
-            <GridItem xs={12}>
-                <Card>
-                    <CardHeader color="rose" icon style={{display:'flex',justifyContent:'space-between'}}>
-                      <div style={{width:'300px'}}>
-                        <CardIcon color="rose">
-                            <Assignment />
-                        </CardIcon>
-                        <h4 className={classes.cardIconTitle}>Реестр по фамилиям</h4>
-                        </div>
-                       
-                    </CardHeader>
-                    <CardBody>
-                        {Holders.items && (
-                            <Table>
-                                <TableHead style={{ display: 'table-header-group' }}>
-                                    <TableRow>
-                                        <TableCell>Счет</TableCell>
-                                        <TableCell>Наименование</TableCell>
-                                        <TableCell>Простых</TableCell>
-                                        <TableCell>Номинал простых</TableCell>
-                                        <TableCell>% от кол-во</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {Holders.items.map((item, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                {item.id}
-                                            </TableCell>
-                                            <TableCell>
-                                                <b>{item.name}</b>
-                                            </TableCell>
-                                            <TableCell>
-                                                {window.formatNumber(item.ordinary)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {window.formatNumber(item.ordinary_nominal)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.percentage} %
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        )}
-                    </CardBody>
-                </Card>
-            </GridItem>
+              <h4 className={classes.cardIconTitle}>Реестр по фамилиям {reportType}</h4>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%' }}>
+              <FormControl
+                // fullWidth
+                style={{ width: '150px' }}
+              >
+                <InputLabel
+                  htmlFor="simple-select"
+                >
+                  Тип реестр
+                </InputLabel>
+                <Select
+                  MenuProps={{
+                    className: classes.selectMenu
+                  }}
+                  classes={{
+                    select: classes.select
+                  }}
+                  name='operation_id'
+                  value={reportType}
+                  onChange={handleChange}
+                >
+                  <MenuItem
+                    classes={{
+                      root: classes.selectMenuItem,
+                      selected: classes.selectMenuItemSelected
+                    }}
+                    value={1}>
+                    Реестр акционеров
+                  </MenuItem>
+
+                  <MenuItem
+                    classes={{
+                      root: classes.selectMenuItem,
+                      selected: classes.selectMenuItemSelected
+                    }}
+                    value={2}>
+                    Реестр владельцев именных ЦБ
+                  </MenuItem>
+
+                  <MenuItem
+                    classes={{
+                      root: classes.selectMenuItem,
+                      selected: classes.selectMenuItemSelected
+                    }}
+                    value={3}>
+                    Реестр владельцев именных по номерам ЦБ
+                  </MenuItem>
+
+                </Select>
+              </FormControl>
+              {reportType === 3 && (
+                     <FormControl
+                     // fullWidth
+                     style={{ width: '150px', marginLeft: '10px' }}
+                   >
+                     <InputLabel
+                       htmlFor="simple-select"
+                     >
+                       Эмиссия
+                     </InputLabel>
+                     <Select
+                       MenuProps={{
+                         className: classes.selectMenu
+                       }}
+                       classes={{
+                         select: classes.select
+                       }}
+                       name='operation_id'
+                     // value={formData['operation_id']}
+                     // onChange={handleChange}
+                     >
+     
+                       <MenuItem
+                         classes={{
+                           root: classes.selectMenuItem,
+                           selected: classes.selectMenuItemSelected
+                         }}
+                         value={1}>
+                         По эмиссии
+                       </MenuItem>
+     
+                     </Select>
+                   </FormControl>
+              )}
+         
+              <div>
+                <ReactToPrint
+                  trigger={() =>
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      size="small"
+                    >Печать</Button>
+
+                  }
+                  content={() => componentRef.current}
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardBody >
+            {Holders.items && (
+              <Table ref={componentRef}>
+                <TableHead style={{ display: 'table-header-group' }}>
+                  <TableRow>
+                    <TableCell>№</TableCell>
+                    <TableCell>Счет</TableCell>
+                    <TableCell>Наименование</TableCell>
+                    <TableCell>Простых</TableCell>
+                    <TableCell>Номинал простых</TableCell>
+                    <TableCell>% от кол-во</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Holders.items.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {item.id}
+                      </TableCell>
+                      <TableCell>
+                        <b>{item.name}</b>
+                      </TableCell>
+                      <TableCell>
+                        {window.formatNumber(item.ordinary)}
+                      </TableCell>
+                      <TableCell>
+                        {window.formatNumber(item.ordinary_nominal)}
+                      </TableCell>
+                      <TableCell>
+                        {item.percentage} %
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardBody>
+        </Card>
+      </GridItem>
 
 
-        </GridContainer>
-        </>
-    );
+    </GridContainer>
+  </>
+  );
 }
