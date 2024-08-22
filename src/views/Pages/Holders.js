@@ -35,6 +35,10 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
+import Report1  from './Reestr/report1.js'
+import Report2  from './Reestr/report2.js'
+import Report3  from './Reestr/report3.js'
+
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,23 +61,23 @@ export default function RegularTables() {
   const [totalPrivileged, setTotalPrivileged] = useState(0)
 
   const [reportType, setReportType] = useState(1)
+  const [selectedLabel, setSelectedLabel] = useState('Реестр акционеров');
+
+  const [report, setReport] = useState({ type: 1, label: 'Реестр акционеров' });
 
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
 
   useEffect(() => {
-    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: 1 }));
-  }, []);
+    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report.type, emid: 1 }));
+  }, [report.type]);
 
   useEffect(() => {
-    // Подсчитываем количество элементов в массиве
     const holdersCount = Holders?.items.length;
-    // Функция для вычисления сумм значений по каждому ключу
     const calculateSums = (data) => {
       return data.reduce(
         (acc, item) => {
           acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
-          //   acc.privileged = (acc.privileged || 0) + (item.privileged || 0);
           return acc;
         },
         { ordinary: 0, privileged: 0 }
@@ -87,11 +91,24 @@ export default function RegularTables() {
     // setTotalPrivileged(newSums.privileged);
   }, [Holders]);
 
-  const handleChange = (e) => {
-    const { value } = e.target;
-    setReportType(value);
-  }
+  const handleChange = (event) => {
+    const selectedReport = event.target.value;
+    setReport(selectedReport); // Сохраняем выбранный объект с value и label
+  };
 
+
+  const ReportViewer = ({ reportType ,data}) => {
+    switch(reportType) {
+      case 1:
+        return <Report1 data={data} />;
+      case 2:
+        return <Report2 data={data}/>;
+      case 3:
+        return <Report3 data={data}/>;
+      default:
+        return <div>Invalid report type</div>;
+    }
+  };
 
   return (<>
     <GridContainer>
@@ -142,13 +159,26 @@ export default function RegularTables() {
     </GridContainer>
     <GridContainer>
       <GridItem xs={12}>
+      <div style={{display:'flex',justifyContent:'flex-end'}}>
+                <ReactToPrint
+                  trigger={() =>
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      size="small"
+                    >Печать</Button>
+
+                  }
+                  content={() => componentRef.current}
+                />
+              </div>
         <Card>
           <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '300px' }}>
               <CardIcon color="rose">
                 <Assignment />
               </CardIcon>
-              <h4 className={classes.cardIconTitle}>Реестр по фамилиям {reportType}</h4>
+              <h4 className={classes.cardIconTitle}>{report.label}</h4>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%' }}>
               <FormControl
@@ -168,7 +198,7 @@ export default function RegularTables() {
                     select: classes.select
                   }}
                   name='operation_id'
-                  value={reportType}
+                  value={report}
                   onChange={handleChange}
                 >
                   <MenuItem
@@ -176,7 +206,8 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                    value={1}>
+                   
+                    value={{ type: 1, label: 'Реестр акционеров' }}>
                     Реестр акционеров
                   </MenuItem>
 
@@ -185,7 +216,8 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                    value={2}>
+                   
+                    value={{ type: 2, label: 'Реестр владельцев именных ЦБ' }}>
                     Реестр владельцев именных ЦБ
                   </MenuItem>
 
@@ -194,13 +226,14 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                    value={3}>
+                   
+                    value={{ type: 3, label: 'Реестр владельцев именных по номерам ЦБ' }}>
                     Реестр владельцев именных по номерам ЦБ
                   </MenuItem>
 
                 </Select>
               </FormControl>
-              {reportType === 3 && (
+              {report.type === 3 && (
                      <FormControl
                      // fullWidth
                      style={{ width: '150px', marginLeft: '10px' }}
@@ -235,60 +268,13 @@ export default function RegularTables() {
                    </FormControl>
               )}
          
-              <div>
-                <ReactToPrint
-                  trigger={() =>
-                    <Button
-                      variant="contained"
-                      color="warning"
-                      size="small"
-                    >Печать</Button>
-
-                  }
-                  content={() => componentRef.current}
-                />
-              </div>
+            
             </div>
           </CardHeader>
           <CardBody >
-            {Holders.items && (
-              <Table ref={componentRef}>
-                <TableHead style={{ display: 'table-header-group' }}>
-                  <TableRow>
-                    <TableCell>№</TableCell>
-                    <TableCell>Счет</TableCell>
-                    <TableCell>Наименование</TableCell>
-                    <TableCell>Простых</TableCell>
-                    <TableCell>Номинал простых</TableCell>
-                    <TableCell>% от кол-во</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Holders.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        {index + 1}
-                      </TableCell>
-                      <TableCell>
-                        {item.id}
-                      </TableCell>
-                      <TableCell>
-                        <b>{item.name}</b>
-                      </TableCell>
-                      <TableCell>
-                        {window.formatNumber(item.ordinary)}
-                      </TableCell>
-                      <TableCell>
-                        {window.formatNumber(item.ordinary_nominal)}
-                      </TableCell>
-                      <TableCell>
-                        {item.percentage} %
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+            <div ref={componentRef}>
+            <ReportViewer reportType={report.type} data={Holders.items} />
+            </div>
           </CardBody>
         </Card>
       </GridItem>

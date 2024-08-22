@@ -1,5 +1,4 @@
 window.formatNumber = function (number) {
-  console.log(number)
   if (number === null || number < 0 || isNaN(number)) {
     return "0";
   }
