@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect , useState} from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
 // material-ui icons
 import Assignment from "@material-ui/icons/Assignment";
+
+import { Typography } from '@material-ui/core';
 
 // core components
 import GridContainer from "components/Grid/GridContainer.js";
@@ -25,7 +27,7 @@ import TableRow from "@material-ui/core/TableRow";
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEmitentById } from "redux/actions/emitents";
+import { fetchCardEmitent } from "redux/actions/prints";
 const styles = {
     customCardContentClass: {
         paddingLeft: "0",
@@ -55,7 +57,6 @@ const formData = [
     { key: 'contract_date', name: 'Номер договора с регистратором' },
     { key: 'contract_date', name: 'Дата заключения договора' },
     { key: 'capital', name: 'Размер уставного капитала' },
-    // { key: 'director_registrar', name: 'Ф.И.О директора "Медина"' },
     { key: 'accountant', name: 'Ф.И.О гл. бухгалтера АО' },
     { key: 'director_company', name: 'Ф.И.О руководителя АО' }
 ]
@@ -63,10 +64,32 @@ const formData = [
 export default function RegularTables() {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const Emitent = useSelector(state => state.emitents?.emitent);
+    const { cardEmitent } = useSelector(state => state.prints?.prints);
+    const Emitent = cardEmitent?.data?.emitent
+    const Emissions = cardEmitent?.data?.emissions
+
+    const [startTotal, setStartTotal] = useState(0);
+    const [currentTotal, setCurrentTotal] = useState(0);
+
     useEffect(() => {
-        dispatch(fetchEmitentById(emitentId()));
+        dispatch(fetchCardEmitent(emitentId()));
+
+     
     }, []);
+
+    const totalStartCount = Emissions.reduce((total, item) => {
+        return total + (item?.start_count || 0);
+    }, 0);
+    
+    const totalItemCount = Emissions.reduce((total, item) => {
+        return total + (item?.count || 0);
+    }, 0);
+    
+    setStartTotal(totalStartCount);
+    setCurrentTotal(totalItemCount);
+    
+
+    
 
     const emitentId = () => {
         const emitent = JSON.parse(localStorage.getItem('emitent'));
@@ -82,26 +105,79 @@ export default function RegularTables() {
                         </CardIcon>
                         <h4 className={classes.cardIconTitle}>Эмитенты</h4>
                     </CardHeader>
-                    <CardBody>
-                    <Table>
-                            <TableBody>
-                                {formData.map((item, key) => (
-                                    <TableRow key={key}>
-                                        <TableCell width={'30%'}>
-                                            <h6>
-                                                {item.name}
-                                            </h6>
-                                        </TableCell>
-                                        <TableCell fullwidth="true">
-                                            <h6>
-                                                {Emitent?.data[item.key]}
-                                            </h6>
-                                        </TableCell>
+                    {Emitent && (
+                        <CardBody>
+
+
+
+                            {formData.map((item, key) => (
+                                <div key={key} style={{ display: 'flex' }}>
+                                    <Typography variant="body2">
+
+                                        {item.name}
+
+                                    </Typography >
+                                    <Typography variant="body1">
+
+                                        : <b>{Emitent[item.key]}</b>
+
+                                    </Typography>
+                                </div>
+                            ))}
+                            <Typography variant="subtitle1" style={{ marginTop: 14 }}>
+                                Список эмиссий акция
+                            </Typography>
+                            <Table>
+                                <TableHead style={{ display: 'table-header-group' }}>
+                                    <TableRow>
+                                        <TableCell>№</TableCell>
+                                        <TableCell>Дата выпуска</TableCell>
+                                        <TableCell>Рег номер</TableCell>
+                                        <TableCell>Номинал</TableCell>
+                                        <TableCell>Начальное кол-во акций</TableCell>
+                                        <TableCell>Фактичесое количество</TableCell>
+
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardBody>
+                                </TableHead>
+                                <TableBody>
+                                    {Emissions.map((item, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                {index}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.release_date}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.reg_number}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.nominal}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.start_count}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.count}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    <TableRow >
+                                           
+                                            <TableCell colSpan={4}>
+                                              Итого:
+                                            </TableCell>
+                                            <TableCell>
+                                               {startTotal}
+                                            </TableCell>
+                                            <TableCell>
+                                            5555
+                                            </TableCell>
+                                        </TableRow>
+                                </TableBody>
+                            </Table>
+                        </CardBody>
+                    )}
                 </Card>
             </GridItem>
 

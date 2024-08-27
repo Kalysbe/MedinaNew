@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -23,12 +23,14 @@ import CardFooter from "components/Card/CardFooter.js";
 
 import styles from "assets/jss/material-dashboard-pro-react/views/loginPageStyle.js";
 
-import { fetchAuth } from "redux/slices/auth";
+import { fetchAuth, fetchAuthMe } from "redux/slices/auth";
 
 const useStyles = makeStyles(styles);
 
 export default function LoginPage() {
   const dispatch = useDispatch();
+  const history = useHistory();
+
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ login: '', password: '' });
@@ -40,7 +42,11 @@ export default function LoginPage() {
   }, 700);
   const classes = useStyles();
 
+  useEffect(() => {
+    dispatch(fetchAuthMe());
+  }, []);
 
+  console.log(isAuth)
 
   useEffect(() => {
     return () => {
@@ -63,23 +69,30 @@ export default function LoginPage() {
     }
 
     try {
-      const data = await dispatch(fetchAuth({ login, password })).unwrap(); // Используйте unwrap() для получения payload
-      if (isMounted) { // Проверяем, размонтирован ли компонент перед обновлением состояния
-        if (!data || !data.token) {
-          setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
-        } else {
-          window.localStorage.setItem('token', data.token);
-        }
-      }
-    } catch (err) {
-      if (isMounted) { // Проверяем, размонтирован ли компонент перед обновлением состояния
+      console.log(1)
+      const data = await dispatch(fetchAuth({ login, password })) // Используйте unwrap() для получения payload
+      // const { token } = data.paylaod
+
+      if (data.paylaod) {
+        console.log(12)
         setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
       }
+      if ('token' in data.payload) {
+        window.localStorage.setItem('token', data.payload.token)
+      } else {
+        alert('Не удалось авторизоваться')
+      }
+
+    } catch (err) {
+
+      setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
+
     }
   };
 
   if (isAuth) {
-    return <Redirect to="/dashboard" />; // Перенаправление на страницу логина
+    //   return <Redirect to="/dashboard" />; // Перенаправление на страницу логина
+    history.push(`/admin/dashboard`);
   }
 
   return (
@@ -113,50 +126,50 @@ export default function LoginPage() {
                 </div> */}
               </CardHeader>
               <CardBody>
-        <CustomInput
-          labelText="Логин..."
-          id="login"
-          formControlProps={{
-            fullWidth: true
-          }}
-          inputProps={{
-            value: login,
-            onChange: (e) => setLogin(e.target.value),
-            endAdornment: (
-              <InputAdornment position="end">
-                <Email />
-              </InputAdornment>
-            ),
-            // helperText: error.login,
-            error: !!error.login
-          }}
-        />
-        <CustomInput
-          labelText="Пароль"
-          id="password"
-          formControlProps={{
-            fullWidth: true
-          }}
-          inputProps={{
-            value: password,
-            onChange: (e) => setPassword(e.target.value),
-            type: "password",
-            autoComplete: "off",
-            endAdornment: (
-              <InputAdornment position="end">
-                <Icon>lock_outline</Icon>
-              </InputAdornment>
-            ),
-            // helperText: error.password,
-            error: !!error.password
-          }}
-        />
-      </CardBody>
-      <CardFooter>
-        <Button color="rose" simple size="lg" block type="submit">
-          Войти
-        </Button>
-      </CardFooter>
+                <CustomInput
+                  labelText="Логин..."
+                  id="login"
+                  formControlProps={{
+                    fullWidth: true
+                  }}
+                  inputProps={{
+                    value: login,
+                    onChange: (e) => setLogin(e.target.value),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Email />
+                      </InputAdornment>
+                    ),
+                    // helperText: error.login,
+                    error: !!error.login
+                  }}
+                />
+                <CustomInput
+                  labelText="Пароль"
+                  id="password"
+                  formControlProps={{
+                    fullWidth: true
+                  }}
+                  inputProps={{
+                    value: password,
+                    onChange: (e) => setPassword(e.target.value),
+                    type: "password",
+                    autoComplete: "off",
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Icon>lock_outline</Icon>
+                      </InputAdornment>
+                    ),
+                    // helperText: error.password,
+                    error: !!error.password
+                  }}
+                />
+              </CardBody>
+              <CardFooter>
+                <Button color="rose" simple size="lg" block type="submit">
+                  Войти
+                </Button>
+              </CardFooter>
             </Card>
           </form>
         </GridItem>

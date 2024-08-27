@@ -11,10 +11,22 @@ export const fetchTransactionById = createAsyncThunk("transactions/fetchTransact
     return response.data;
 })
 
-export const fetchCreateTransaction = createAsyncThunk("transactions/fetchCreateTransaction", async (data) => {
-    const response = await axios.post("/transactions", data);
-    return response.data;
-})
+export const fetchCreateTransaction = createAsyncThunk(
+    "transactions/fetchCreateTransaction",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await axios.post("/transactions", data);
+            return response.data;
+        } catch (err) {
+            if (err.response && err.response.data) {
+                // Возвращаем данные ошибки через rejectWithValue
+                return rejectWithValue(err.response.data);
+            } else {
+                return rejectWithValue({ message: err.message });
+            }
+        }
+    }
+);
 
 export const fetchOperationTypes = createAsyncThunk("transactions/fetchOperationTypes", async () => {
     const { data } = await axios.get("/transactions/operations");

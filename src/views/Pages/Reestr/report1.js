@@ -1,15 +1,32 @@
 import React from "react";
 
+import { makeStyles } from "@material-ui/core/styles";
+
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
+const styles = {
+  printOnly: {
+    display: 'none',
+    '@media print': {
+      display: 'block'
+    }
+  }
+};
+
+const useStyles = makeStyles(styles);
+
 export default function Report1(props) {
-    const {data} = props
+    const {data, emitent } = props
+    const classes = useStyles();
+
   return (
   <>
+    <h5 className={classes.printOnly}> <b>{emitent}</b></h5>
+    <h4 className={classes.printOnly}><b>Ресстр акционеров</b> </h4>
             {data && (
               <Table >
                 <TableHead style={{ display: 'table-header-group' }}>

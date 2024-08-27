@@ -90,10 +90,10 @@ export default function RegularForms() {
     useEffect(() => {
         if (formData.operation_id === 1) {
             dispatch(fetchEmissionsByEmitentId(Emitent?.id))
-        } else if (formData.holder_from_id) {
-            dispatch(fetchSecuritiesByEmitentId(formData.holder_from_id))
+        } else if (formData.holder_to_id) {
+            dispatch(fetchSecuritiesByEmitentId(formData.holder_to_id))
         }
-    }, [formData.operation_id, formData.holder_from_id])
+    }, [formData.operation_id, formData.holder_to_id])
 
     useEffect(() => {
         const newEmissionValue = emissions.items.find(item => item.id === formData.emission_id)
@@ -101,10 +101,10 @@ export default function RegularForms() {
             setFormData(prevData => ({
                 ...prevData,
                 emission: newEmissionValue.reg_number,
-                quantity: newEmissionValue?.count,
-                amount: newEmissionValue?.count * newEmissionValue?.nominal
+                quantity: newEmissionValue?.quantity,
+                amount: newEmissionValue?.quantity * newEmissionValue?.nominal
             }));
-            setMaxCount(newEmissionValue?.count)
+            setMaxCount(newEmissionValue?.quantity)
             setPrice(newEmissionValue?.nominal)
         }
         
@@ -275,7 +275,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.count} шт.
+                                            {opt.reg_number} - {opt.quantity} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>

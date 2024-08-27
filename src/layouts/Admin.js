@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import cx from "classnames";
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
@@ -35,6 +35,7 @@ const useStyles = makeStyles(styles);
 export default function Dashboard(props) {
   const { ...rest } = props;
   const dispatch = useDispatch();
+  const history = useHistory();
 
   // states and functions
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -51,9 +52,9 @@ export default function Dashboard(props) {
   const EmitentData = useSelector(state => state.emitents.store);
   useEffect(() => {
     dispatch(fetchAuthMe());
-  }, [dispatch]);
+  }, []);
 
-
+console.log(isAuth,'auth')
   // styles
   const classes = useStyles();
   const mainPanelClasses =
@@ -186,7 +187,7 @@ export default function Dashboard(props) {
   }, []);
 
   if (!isAuth) {
-    // return <Redirect to="/auth/login-page" />; 
+    // history.push(`/auth/login-page`);
   }
 
   return (

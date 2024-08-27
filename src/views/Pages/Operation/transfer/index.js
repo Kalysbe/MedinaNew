@@ -83,7 +83,7 @@ export default function RegularForms() {
         emission: "",
         quantity: 0,
         amount: 0,
-        is_family: 1,
+        is_family: false,
         id_number: "",
         contract_date: "2024-06-12"
     });
@@ -114,14 +114,16 @@ export default function RegularForms() {
     }, [formData.emission_id]);
 
     const handleChange = (e, isSelect = false) => {
-        const { name, value, type } = isSelect ? { name: e.name, value: e.value, type: 'select' } : e.target;
+        const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
         const newValue = type === 'number' ? Number(value) : value;
-        console.log(newValue)
+        console.log(name,newValue)
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
         }));
     };
+
+    
 
 
     const handleSelectChange = (selectedOption) => {
@@ -139,25 +141,26 @@ export default function RegularForms() {
             [name]: newValue,
         }));
     };
-
     const handleSubmit = async () => {
         setLoading(true);
         const emitent_id = Emitent?.id;
         try {
             let updatedFormData = formData;
-
+    
             if (formData.operation_id === 1) {
                 const { holder_from_id, ...newFormData } = formData;
                 updatedFormData = newFormData;
                 await setFormData(newFormData);
             }
+    
             const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedFormData }));
             if (response.error) {
-                throw new Error(response.error);
+                // Получаем ошибку, если она была отклонена с `rejectWithValue`
+                throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
-
+    
             const newId = response.payload.id;
-
+    
             Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
@@ -170,17 +173,21 @@ export default function RegularForms() {
             });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
+    
             Swal.fire({
                 title: 'Ошибка!',
-                text: 'Произошла ошибка при отправке данных на сервер',
+                text: error.message || 'Произошла ошибка при отправке данных на сервер',
                 icon: 'error',
                 confirmButtonText: 'Ок',
             });
         } finally {
             setLoading(false);
         }
-
     };
+    
+    
+    
+    
 
     const classes = useStyles();
     return (
@@ -395,7 +402,7 @@ export default function RegularForms() {
                                             root: classes.selectMenuItem,
                                             selected: classes.selectMenuItemSelected
                                         }}
-                                        value={1}>
+                                        value={true}>
                                         Да
                                     </MenuItem>
                                     < MenuItem
@@ -403,7 +410,7 @@ export default function RegularForms() {
                                             root: classes.selectMenuItem,
                                             selected: classes.selectMenuItemSelected
                                         }}
-                                        value={2}>
+                                        value={false}>
                                         Нет
                                     </MenuItem>
 

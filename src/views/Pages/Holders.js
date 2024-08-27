@@ -35,20 +35,21 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
-import Report1  from './Reestr/report1.js'
-import Report2  from './Reestr/report2.js'
-import Report3  from './Reestr/report3.js'
+import Report1 from './Reestr/report1.js'
+import Report2 from './Reestr/report2.js'
+import Report3 from './Reestr/report3.js'
 
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHoldersByEmitentId } from "redux/actions/holders";
+import { fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
 
 const headers = [
-  {id:1,headers:[],rows: []}
+  { id: 1, headers: [], rows: [] }
 ]
 
 export default function RegularTables() {
@@ -60,17 +61,24 @@ export default function RegularTables() {
   const [totalOrdinary, setTotalOrdinary] = useState(0)
   const [totalPrivileged, setTotalPrivileged] = useState(0)
 
-  const [reportType, setReportType] = useState(1)
-  const [selectedLabel, setSelectedLabel] = useState('Реестр акционеров');
 
   const [report, setReport] = useState({ type: 1, label: 'Реестр акционеров' });
+  const [selectedEmission, setSelectedEmission] = useState(0)
 
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
+  const Emissions = useSelector(state => state.emissions?.emissions);
 
   useEffect(() => {
-    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report.type, emid: 1 }));
-  }, [report.type]);
+    dispatch(fetchEmissionsByEmitentId(Emitent?.id));
+  }, []);
+
+  useEffect(() => {
+    if (report.type === 3 && !selectedEmission) {
+      // return
+    }
+    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report.type, emid: selectedEmission }));
+  }, [report.type, selectedEmission]);
 
   useEffect(() => {
     const holdersCount = Holders?.items.length;
@@ -84,27 +92,29 @@ export default function RegularTables() {
       );
     };
 
-    // Вычисляем суммы и обновляем состояния
     const newSums = calculateSums(Holders?.items);
     setTotalHolders(holdersCount);
     setTotalOrdinary(newSums.ordinary);
-    // setTotalPrivileged(newSums.privileged);
   }, [Holders]);
 
   const handleChange = (event) => {
     const selectedReport = event.target.value;
-    setReport(selectedReport); // Сохраняем выбранный объект с value и label
+    setReport(selectedReport);
+  };
+
+  const handleChangeEmission = (event) => {
+    setSelectedEmission(event.target.value);
   };
 
 
-  const ReportViewer = ({ reportType ,data}) => {
-    switch(reportType) {
+  const ReportViewer = ({ reportType, data }) => {
+    switch (reportType) {
       case 1:
-        return <Report1 data={data} />;
+        return <Report1 data={data} emitent={Emitent?.name} />;
       case 2:
-        return <Report2 data={data}/>;
+        return <Report2 data={data} emitent={Emitent?.name} />;
       case 3:
-        return <Report3 data={data}/>;
+        return <Report3 data={data} emitent={Emitent?.name} />;
       default:
         return <div>Invalid report type</div>;
     }
@@ -159,22 +169,22 @@ export default function RegularTables() {
     </GridContainer>
     <GridContainer>
       <GridItem xs={12}>
-      <div style={{display:'flex',justifyContent:'flex-end'}}>
-                <ReactToPrint
-                  trigger={() =>
-                    <Button
-                      variant="contained"
-                      color="warning"
-                      size="small"
-                    >Печать</Button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <ReactToPrint
+            trigger={() =>
+              <Button
+                variant="contained"
+                color="warning"
+                size="small"
+              >Печать</Button>
 
-                  }
-                  content={() => componentRef.current}
-                />
-              </div>
+            }
+            content={() => componentRef.current}
+          />
+        </div>
         <Card>
           <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div style={{ width: '300px' }}>
+            <div style={{ width: '50%' }}>
               <CardIcon color="rose">
                 <Assignment />
               </CardIcon>
@@ -206,7 +216,7 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                   
+
                     value={{ type: 1, label: 'Реестр акционеров' }}>
                     Реестр акционеров
                   </MenuItem>
@@ -216,7 +226,7 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                   
+
                     value={{ type: 2, label: 'Реестр владельцев именных ЦБ' }}>
                     Реестр владельцев именных ЦБ
                   </MenuItem>
@@ -226,7 +236,7 @@ export default function RegularTables() {
                       root: classes.selectMenuItem,
                       selected: classes.selectMenuItemSelected
                     }}
-                   
+
                     value={{ type: 3, label: 'Реестр владельцев именных по номерам ЦБ' }}>
                     Реестр владельцев именных по номерам ЦБ
                   </MenuItem>
@@ -234,46 +244,47 @@ export default function RegularTables() {
                 </Select>
               </FormControl>
               {report.type === 3 && (
-                     <FormControl
-                     // fullWidth
-                     style={{ width: '150px', marginLeft: '10px' }}
-                   >
-                     <InputLabel
-                       htmlFor="simple-select"
-                     >
-                       Эмиссия
-                     </InputLabel>
-                     <Select
-                       MenuProps={{
-                         className: classes.selectMenu
-                       }}
-                       classes={{
-                         select: classes.select
-                       }}
-                       name='operation_id'
-                     // value={formData['operation_id']}
-                     // onChange={handleChange}
-                     >
-     
-                       <MenuItem
-                         classes={{
-                           root: classes.selectMenuItem,
-                           selected: classes.selectMenuItemSelected
-                         }}
-                         value={1}>
-                         По эмиссии
-                       </MenuItem>
-     
-                     </Select>
-                   </FormControl>
+                <FormControl
+                  style={{ width: '150px', marginLeft: '10px' }}
+                >
+                  <InputLabel
+                    htmlFor="simple-select"
+                  >
+                    Эмиссия
+                  </InputLabel>
+                  <Select
+                    MenuProps={{
+                      className: classes.selectMenu
+                    }}
+                    classes={{
+                      select: classes.select
+                    }}
+                    name='operation_id'
+                    value={selectedEmission}
+                    onChange={handleChangeEmission}
+                  >
+                    {Emissions?.items.map((item, index) => (
+                      <MenuItem
+                        classes={{
+                          root: classes.selectMenuItem,
+                          selected: classes.selectMenuItemSelected
+                        }}
+                        value={item.id}>
+                        {item.reg_number}
+                      </MenuItem>
+                    ))}
+
+
+                  </Select>
+                </FormControl>
               )}
-         
-            
+
+
             </div>
           </CardHeader>
           <CardBody >
-            <div ref={componentRef}>
-            <ReportViewer reportType={report.type} data={Holders.items} />
+            <div ref={componentRef} style={{ padding: '20px' }}>
+              <ReportViewer reportType={report.type} data={Holders.items} />
             </div>
           </CardBody>
         </Card>
