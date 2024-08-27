@@ -1,5 +1,11 @@
 import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+
+export const fetchAllHolders = createAsyncThunk("holders/fetchAllHolders", async (eid) => {
+  const { data } = await axios.get(`/holders`);
+  return data;
+})
+
 export const fetchHolders = createAsyncThunk("holders/fetchHolders", async (eid) => {
   const { data } = await axios.get(`emitents/${eid}/all-holders`);
   return data;

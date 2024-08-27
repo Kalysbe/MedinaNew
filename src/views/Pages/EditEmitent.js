@@ -13,6 +13,7 @@ import { selectIsAuth } from 'redux/slices/auth';
 import { fetchEmitentById, fetchAddEmitent, fetchUpdateEmitent } from 'redux/actions/emitents';
 
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
+import zIndex from '@material-ui/core/styles/zIndex';
 
 const useStyles = makeStyles(styles);
 
@@ -30,8 +31,8 @@ const formConfig = [
   { key: "id_number", label: "Идентификационный номер", type: "text" },
   { key: "contract_date", label: "Дата заключения договора", type: "date" },
   { key: "capital", label: "Размер уставного капитала", type: "text" },
-  { key: "accountant", label: "Ф.И.О гл. бухгалтера АО", type: "text" },
-  { key: "director_company", label: "Ф.И.О руководителя АО", type: "text" }
+  { key: "accountant", label: "Ф.И.О гл. бухгалтера эмитента", type: "text" },
+  { key: "director_company", label: "Ф.И.О руководителя эмитента", type: "text" }
 ];
 
 const EditEmitent = () => {
@@ -126,7 +127,7 @@ const EditEmitent = () => {
 
   return (
 
-      <Card style={{ padding: 30 }}>
+      <Card style={{ padding: 30, overflow:'inherit' }}>
         <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
           {isEditing ? 'Редактирование' : 'Добавление'} эмитента
         </Typography>
@@ -152,14 +153,15 @@ const EditEmitent = () => {
               </Grid>
               ) : (
                 <Grid item xs={12} md={4} key={key}>
-                <InputLabel className={classes.label}>Дата операции</InputLabel>
+                <InputLabel className={classes.label}>Дата договора</InputLabel>
                             <br />
-                            <FormControl fullWidth>
+                            <FormControl fullWidth  >
                                 <Datetime
                                     value={formData[key]}
                                     onChange={(date) => handleChangeDate(key, date)}
                                     timeFormat={false}
-                                    inputProps={{ placeholder: "Дата операции" }}
+                                    inputProps={{ placeholder: "Дата договора",   style: { zIndex: 1000 } }}
+                                  
                                 />
                             </FormControl>
                             </Grid>

@@ -6,6 +6,11 @@ window.formatNumber = function (number) {
 };
 
 window.formatDate = function (dateString) {
+  // Проверка, может ли строка быть преобразована в дату
+  if (isNaN(Date.parse(dateString))) {
+    return dateString // Возвращаем строку, если это не дата
+  }
+
   const date = new Date(dateString);
 
   const day = String(date.getUTCDate()).padStart(2, '0');
@@ -13,4 +18,4 @@ window.formatDate = function (dateString) {
   const year = date.getUTCFullYear();
 
   return `${day}-${month}-${year}`;
-}
+};

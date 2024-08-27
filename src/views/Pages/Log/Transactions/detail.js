@@ -42,6 +42,14 @@ const styles = {
     marginTop: "15px",
     marginBottom: "0px"
   },
+  printWrapper: {
+    '@media print': {
+      margin: '20px',
+      padding: '10px',
+      border: '1px solid black',
+      borderRadius: '5px'
+    }
+  },
   printOnly: {
     display: 'none',
     '@media print': {
@@ -96,7 +104,7 @@ export default function RegularTables() {
             </Typography>
           </Box>
         </Box> */}
-            <Box px={3} mt={2} ref={componentRef} style={{ padding: '20px' }}>
+            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
               <Typography align="center" variant="h3" mr={2}></Typography>
 
               {status === "loading" && id ? (
@@ -104,7 +112,7 @@ export default function RegularTables() {
                   <CircularProgress color="primary" size={80} /> {status}
                 </Box>
               ) : (
-                <Box minWidth={275} margin={2}>
+                <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
                     ПЕРЕДАТОЧНОЕ РАСПОРЯЖЕНИЕ
                   </Typography>
@@ -115,11 +123,12 @@ export default function RegularTables() {
 
                   <Grid container spacing={2} sx={{ mt: 2 }}>
                     <Grid item xs={12}>
-                      <Typography variant="h6" component="div">
-                        Лицо передающее ценные бумаги
-                      </Typography>
-                      {data.holder_from ? (
+
+                      {data.holder_from && (
                         <>
+                          <Typography variant="h6" component="div">
+                            Лицо передающее ценные бумаги
+                          </Typography>
                           <Typography variant="body2" color="textSecondary">
                             Ф.И.О: {data.holder_from.name}
                           </Typography>
@@ -145,25 +154,6 @@ export default function RegularTables() {
                         ИНН:
                       </Typography> */}
                         </>
-                      ) : EmitentData ? (
-                        <>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: {EmitentData.full_name}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: {EmitentData.id}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Адрес: {EmitentData.legal_address}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Телефон, факс: {EmitentData.phone_number}
-                          </Typography>
-                        </>
-                      ) : (
-                        <Typography variant="body2" color="textSecondary">
-                          Пусто
-                        </Typography>
                       )}
                     </Grid>
 
@@ -235,22 +225,47 @@ export default function RegularTables() {
               )}
 
               <div className={classes.printOnly}>
-                <div style={{display:'flex',alignItems:'flex-end'}}>
-                  <Typography style={{width:'50%'}}>Подпись лица передающего акции:</Typography>
-                  <div style={{borderBottom:'1px solid black',width:'50%'}}></div>
-                </div>
-                <div style={{display:'flex',alignItems:'flex-end'}}>
-                  <Typography style={{width:'50%'}}>Подпись лица принимающего акции:</Typography>
-                  <div style={{borderBottom:'1px solid black',width:'50%'}}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
+                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
+
+                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
                 </div>
               </div>
 
-              <div>
-                <Typography variant="body2">Передача прав на ценные бумаги осуществлена:</Typography>
-                <Typography variant="body2">ОсОО "Реестродержатель Медина"</Typography>
-                <Typography variant="body2">Орган государственной регистрации: Чуй-Бишкекское Управление юстиции</Typography>
-                <Typography variant="body2">Регистрационный номер:</Typography>
-                <Typography variant="body2">ОсОО "Реестродержатель Медина"</Typography>
+              <hr className={classes.printOnly} />
+              <div className={classes.printOnly} style={{ marginTop: '14px' }}>
+                <div>
+                  <span>Держатель реестра:</span>
+                  <b> ОсОО "Реестродержатель Медина"</b>
+                </div>
+                <div>
+                  <span>Орган государственной регистрации:</span>
+                  <b> Чуй-Бишкекское управление юстиции</b>
+                </div>
+                <div>
+                  <span>Регистрационный номер:</span>
+                  <b> 133580-3301-000 от 09.12.2013 год</b>
+                </div>
+                <div>
+                  <span>Лицензия:</span>
+                  <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                </div>
+                <div>
+                  <span>Юридический адрес:</span>
+                  <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                </div>
+
+              </div>
+
+
+
+              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px' ,width:'70%'}}>ФИО и подпись регистратора</Typography>
+
+              <div className={classes.printOnly}>
+              <div  style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
+                <Typography>Номер операции: <b>{id}</b></Typography>
+                <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
+              </div>
               </div>
             </Box>
 

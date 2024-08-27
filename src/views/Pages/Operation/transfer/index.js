@@ -34,7 +34,7 @@ import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
-import { fetchHolders } from "redux/actions/holders";
+import { fetchAllHolders } from "redux/actions/holders";
 import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 
@@ -89,7 +89,7 @@ export default function RegularForms() {
     });
 
     useEffect(() => {
-        dispatch(fetchHolders(Emitent?.id))
+        dispatch(fetchAllHolders())
         dispatch(fetchOperationTypes())
     }, [])
 

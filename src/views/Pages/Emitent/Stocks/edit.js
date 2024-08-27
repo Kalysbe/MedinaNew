@@ -50,9 +50,9 @@ export default function RegularForms() {
 
     const [formData, setFormData] = useState({
         reg_number: '',
-        nominal: 0,
-        start_count: 0,
-        release_date: null
+        nominal: '',
+        start_count: '',
+        release_date: ''
     })
 
 
@@ -177,6 +177,7 @@ export default function RegularForms() {
                                     onChange={(date) => handleChangeDate('release_date', date)}
                                     timeFormat={false}
                                     inputProps={{ placeholder: "Нажмите чтобы выбрать дату" }}
+                                    closeOnSelect={true} 
                                 />
                             </FormControl>
                         </GridItem>

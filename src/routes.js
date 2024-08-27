@@ -455,7 +455,7 @@ var dashRoutes = [
   },
   {
     path: "/all-holders",
-    name: "Все акционеры",
+    name: "Акционеры",
     rtlName: "الحاجيات",
     icon: WidgetsIcon,
     component: EmitentHolders,

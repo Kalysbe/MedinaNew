@@ -34,7 +34,7 @@ import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
-import { fetchHolders } from "redux/actions/holders";
+import { fetchAllHolders } from "redux/actions/holders";
 import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 
@@ -83,7 +83,7 @@ export default function RegularForms() {
     });
 
     useEffect(() => {
-        dispatch(fetchHolders(Emitent?.id))
+        dispatch(fetchAllHolders())
         dispatch(fetchOperationTypes())
     }, [])
 
@@ -101,10 +101,10 @@ export default function RegularForms() {
             setFormData(prevData => ({
                 ...prevData,
                 emission: newEmissionValue.reg_number,
-                quantity: newEmissionValue?.quantity,
-                amount: newEmissionValue?.quantity * newEmissionValue?.nominal
+                quantity: newEmissionValue?.count,
+                amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
-            setMaxCount(newEmissionValue?.quantity)
+            setMaxCount(newEmissionValue?.count)
             setPrice(newEmissionValue?.nominal)
         }
         
@@ -255,7 +255,7 @@ export default function RegularForms() {
                                 <InputLabel
                                     htmlFor="simple-select"
                                     className={classes.selectLabel}>
-                                    Эмиссия для передачи
+                                    Эмиссия
                                 </InputLabel>
                                 <Select
                                     MenuProps={{
@@ -275,7 +275,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.quantity} шт.
+                                            {opt.reg_number} - {opt.count} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>

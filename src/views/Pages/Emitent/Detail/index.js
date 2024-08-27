@@ -1,4 +1,4 @@
-import React, { useEffect , useState} from "react";
+import React, { useEffect, useState, useRef } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -17,6 +17,8 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
 import Button from "components/CustomButtons/Button.js";
+
+import ReactToPrint from 'react-to-print';
 
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -40,7 +42,7 @@ const styles = {
     }
 };
 
-const useStyles = makeStyles(styles);
+
 
 const formData = [
     { key: 'full_name', name: 'Наименование эмитента' },
@@ -54,16 +56,37 @@ const formData = [
     { key: 'bank_name', name: 'Наименование банка эмитента' },
     { key: 'bank_account', name: 'Счет в банке' },
     { key: 'id_number', name: 'Идентификационный номер' },
-    { key: 'contract_date', name: 'Номер договора с регистратором' },
-    { key: 'contract_date', name: 'Дата заключения договора' },
+    // { key: 'contract_date', name: 'Номер договора с регистратором' },
+    
     { key: 'capital', name: 'Размер уставного капитала' },
-    { key: 'accountant', name: 'Ф.И.О гл. бухгалтера АО' },
-    { key: 'director_company', name: 'Ф.И.О руководителя АО' }
+    { key: 'contract_date', name: 'Дата заключения договора' },
+    { key: 'accountant', name: 'Ф.И.О гл. бухгалтера эмитента' },
+    { key: 'director_company', name: 'Ф.И.О руководителя эмитента' }
 ]
+
+const printStyles = {
+    printWrapper: {
+        '@media print': {
+            margin: '20px',
+            padding: '10px',
+            border: '1px solid black',
+            borderRadius:'5px'
+        }
+    },
+    printOnly: {
+        display: 'none',
+        '@media print': {
+            display: 'block'
+        }
+    }
+};
+
+const useStyles = makeStyles({ ...styles, ...printStyles });
 
 export default function RegularTables() {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const componentRef = useRef();
     const { cardEmitent } = useSelector(state => state.prints?.prints);
     const Emitent = cardEmitent?.data?.emitent
     const Emissions = cardEmitent?.data?.emissions
@@ -74,22 +97,26 @@ export default function RegularTables() {
     useEffect(() => {
         dispatch(fetchCardEmitent(emitentId()));
 
-     
+
+
     }, []);
 
-    const totalStartCount = Emissions.reduce((total, item) => {
-        return total + (item?.start_count || 0);
-    }, 0);
-    
-    const totalItemCount = Emissions.reduce((total, item) => {
-        return total + (item?.count || 0);
-    }, 0);
-    
-    setStartTotal(totalStartCount);
-    setCurrentTotal(totalItemCount);
-    
+    useEffect(() => {
+        const totalStartCount = Emissions?.reduce((total, item) => {
+            return total + item?.start_count;
+        }, 0);
 
-    
+        const totalItemCount = Emissions?.reduce((total, item) => {
+            return total + item?.count
+        }, 0);
+
+        setStartTotal(totalStartCount);
+        setCurrentTotal(totalItemCount);
+    }, [Emissions])
+
+
+
+
 
     const emitentId = () => {
         const emitent = JSON.parse(localStorage.getItem('emitent'));
@@ -98,84 +125,128 @@ export default function RegularTables() {
     return (
         <GridContainer>
             <GridItem xs={12}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                size="small"
+                            >Печать</Button>
+
+                        }
+                        content={() => componentRef.current}
+                    />
+                </div>
                 <Card>
                     <CardHeader color="rose" icon>
                         <CardIcon color="rose">
                             <Assignment />
                         </CardIcon>
-                        <h4 className={classes.cardIconTitle}>Эмитенты</h4>
+                        <h4 className={classes.cardIconTitle}>Карточка эмитента</h4>
                     </CardHeader>
                     {Emitent && (
                         <CardBody>
 
 
+                            <div className={classes.printWrapper} ref={componentRef} style={{ fontFamily: 'Arial, Helvetica, sans-serif ' }}>
+                                <Typography className={classes.printOnly} variant="h6" align="center">
 
-                            {formData.map((item, key) => (
-                                <div key={key} style={{ display: 'flex' }}>
-                                    <Typography variant="body2">
+                                    Карточка эмитента
 
-                                        {item.name}
+                                </Typography >
+                                {formData.map((item, key) => (
+                                    <div key={key} style={{ display: 'flex' }}>
+                                        <Typography variant="body2">
 
-                                    </Typography >
-                                    <Typography variant="body1">
+                                            {item.name}
 
-                                        : <b>{Emitent[item.key]}</b>
+                                        </Typography >
+                                        <Typography variant="body1">
 
-                                    </Typography>
+                                            : <b>{Emitent[item.key]}</b>
+
+                                        </Typography>
+                                    </div>
+                                ))}
+                                <hr className={classes.printOnly}/>
+                                <Typography variant="subtitle2" style={{ marginTop: 14 }}>
+                                    <b>Список эмиссий акция</b>
+                                </Typography>
+                                <Table>
+                                    <TableHead style={{ display: 'table-header-group' }}>
+                                        <TableRow>
+                                            <TableCell>№</TableCell>
+                                            <TableCell>Дата выпуска</TableCell>
+                                            <TableCell>Рег номер</TableCell>
+                                            <TableCell>Номинал</TableCell>
+                                            <TableCell>Начальное кол-во акций</TableCell>
+                                            <TableCell>Фактичесое количество</TableCell>
+
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {Emissions.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {window.formatDate(item.release_date)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {item.reg_number}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {window.formatNumber(item.nominal)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {window.formatNumber(item.start_count)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {window.formatNumber(item.count)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        <TableRow >
+
+                                            <TableCell colSpan={4} style={{borderBottom:'none'}}>
+                                                Итого:
+                                            </TableCell>
+                                            <TableCell style={{borderBottom:'none'}}>
+                                                {startTotal}
+                                            </TableCell>
+                                            <TableCell style={{borderBottom:'none'}}>
+                                                {currentTotal}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                                <hr className={classes.printOnly}/>
+                                <div className={classes.printOnly} style={{marginTop:'14px'}}>
+                                   <div>
+                                        <span>Держатель реестра:</span>
+                                        <b> ОсОО "Реестродержатель Медина"</b>
+                                    </div>
+                                   <div>
+                                        <span>Орган государственной регистрации:</span>
+                                        <b> Чуй-Бишкекское управление юстиции</b>
+                                    </div>
+                                   <div>
+                                        <span>Регистрационный номер:</span>
+                                        <b> 133580-3301-000 от 09.12.2013 год</b>
+                                    </div>
+                                   <div>
+                                        <span>Лицензия:</span>
+                                        <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                                    </div>
+                                   <div>
+                                        <span>Юридический адрес:</span>
+                                        <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                                    </div>
+                                  
                                 </div>
-                            ))}
-                            <Typography variant="subtitle1" style={{ marginTop: 14 }}>
-                                Список эмиссий акция
-                            </Typography>
-                            <Table>
-                                <TableHead style={{ display: 'table-header-group' }}>
-                                    <TableRow>
-                                        <TableCell>№</TableCell>
-                                        <TableCell>Дата выпуска</TableCell>
-                                        <TableCell>Рег номер</TableCell>
-                                        <TableCell>Номинал</TableCell>
-                                        <TableCell>Начальное кол-во акций</TableCell>
-                                        <TableCell>Фактичесое количество</TableCell>
-
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {Emissions.map((item, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                {index}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.release_date}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.reg_number}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.nominal}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.start_count}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.count}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                    <TableRow >
-                                           
-                                            <TableCell colSpan={4}>
-                                              Итого:
-                                            </TableCell>
-                                            <TableCell>
-                                               {startTotal}
-                                            </TableCell>
-                                            <TableCell>
-                                            5555
-                                            </TableCell>
-                                        </TableRow>
-                                </TableBody>
-                            </Table>
+                            </div>
                         </CardBody>
                     )}
                 </Card>
