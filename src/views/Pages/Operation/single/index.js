@@ -75,11 +75,11 @@ export default function RegularForms() {
         emission_id: "",
         is_exchange: true,
         emission: "",
-        quantity: 0,
-        amount: 0,
+        quantity: "",
+        amount: "",
         is_family: true,
         id_number: "",
-        contract_date: "2024-06-12"
+        contract_date: ""
     });
 
     useEffect(() => {

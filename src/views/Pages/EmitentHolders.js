@@ -18,11 +18,12 @@ import {
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllHolders , fetchHolders } from "redux/actions/holders";
+import { fetchAllHolders, fetchHolders } from "redux/actions/holders";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Card from "components/Card/Card.js";
+import Typography from '@material-ui/core/Typography';
 import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
@@ -39,35 +40,35 @@ const useStyles = makeStyles(styles);
 export default function RegularTables() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  
+
   const [totalHolders, setTotalHolders] = useState(0);
   const [totalOrdinary, setTotalOrdinary] = useState(0);
   const [totalPrivileged, setTotalPrivileged] = useState(0);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAllEmitents, setIsAllEmitents] = useState(false); 
-  
+  const [isAllEmitents, setIsAllEmitents] = useState(false);
+
   const [pageIndex, setPageIndex] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  
+
   const [state, setState] = useState({
     checkedA: true
   });
-  
+
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
-  
+
   useEffect(() => {
     if (isAllEmitents) {
-        dispatch(fetchAllHolders(Emitent?.id));
+      dispatch(fetchAllHolders(Emitent?.id));
     } else {
-        dispatch(fetchHolders(Emitent?.id));
+      dispatch(fetchHolders(Emitent?.id));
     }
-}, [isAllEmitents, Emitent?.id, dispatch]);
-  
+  }, [isAllEmitents, Emitent?.id, dispatch]);
+
   useEffect(() => {
     const holdersCount = Holders?.items.length;
-    
+
     const calculateSums = (data) => {
       return data.reduce(
         (acc, item) => {
@@ -78,28 +79,28 @@ export default function RegularTables() {
         { ordinary: 0, privileged: 0 }
       );
     };
-    
+
     const newSums = calculateSums(Holders?.items);
     setTotalHolders(holdersCount);
     setTotalOrdinary(newSums.ordinary);
     setTotalPrivileged(newSums.privileged);
   }, [Holders]);
-  
+
   const handleCheckboxChange = (event) => {
     setIsAllEmitents(event.target.checked);
-};
+  };
 
-const handleSearchChange = (event) => {
-  setSearchTerm(event.target.value);
-};
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
-const filteredHolders = useMemo(() => {
-  if (!Holders?.items) return [];
-  return Holders.items.filter(item => 
+  const filteredHolders = useMemo(() => {
+    if (!Holders?.items) return [];
+    return Holders.items.filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-}, [Holders, searchTerm]);
-  
+    );
+  }, [Holders, searchTerm]);
+
   const columns = useMemo(
     () => [
       {
@@ -169,77 +170,88 @@ const filteredHolders = useMemo(() => {
                 </CardIcon>
                 <h4 className={classes.cardIconTitle}>Акционеры</h4>
               </div>
-         
-           
 
-        
-      <div style={{display:'flex',paddingTop:'14px'}}>
 
-                                <CustomInput
-                                labelText='Поиск'
-                                formControlProps={{
-                                    fullWidth: false,
-                                }}
-                                inputProps={{
-                                  onChange: event => {
-                                    handleSearchChange(event)
-                                },
-                               
-                                    type: 'text',
-                                    name: 'emission',
-                                    value: searchTerm
-                                }}
 
-                            />
-      <FormGroup row>
-                <FormControlLabel
-                  control={<Checkbox checked={isAllEmitents}  onChange={handleCheckboxChange} name="checkedA" color="primary" />}
-                  label="По всем эмитентам"
+
+              <div style={{ display: 'flex', paddingTop: '14px' }}>
+
+                <CustomInput
+                  labelText='Поиск'
+                  formControlProps={{
+                    fullWidth: false,
+                  }}
+                  inputProps={{
+                    onChange: event => {
+                      handleSearchChange(event)
+                    },
+
+                    type: 'text',
+                    name: 'emission',
+                    value: searchTerm
+                  }}
+
                 />
-              </FormGroup>
-      <NavLink to={'/admin/holder/add'}>
-                <Button variant="outlined" color={'info'}>
-                  Добавить
-                </Button>
-              </NavLink>
-      </div>
-              
+                <FormGroup row>
+                  <FormControlLabel
+                    control={<Checkbox checked={isAllEmitents} onChange={handleCheckboxChange} name="checkedA" color="primary" />}
+                    label="По всем эмитентам"
+                  />
+                </FormGroup>
+                <NavLink to={'/admin/holder/add'}>
+                  <Button variant="outlined" color={'info'}>
+                    Добавить
+                  </Button>
+                </NavLink>
+              </div>
+
             </CardHeader>
             <CardBody>
-        
-                <Table {...getTableProps()}>
-                  <TableHead>
-                    {headerGroups.map(headerGroup => (
-                      <TableRow {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map(column => (
-                          <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
-                            {column.render('Header')}
-                            <TableSortLabel
-                              active={column.isSorted}
-                              direction={column.isSortedDesc ? 'desc' : 'asc'}
-                            >
-                              {column.isSorted ? (column.isSortedDesc ? <BiSortUp /> : <BiSortDown />) : <BiSortAlt2 />}
-                            </TableSortLabel>
+
+              <Table {...getTableProps()}>
+                <TableHead>
+                  {headerGroups.map(headerGroup => (
+                    <TableRow {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map(column => (
+                        <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
+                          {column.render('Header')}
+                          <TableSortLabel
+                            active={column.isSorted}
+                            direction={column.isSortedDesc ? 'desc' : 'asc'}
+                          >
+                            {column.isSorted ? (column.isSortedDesc ? <BiSortUp /> : <BiSortDown />) : <BiSortAlt2 />}
+                          </TableSortLabel>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHead>
+                <TableBody {...getTableBodyProps()}>
+                  {page.map(row => {
+                    prepareRow(row);
+                    return (
+                      <TableRow {...row.getRowProps()}>
+                        {row.cells.map(cell => (
+                          <TableCell {...cell.getCellProps()}>
+                            {cell.column.id === 'name' ? (
+                              <NavLink to={`holder/${row.original.id}`} >
+                                <Typography color="primary">
+                                {cell.render('Cell')}
+                                </Typography>
+                        
+                              </NavLink>
+                            ) : (
+                              cell.render('Cell')
+                            )}
                           </TableCell>
                         ))}
                       </TableRow>
-                    ))}
-                  </TableHead>
-                  <TableBody {...getTableBodyProps()}>
-                    {page.map(row => {
-                      prepareRow(row);
-                      return (
-                        <TableRow {...row.getRowProps()}>
-                          {row.cells.map(cell => (
-                            <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
-                          ))}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
- 
-             
+                    );
+                  })}
+                </TableBody>
+              </Table>
+
+
             </CardBody>
           </Card>
         </GridItem>

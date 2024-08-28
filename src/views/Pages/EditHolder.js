@@ -239,7 +239,7 @@ export default function RegularForms() {
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
                         <CustomInput
-                            labelText='Тип паспорта'
+                            labelText='Серия паспорта'
                             formControlProps={{
                                 fullWidth: true,
                             }}
@@ -248,7 +248,7 @@ export default function RegularForms() {
                                     handleChange(event)
                                 },
                                 name: 'passport_type',
-                                type: 'number',
+                                type: 'text',
                                 value: formData['passport_type']
                             }}
                         />

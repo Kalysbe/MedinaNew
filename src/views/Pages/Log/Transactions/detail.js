@@ -130,29 +130,25 @@ export default function RegularTables() {
                             Лицо передающее ценные бумаги
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: {data.holder_from.name}
+                            Ф.И.О: <b> {data.holder_from.name}</b> 
                           </Typography>
-                          {/* <Typography variant="body2" color="textSecondary">
-                        Лицевой счет: 40
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Документ серии: ID
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Номер: 2706347, выдан: МКК 218061, 29.03.2022
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Адрес: 724800 Сокулукский р-н, с.Сокулук, ул.Больничная, 27
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Отношение к акциям: владелец акций
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Телефон, факс: 22608195910026
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        ИНН:
-                      </Typography> */}
+                          <Typography variant="body2" color="textSecondary">
+                            Лицевой счет: <b> {data.holder_from.id}</b>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Документ:  Серия: <b>{data.holder_from?.passport_type}</b> Номер: <b>{data.holder_from?.passport_number}</b> Выдан: <b>{data.holder_from?.passport_agency}</b>
+                          </Typography>
+                       
+                          <Typography variant="body2" color="textSecondary">
+                            Адрес: <b>{data.holder_from.actual_address}</b> 
+                          </Typography>
+                        
+                          <Typography variant="body2" color="textSecondary">
+                            Телефон, факс: <b> {data.holder_from.phone_number}</b>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            ИНН: <b> {data.holder_from.inn}</b>
+                          </Typography>
                         </>
                       )}
                     </Grid>
@@ -160,34 +156,30 @@ export default function RegularTables() {
                     <Grid item xs={12}>
                       {data.holder_to && (
                         <>
-                          <Typography variant="h6" component="div">
-                            Лицо приобретающее ценные бумаги
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: {data.holder_to.name}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: {data.holder_to.id}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Документ серии: {data.holder_to.passport_type}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Номер: {data.holder_to.passport_number}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Выдан: <strong>{data.holder_to.passport_agency}</strong>
-                          </Typography>
-                          {/* <Typography variant="body2" color="textSecondary">
-                        Адрес: 720015 г.Бишкек, ул.Восьмого Марта, 16
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Отношение к акциям: владелец акций
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Телефон, факс: 27-99-07
-                      </Typography> */}
-                        </>
+                        <Typography variant="h6" component="div">
+                          Лицо передающее ценные бумаги
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Ф.И.О: <b> {data.holder_to.name}</b> 
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Лицевой счет: <b> {data.holder_to.id}</b>
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Документ:  Серия: <b>{data.holder_to?.passport_type}</b> Номер: <b>{data.holder_to?.passport_number}</b> Выдан: <b>{data.holder_to?.passport_agency}</b>
+                        </Typography>
+                     
+                        <Typography variant="body2" color="textSecondary">
+                          Адрес: <b>{data.holder_to.actual_address}</b> 
+                        </Typography>
+                      
+                        <Typography variant="body2" color="textSecondary">
+                          Телефон, факс: <b> {data.holder_to.phone_number}</b>
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          ИНН: <b> {data.holder_to.inn}</b>
+                        </Typography>
+                      </>
                       )}
                     </Grid>
                   </Grid>
@@ -215,12 +207,12 @@ export default function RegularTables() {
                     Дата сделки:
                     <b> {window.formatDate(data.contract_date)} </b>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  {/* <Typography variant="body2" color="textSecondary">
                     Основание перехода права собственности: <b> Договор дарения </b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  </Typography> */}
+                  {/* <Typography variant="body2" color="textSecondary">
                     <b> Передаваемые ценные бумаги не обременены обязательствами </b>
-                  </Typography>
+                  </Typography> */}
                 </Box>
               )}
 
@@ -259,27 +251,18 @@ export default function RegularTables() {
 
 
 
-              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px' ,width:'70%'}}>ФИО и подпись регистратора</Typography>
+              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
 
               <div className={classes.printOnly}>
-              <div  style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                <Typography>Номер операции: <b>{id}</b></Typography>
-                <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
-              </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
+                  <Typography>Номер операции: <b>{id}</b></Typography>
+                  <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
+                </div>
               </div>
             </Box>
 
             <Box px={3} display="flex" alignItems="center" justifyContent="flex-end">
-              <Button
-                variant="outlined"
-                color="primary"
-                size="small"
-                style={{ marginRight: '12px' }}
-                component={NavLink}
-                to={`/emitent/${id}/edit`}
-              >
-                Назад
-              </Button>
+
               <ReactToPrint
                 trigger={() =>
                   <Button

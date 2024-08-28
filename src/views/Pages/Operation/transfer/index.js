@@ -81,11 +81,11 @@ export default function RegularForms() {
         emission_id: "",
         is_exchange: true,
         emission: "",
-        quantity: 0,
-        amount: 0,
+        quantity: "",
+        amount: "",
         is_family: false,
         id_number: "",
-        contract_date: "2024-06-12"
+        contract_date: ""
     });
 
     useEffect(() => {
@@ -107,8 +107,8 @@ export default function RegularForms() {
             setFormData(prevData => ({
                 ...prevData,
                 emission: newEmissionValue.reg_number,
-                quantity: newEmissionValue?.quantity,
-                amount: newEmissionValue?.quantity * newEmissionValue?.nominal
+                quantity: newEmissionValue?.count,
+                amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
         }
     }, [formData.emission_id]);
@@ -284,7 +284,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.quantity} шт.
+                                            {opt.reg_number} - {opt.count} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>

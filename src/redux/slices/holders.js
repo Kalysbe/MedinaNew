@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import {fetchAllHolders, fetchHolders, fetchHolderById, fetchAddHolder, fetchHoldersByEmitentId } from '../actions/holders'
+import {fetchAllHolders, fetchHolders, fetchHolderById, fetchAddHolder, fetchHoldersByEmitentId, fetchHolderOperation } from '../actions/holders'
 
 const initialState = {
   holders: {
@@ -69,6 +69,19 @@ const holdersSlice = createSlice({
       })
       .addCase(fetchAddHolder.rejected, (state) => {
         state.status = "error";
+      });
+
+      builder
+      .addCase(fetchHolderOperation.pending, (state) => {
+        state.holder.status = "loading";
+      })
+      .addCase(fetchHolderOperation.fulfilled, (state, action) => {
+        state.holder.data = action.payload;
+        state.holder.status = "loaded";
+      })
+      .addCase(fetchHolderOperation.rejected, (state) => {
+        state.holder.data = {};
+        state.holder.status = "error";
       });
 
       builder

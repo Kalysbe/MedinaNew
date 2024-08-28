@@ -20,6 +20,11 @@ export const fetchAddHolder = createAsyncThunk("holders/fetchAddHolder", async (
   return response.data;
 })
 
+export const fetchHolderOperation = createAsyncThunk("holders/fetchHolderOperation", async ({eid,hid}) => {
+  const { data } = await axios.get(`/prints/emitent/${eid}/account/${hid}`);
+  return data;
+})
+
 export const fetchHoldersByEmitentId = createAsyncThunk("holders/fetchHoldersByEmitentId", async ({eid, type, emid}) => {
   const { data } = await axios.get(`/prints/emitent/${eid}/reestrs/holders?report_type=${type}&emission=${emid}`);
   return data;

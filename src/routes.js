@@ -49,6 +49,7 @@ import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
 import Transactions from "views/Pages/Log/Transactions/index"
 import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
 import Holders from "views/Pages/Holders.js"
+import HolderDetail from "views/Pages/Holders/detail.js"
 import EmitentHolders from "views/Pages/EmitentHolders.js"
 import EditHolder from "views/Pages/EditHolder.js"
 import OperationTransfer from "views/Pages/Operation/transfer/index.js"
@@ -462,6 +463,17 @@ var dashRoutes = [
     layout: "/admin",
     dashboard:true
   },
+  
+  {
+    path: "/holder/:id",
+    name: "Лицевой счет",
+    rtlName: "وصفت",
+    mini: "B",
+    rtlMini: "ب",
+    component: HolderDetail,
+    layout: "/admin",
+    dashboard:false
+    },
 
   {
     path: "/transaction/:id",
