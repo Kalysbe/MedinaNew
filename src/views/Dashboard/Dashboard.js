@@ -83,20 +83,20 @@ export default function Dashboard() {
               <CardIcon color="warning">
                 <Icon>content_copy</Icon>
               </CardIcon>
-              <p className={classes.cardCategory}>Used Space</p>
+              <p className={classes.cardCategory}>Эмитентов</p>
               <h3 className={classes.cardTitle}>
-                49/50 <small>GB</small>
+                3
               </h3>
             </CardHeader>
             <CardFooter stats>
-              <div className={classes.stats}>
+              {/* <div className={classes.stats}>
                 <Danger>
                   <Warning />
                 </Danger>
                 <a href="#pablo" onClick={e => e.preventDefault()}>
                   Get more space
                 </a>
-              </div>
+              </div> */}
             </CardFooter>
           </Card>
         </GridItem>
@@ -106,14 +106,14 @@ export default function Dashboard() {
               <CardIcon color="success">
                 <Store />
               </CardIcon>
-              <p className={classes.cardCategory}>Revenue</p>
-              <h3 className={classes.cardTitle}>$34,245</h3>
+              <p className={classes.cardCategory}>Акционеров</p>
+              <h3 className={classes.cardTitle}>36</h3>
             </CardHeader>
             <CardFooter stats>
-              <div className={classes.stats}>
+              {/* <div className={classes.stats}>
                 <DateRange />
                 Last 24 Hours
-              </div>
+              </div> */}
             </CardFooter>
           </Card>
         </GridItem>
@@ -123,14 +123,14 @@ export default function Dashboard() {
               <CardIcon color="danger">
                 <Icon>info_outline</Icon>
               </CardIcon>
-              <p className={classes.cardCategory}>Fixed Issues</p>
+              <p className={classes.cardCategory}>Кол-во бумаг</p>
               <h3 className={classes.cardTitle}>75</h3>
             </CardHeader>
             <CardFooter stats>
-              <div className={classes.stats}>
+              {/* <div className={classes.stats}>
                 <LocalOffer />
                 Tracked from Github
-              </div>
+              </div> */}
             </CardFooter>
           </Card>
         </GridItem>
@@ -140,20 +140,22 @@ export default function Dashboard() {
               <CardIcon color="info">
                 <i className="fab fa-twitter" />
               </CardIcon>
-              <p className={classes.cardCategory}>Followers</p>
-              <h3 className={classes.cardTitle}>+245</h3>
+              <p className={classes.cardCategory}>Обьем бумаг</p>
+              <h3 className={classes.cardTitle}>400 000 <small>Сом</small></h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
-                <Update />
-                Just Updated
+              <Danger>
+                  <Warning />
+                </Danger>
+               Номинальная стоимость
               </div>
             </CardFooter>
           </Card>
         </GridItem>
       </GridContainer>
       <GridContainer>
-        <GridItem xs={12}>
+        {/* <GridItem xs={12}>
           <Card>
             <CardHeader color="success" icon>
               <CardIcon color="success">
@@ -240,7 +242,7 @@ export default function Dashboard() {
               </GridContainer>
             </CardBody>
           </Card>
-        </GridItem>
+        </GridItem> */}
       </GridContainer>
       <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
@@ -277,7 +279,7 @@ export default function Dashboard() {
                   </Button>
                 </Tooltip>
               </div>
-              <h4 className={classes.cardTitle}>Daily Sales</h4>
+              <h4 className={classes.cardTitle}>Эмитенты</h4>
               <p className={classes.cardCategory}>
                 <span className={classes.successText}>
                   <ArrowUpward className={classes.upArrowCardCategory} /> 55%
@@ -327,7 +329,7 @@ export default function Dashboard() {
                   </Button>
                 </Tooltip>
               </div>
-              <h4 className={classes.cardTitle}>Email Subscriptions</h4>
+              <h4 className={classes.cardTitle}>Акционеры</h4>
               <p className={classes.cardCategory}>Last Campaign Performance</p>
             </CardBody>
             <CardFooter chart>
@@ -371,7 +373,7 @@ export default function Dashboard() {
                   </Button>
                 </Tooltip>
               </div>
-              <h4 className={classes.cardTitle}>Completed Tasks</h4>
+              <h4 className={classes.cardTitle}>Ценные бумаги</h4>
               <p className={classes.cardCategory}>Last Campaign Performance</p>
             </CardBody>
             <CardFooter chart>
@@ -382,7 +384,7 @@ export default function Dashboard() {
           </Card>
         </GridItem>
       </GridContainer>
-      <h3>Manage Listings</h3>
+      {/* <h3>Manage Listings</h3>
       <br />
       <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
@@ -568,7 +570,7 @@ export default function Dashboard() {
             </CardFooter>
           </Card>
         </GridItem>
-      </GridContainer>
+      </GridContainer> */}
     </div>
   );
 }

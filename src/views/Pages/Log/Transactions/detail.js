@@ -87,6 +87,21 @@ export default function RegularTables() {
   return (
     <GridContainer>
       <GridItem xs={12}>
+        <Box display="flex" justifyContent="flex-end">
+
+          <ReactToPrint
+            trigger={() =>
+              <Button
+                // variant="contained"
+                color="warning"
+                size="small"
+              >Печать</Button>
+
+            }
+            content={() => componentRef.current}
+          />
+
+        </Box>
         <Card>
           <Box py={3}>
             {/* <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>
@@ -130,7 +145,7 @@ export default function RegularTables() {
                             Лицо передающее ценные бумаги
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: <b> {data.holder_from.name}</b> 
+                            Ф.И.О: <b> {data.holder_from.name}</b>
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
                             Лицевой счет: <b> {data.holder_from.id}</b>
@@ -138,11 +153,11 @@ export default function RegularTables() {
                           <Typography variant="body2" color="textSecondary">
                             Документ:  Серия: <b>{data.holder_from?.passport_type}</b> Номер: <b>{data.holder_from?.passport_number}</b> Выдан: <b>{data.holder_from?.passport_agency}</b>
                           </Typography>
-                       
+
                           <Typography variant="body2" color="textSecondary">
-                            Адрес: <b>{data.holder_from.actual_address}</b> 
+                            Адрес: <b>{data.holder_from.actual_address}</b>
                           </Typography>
-                        
+
                           <Typography variant="body2" color="textSecondary">
                             Телефон, факс: <b> {data.holder_from.phone_number}</b>
                           </Typography>
@@ -156,30 +171,30 @@ export default function RegularTables() {
                     <Grid item xs={12}>
                       {data.holder_to && (
                         <>
-                        <Typography variant="h6" component="div">
-                          Лицо передающее ценные бумаги
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Ф.И.О: <b> {data.holder_to.name}</b> 
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Лицевой счет: <b> {data.holder_to.id}</b>
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Документ:  Серия: <b>{data.holder_to?.passport_type}</b> Номер: <b>{data.holder_to?.passport_number}</b> Выдан: <b>{data.holder_to?.passport_agency}</b>
-                        </Typography>
-                     
-                        <Typography variant="body2" color="textSecondary">
-                          Адрес: <b>{data.holder_to.actual_address}</b> 
-                        </Typography>
-                      
-                        <Typography variant="body2" color="textSecondary">
-                          Телефон, факс: <b> {data.holder_to.phone_number}</b>
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          ИНН: <b> {data.holder_to.inn}</b>
-                        </Typography>
-                      </>
+                          <Typography variant="h6" component="div">
+                            Лицо передающее ценные бумаги
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Ф.И.О: <b> {data.holder_to.name}</b>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Лицевой счет: <b> {data.holder_to.id}</b>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Документ:  Серия: <b>{data.holder_to?.passport_type}</b> Номер: <b>{data.holder_to?.passport_number}</b> Выдан: <b>{data.holder_to?.passport_agency}</b>
+                          </Typography>
+
+                          <Typography variant="body2" color="textSecondary">
+                            Адрес: <b>{data.holder_to.actual_address}</b>
+                          </Typography>
+
+                          <Typography variant="body2" color="textSecondary">
+                            Телефон, факс: <b> {data.holder_to.phone_number}</b>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            ИНН: <b> {data.holder_to.inn}</b>
+                          </Typography>
+                        </>
                       )}
                     </Grid>
                   </Grid>
@@ -261,21 +276,7 @@ export default function RegularTables() {
               </div>
             </Box>
 
-            <Box px={3} display="flex" alignItems="center" justifyContent="flex-end">
 
-              <ReactToPrint
-                trigger={() =>
-                  <Button
-                    // variant="contained"
-                    color="warning"
-                    size="small"
-                  >Печать</Button>
-
-                }
-                content={() => componentRef.current}
-              />
-
-            </Box>
           </Box>
         </Card>
       </GridItem>

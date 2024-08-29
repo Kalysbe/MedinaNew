@@ -101,10 +101,10 @@ export default function RegularForms() {
             setFormData(prevData => ({
                 ...prevData,
                 emission: newEmissionValue.reg_number,
-                quantity: newEmissionValue?.count,
+                quantity: formData.operation_id === 11 ? newEmissionValue?.blocked_count :  newEmissionValue?.count,
                 amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
-            setMaxCount(newEmissionValue?.count)
+            setMaxCount(formData.operation_id === 11 ? newEmissionValue?.blocked_count :  newEmissionValue?.count)
             setPrice(newEmissionValue?.nominal)
         }
         
@@ -142,19 +142,21 @@ export default function RegularForms() {
         const emitent_id = Emitent?.id;
         try {
             let updatedFormData = formData;
-
+    
             if (formData.operation_id === 1) {
                 const { holder_from_id, ...newFormData } = formData;
                 updatedFormData = newFormData;
                 await setFormData(newFormData);
             }
+    
             const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedFormData }));
             if (response.error) {
-                throw new Error(response.error);
+                // Получаем ошибку, если она была отклонена с `rejectWithValue`
+                throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
-
+    
             const newId = response.payload.id;
-
+    
             Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
@@ -167,16 +169,16 @@ export default function RegularForms() {
             });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
+    
             Swal.fire({
                 title: 'Ошибка!',
-                text: 'Произошла ошибка при отправке данных на сервер',
+                text: error.message || 'Произошла ошибка при отправке данных на сервер',
                 icon: 'error',
                 confirmButtonText: 'Ок',
             });
         } finally {
             setLoading(false);
         }
-
     };
 
     const classes = useStyles();
@@ -275,7 +277,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.count} шт.
+                                            {opt.reg_number} -  {formData.operation_id === 11 ? opt.blocked_count : opt.count} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -413,10 +415,13 @@ export default function RegularForms() {
                             <br />
                             <FormControl fullWidth>
                                 <Datetime
+                                  defaultValue={new Date()}
                                     value={formData['contract_date']}
                                     onChange={(date) => handleChangeDate('contract_date', date)}
                                     timeFormat={false}
                                     inputProps={{ placeholder: "Дата операции" }}
+                                       dateFormat="DD-MM-YYYY"
+                                    closeOnSelect={true}
                                 />
                             </FormControl>
                         </GridItem>

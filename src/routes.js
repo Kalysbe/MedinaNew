@@ -132,13 +132,14 @@ var dashRoutes = [
         layout: "/admin"
       },
       {
-        path: "/timeline-page",
-        name: "Timeline Page",
+        path: "/statistics",
+        name: "Статистика",
         rtlName: "تيالجدول الزمني",
         mini: "T",
         rtlMini: "تي",
         component: TimelinePage,
-        layout: "/admin"
+        layout: "/admin",
+        dashboard:true
       },
       {
         path: "/login-page",

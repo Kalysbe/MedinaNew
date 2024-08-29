@@ -13,7 +13,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-
+  Box,
   Icon
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
@@ -148,6 +148,7 @@ export default function RegularTables() {
     <>
       <GridContainer>
         <GridItem xs={12} sm={6} md={6} lg={4}>
+
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -162,6 +163,13 @@ export default function RegularTables() {
       </GridContainer>
       <GridContainer>
         <GridItem xs={12}>
+          <Box display="flex" justifyContent="flex-end" alignItems='flex-end'>
+          <NavLink to={'/admin/holder/add'}>
+                  <Button variant="outlined" color={'info'}>
+                    Добавить
+                  </Button>
+                </NavLink>
+          </Box>
           <Card >
             <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div style={{ width: '300px' }}>
@@ -176,6 +184,14 @@ export default function RegularTables() {
 
               <div style={{ display: 'flex', paddingTop: '14px' }}>
 
+                <FormGroup row>
+                  <FormControlLabel
+                    control={<Checkbox checked={isAllEmitents} onChange={handleCheckboxChange} name="checkedA" color="primary" />}
+                    label="По всем эмитентам"
+                  />
+                </FormGroup>
+
+                
                 <CustomInput
                   labelText='Поиск'
                   formControlProps={{
@@ -192,17 +208,7 @@ export default function RegularTables() {
                   }}
 
                 />
-                <FormGroup row>
-                  <FormControlLabel
-                    control={<Checkbox checked={isAllEmitents} onChange={handleCheckboxChange} name="checkedA" color="primary" />}
-                    label="По всем эмитентам"
-                  />
-                </FormGroup>
-                <NavLink to={'/admin/holder/add'}>
-                  <Button variant="outlined" color={'info'}>
-                    Добавить
-                  </Button>
-                </NavLink>
+               
               </div>
 
             </CardHeader>
@@ -236,9 +242,9 @@ export default function RegularTables() {
                             {cell.column.id === 'name' ? (
                               <NavLink to={`holder/${row.original.id}`} >
                                 <Typography color="primary">
-                                {cell.render('Cell')}
+                                  {cell.render('Cell')}
                                 </Typography>
-                        
+
                               </NavLink>
                             ) : (
                               cell.render('Cell')

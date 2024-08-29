@@ -14,6 +14,9 @@ import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 // import Table from "components/Table/Table.js";
 // import Card from "components/Card/Card.js";
+
+import NavPills from "components/NavPills/NavPills.js";
+
 import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
@@ -78,15 +81,31 @@ export default function RegularTables() {
   const componentRef = useRef();
   const dispatch = useDispatch();
   const Emitent = useSelector(state => state.emitents.store);
-  const {emitent, holder,operations} = useSelector(state => state.holders.holder.data);
+  const {emitent, holder,operations, emissions} = useSelector(state => state.holders.holder.data);
   const { status } = useSelector(state => state.holders.holder);
   useEffect(() => {
     dispatch(fetchHolderOperation({eid: Emitent?.id,hid:id}));
   }, []);
 
   return (
-    <GridContainer>
-      <GridItem xs={12}>
+    <Box>
+    
+      <Box display="flex" justifyContent="flex-end">
+         <ReactToPrint
+           trigger={() =>
+             <Button
+               // variant="contained"
+               color="warning"
+               size="small"
+             >Печать</Button>
+
+           }
+           content={() => componentRef.current}
+         />
+       </Box>
+    
+         
+          
         <Card>
           <Box py={3}>
     
@@ -132,10 +151,94 @@ export default function RegularTables() {
                     </div>
                 
                     </div>
+
+                    <NavPills
+                color="info"
+                tabs={[
+                  {
+                    tabButton: "Список эмиссий с акциями",
+                    tabContent: (
+                      <div>
+                      <Table>
+                                      <TableHead style={{ display: 'table-header-group' }}>
+                                          <TableRow>
+                                              <TableCell>№</TableCell>
+                                              <TableCell>Дата операции</TableCell>
+                                              <TableCell>Операция</TableCell>
+                                              <TableCell>Кол-во акций</TableCell>
+                                          </TableRow>
+                                      </TableHead>
+                                      <TableBody>
+                                          {operations.map((item, index) => (
+                                              <TableRow key={index}>
+                                                  <TableCell>
+                                                      {item.id}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {window.formatDate(item.contract_date)}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {item.operation?.name}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {window.formatNumber(item.quantity)}
+                                                  </TableCell>
+                                              </TableRow>
+                                          ))}
+                                      </TableBody>
+                                  </Table>
+                      </div>
+                    )
+                  },
+                  {
+                    tabButton: "Список операций с акциями",
+                    tabContent: (
+                      <div>
+                      <Table>
+                                      <TableHead style={{ display: 'table-header-group' }}>
+                                          <TableRow>
+                                              <TableCell>№</TableCell>
+                                              <TableCell>Рег. номер</TableCell>
+                                              <TableCell>Акций</TableCell>
+                                              <TableCell>Номинал</TableCell>
+                                              <TableCell>Сумма по номиналу</TableCell>
+                                              <TableCell>Блокир. акций</TableCell>
+                                          </TableRow>
+                                      </TableHead>
+                                      <TableBody>
+                                          {emissions?.map((item, index) => (
+                                              <TableRow key={index}>
+                                                  <TableCell>
+                                                      {index+1}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {item.reg_number}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {item.count}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {window.formatNumber(item.nominal)}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {window.formatNumber(item.count * item.nominal)}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                      {window.formatNumber(item.blocked_count)}
+                                                  </TableCell>
+                                              </TableRow>
+                                          ))}
+                                      </TableBody>
+                                  </Table>
+                      </div>
+                    )
+                  }
+                ]}
+              />   <div className={classes.printOnly}>
                     <Typography variant="subtitle2" >
                     Список операций с акциями
                   </Typography>
-                    <div>
+                 
                     <Table>
                                     <TableHead style={{ display: 'table-header-group' }}>
                                         <TableRow>
@@ -160,19 +263,6 @@ export default function RegularTables() {
                                                 <TableCell>
                                                     {window.formatNumber(item.quantity)}
                                                 </TableCell>
-                                                {/* <TableCell>
-                                                    {window.formatDate(item.release_date)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {item.reg_number}
-                                                </TableCell>
-                                               
-                                                <TableCell>
-                                                    {window.formatNumber(item.start_count)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {window.formatNumber(item.count)}
-                                                </TableCell> */}
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -190,26 +280,10 @@ export default function RegularTables() {
         
             </Box>
 
-            <Box px={3} display="flex" alignItems="center" justifyContent="flex-end">
-         
-              <ReactToPrint
-                trigger={() =>
-                  <Button
-                    // variant="contained"
-                    color="warning"
-                    size="small"
-                  >Печать</Button>
-
-                }
-                content={() => componentRef.current}
-              />
-
-            </Box>
+           
           </Box>
         </Card>
-      </GridItem>
-
-
-    </GridContainer>
+       
+    </Box>
   );
 }
