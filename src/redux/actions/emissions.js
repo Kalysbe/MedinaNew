@@ -1,11 +1,17 @@
 import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
+
+
 export const fetchEmissionsByEmitentId = createAsyncThunk("emitents/fetchEmissionsByEmitentId", async (eid) => {
     const { data } = await axios.get(`/emitents/${eid}/emissions`);
     return data;
   })
 
+  export const fetchEmissions = createAsyncThunk("emitents/fetchEmissions", async (eid) => {
+    const { data } = await axios.get(`/emissions`);
+    return data;
+  })
   
 export const fetchSecuritiesByEmitentId = createAsyncThunk("emitents/fetchSecuritiesByEmitentId", async (eid) => {
   const { data } = await axios.get(`/holders/${eid}/securities`);

@@ -1,4 +1,6 @@
-import React from "react";
+import React , {useEffect , useState} from "react";
+
+import { useDispatch, useSelector  } from 'react-redux';
 // react plugin for creating charts
 import ChartistGraph from "react-chartist";
 // react plugin for creating vector maps
@@ -37,6 +39,10 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 
+import { fetchEmitents } from "redux/actions/emitents";
+import { fetchAllHolders } from "redux/actions/holders";
+import { fetchEmissions } from "redux/actions/emissions";
+
 import {
   dailySalesChart,
   emailsSubscriptionChart,
@@ -70,10 +76,36 @@ var mapData = {
   US: 2920
 };
 
+
+
 const useStyles = makeStyles(styles);
 
 export default function Dashboard() {
+
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const Emitent = useSelector(state => state.emitents.emitents);
+  const Holders = useSelector(state => state.holders.holders);
+  const Emissions = useSelector(state => state.emissions.emissions);
+
+
+  const [emitentsTotal, setEmitentsTotal] = useState(0);
+  const [holdersTotal, setHoldersTotal] = useState(0);
+  const [emissionsTotal, setEmissionsTotal] = useState(0);
+
+
+  useEffect(() => {
+    setEmitentsTotal(Emitent?.items.length)
+    setHoldersTotal(Holders?.items.length)
+    setEmissionsTotal(Emissions?.items.length)
+  })   
+
+  useEffect(() => {
+    dispatch(fetchEmitents());
+    dispatch(fetchAllHolders());
+    dispatch(fetchEmissions());
+  }, []);
+
   return (
     <div>
       <GridContainer>
@@ -85,7 +117,7 @@ export default function Dashboard() {
               </CardIcon>
               <p className={classes.cardCategory}>Эмитентов</p>
               <h3 className={classes.cardTitle}>
-                3
+                {emitentsTotal}
               </h3>
             </CardHeader>
             <CardFooter stats>
@@ -107,7 +139,7 @@ export default function Dashboard() {
                 <Store />
               </CardIcon>
               <p className={classes.cardCategory}>Акционеров</p>
-              <h3 className={classes.cardTitle}>36</h3>
+              <h3 className={classes.cardTitle}>{holdersTotal}</h3>
             </CardHeader>
             <CardFooter stats>
               {/* <div className={classes.stats}>
@@ -124,7 +156,7 @@ export default function Dashboard() {
                 <Icon>info_outline</Icon>
               </CardIcon>
               <p className={classes.cardCategory}>Кол-во бумаг</p>
-              <h3 className={classes.cardTitle}>75</h3>
+              <h3 className={classes.cardTitle}>{emissionsTotal}</h3>
             </CardHeader>
             <CardFooter stats>
               {/* <div className={classes.stats}>
@@ -155,53 +187,53 @@ export default function Dashboard() {
         </GridItem>
       </GridContainer>
       <GridContainer>
-        {/* <GridItem xs={12}>
+        <GridItem xs={12}>
           <Card>
             <CardHeader color="success" icon>
               <CardIcon color="success">
                 <Language />
               </CardIcon>
               <h4 className={classes.cardIconTitle}>
-                Global Sales by Top Locations
+              Топ 5 эмитентов по количеству акционеров
               </h4>
             </CardHeader>
             <CardBody>
               <GridContainer justify="space-between">
-                <GridItem xs={12} sm={12} md={5}>
+                <GridItem xs={12} sm={12} md={12}>
                   <Table
                     tableData={[
                       [
-                        <img src={us_flag} alt="us_flag" key={"flag"} />,
+                     
                         "USA",
                         "2.920",
                         "53.23%"
                       ],
                       [
-                        <img src={de_flag} alt="us_flag" key={"flag"} />,
+                      
                         "Germany",
                         "1.300",
                         "20.43%"
                       ],
                       [
-                        <img src={au_flag} alt="us_flag" key={"flag"} />,
+                       
                         "Australia",
                         "760",
                         "10.35%"
                       ],
                       [
-                        <img src={gb_flag} alt="us_flag" key={"flag"} />,
+                      
                         "United Kingdom",
                         "690",
                         "7.87%"
                       ],
                       [
-                        <img src={ro_flag} alt="us_flag" key={"flag"} />,
+                       
                         "Romania",
                         "600",
                         "5.94%"
                       ],
                       [
-                        <img src={br_flag} alt="us_flag" key={"flag"} />,
+                       
                         "Brasil",
                         "550",
                         "4.34%"
@@ -209,44 +241,15 @@ export default function Dashboard() {
                     ]}
                   />
                 </GridItem>
-                <GridItem xs={12} sm={12} md={6}>
-                  <VectorMap
-                    map={"world_mill"}
-                    backgroundColor="transparent"
-                    zoomOnScroll={false}
-                    containerStyle={{
-                      width: "100%",
-                      height: "280px"
-                    }}
-                    containerClassName="map"
-                    regionStyle={{
-                      initial: {
-                        fill: "#e4e4e4",
-                        "fill-opacity": 0.9,
-                        stroke: "none",
-                        "stroke-width": 0,
-                        "stroke-opacity": 0
-                      }
-                    }}
-                    series={{
-                      regions: [
-                        {
-                          values: mapData,
-                          scale: ["#AAAAAA", "#444444"],
-                          normalizeFunction: "polynomial"
-                        }
-                      ]
-                    }}
-                  />
-                </GridItem>
+               
               </GridContainer>
             </CardBody>
           </Card>
-        </GridItem> */}
+        </GridItem>
       </GridContainer>
       <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
-          <Card chart className={classes.cardHover}>
+          <Card chart >
             <CardHeader color="info" className={classes.cardHeaderHover}>
               <ChartistGraph
                 className="ct-chart-white-colors"
@@ -257,28 +260,7 @@ export default function Dashboard() {
               />
             </CardHeader>
             <CardBody>
-              <div className={classes.cardHoverUnder}>
-                <Tooltip
-                  id="tooltip-top"
-                  title="Refresh"
-                  placement="bottom"
-                  classes={{ tooltip: classes.tooltip }}
-                >
-                  <Button simple color="info" justIcon>
-                    <Refresh className={classes.underChartIcons} />
-                  </Button>
-                </Tooltip>
-                <Tooltip
-                  id="tooltip-top"
-                  title="Change Date"
-                  placement="bottom"
-                  classes={{ tooltip: classes.tooltip }}
-                >
-                  <Button color="transparent" simple justIcon>
-                    <Edit className={classes.underChartIcons} />
-                  </Button>
-                </Tooltip>
-              </div>
+
               <h4 className={classes.cardTitle}>Эмитенты</h4>
               <p className={classes.cardCategory}>
                 <span className={classes.successText}>
