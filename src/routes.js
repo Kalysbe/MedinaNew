@@ -54,6 +54,9 @@ import EmitentHolders from "views/Pages/EmitentHolders.js"
 import EditHolder from "views/Pages/EditHolder.js"
 import OperationTransfer from "views/Pages/Operation/transfer/index.js"
 import OperationSingle from "views/Pages/Operation/single/index.js"
+
+import Dividends from "views/Pages/Dividend/List.js"
+import CalculationDividend from "views/Pages/Dividend/Calculation.js"
 var dashRoutes = [
 
   {
@@ -344,6 +347,35 @@ var dashRoutes = [
         mini: "W",
         rtlMini: "ث",
         component: OperationSingle,
+        layout: "/admin",
+        dashboard:true
+      }
+    ]
+  },
+  {
+    collapse: true,
+    name: "Дивиденды ",
+    rtlName: "إستمارات",
+    icon: "money",
+    state: "dividends",
+    views: [
+      {
+        path: "/dividends",
+        name: "Расчет",
+        rtlName: "أشكال عادية",
+        mini: "RF",
+        rtlMini: "صو",
+        component: Dividends,
+        layout: "/admin",
+        dashboard:true
+      },
+      {
+        path: "/calculation-dividend",
+        name: "Дивиденды",
+        rtlName: "أشكال عادية",
+        mini: "RF",
+        rtlMini: "صو",
+        component: CalculationDividend,
         layout: "/admin",
         dashboard:true
       }
