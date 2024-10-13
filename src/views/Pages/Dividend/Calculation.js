@@ -34,6 +34,8 @@ import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
+import { NavLink } from "react-router-dom";
+
 import { fetchCreateDividend } from "redux/actions/dividend";
 
 
@@ -65,26 +67,18 @@ export default function RegularForms() {
 
 
     const [formData, setFormData] = useState({
-    title: "за 2023 период",
-    holder_type: 2,
-    date_payment: "12.10.2024",
-    share_price: 23.45,
-    share_debited: 10
+        title: "за 2023 период",
+        month_year: "",
+        type: "",
+        date_close_reestr: "",
+        share_price: "",
+        share_debited: ""
     });
 
 
 
 
 
-    useEffect(() => {
-
-        setFormData(prevData => ({
-            ...prevData,
-
-            amount: formData.quantity * price
-        }));
-
-    }, [formData.quantity]);
 
     const handleChange = (e, isSelect = false) => {
         const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
@@ -110,7 +104,7 @@ export default function RegularForms() {
        
         try {
           
-            const response = await dispatch(fetchCreateDividend({ emitent_id, ...formData }));
+            const response =  await dispatch(fetchCreateDividend({ emitent_id, ...formData }));
             if (response.error) {
                 throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
@@ -145,8 +139,8 @@ export default function RegularForms() {
     return (
 
         <Card>
-            <CardHeader color="rose" icon>
-                <CardIcon color="rose">
+            <CardHeader color="info" icon>
+                <CardIcon color="info">
                     <MailOutline />
                 </CardIcon>
                 <h4 className={classes.cardIconTitle}>Расчет дивиденда</h4>
@@ -160,8 +154,8 @@ export default function RegularForms() {
                             <FormControl fullWidth>
                                 <Datetime
                                     defaultValue={new Date()}
-                                    value={formData['date_payment']}
-                                    onChange={(date) => handleChangeDate('date_payment', date)}
+                                    value={formData['date_close_reestr']}
+                                    onChange={(date) => handleChangeDate('date_close_reestr', date)}
                                     timeFormat={false}
                                     inputProps={{ placeholder: "Дата вывода" }}
                                     dateFormat="DD-MM-YYYY"
@@ -176,8 +170,8 @@ export default function RegularForms() {
                                 <Datetime
                                     defaultValue={new Date()}
                                     dateFormat="MMMM YYYY"
-                                    value={formData['contract_date']}
-                                    onChange={(date) => handleChangeDate('contract_date', date)}
+                                    value={formData['month_year']}
+                                    onChange={(date) => handleChangeDate('month_year', date)}
                                     timeFormat={false}
                                     inputProps={{ placeholder: "Дата вывода" }}
 
@@ -220,8 +214,8 @@ export default function RegularForms() {
                                     classes={{
                                         select: classes.select
                                     }}
-                                    name='operation_id'
-                                    value={formData['operation_id']}
+                                    name='type'
+                                    value={formData['type']}
                                     onChange={handleChange}
                                 >
 
@@ -248,14 +242,17 @@ export default function RegularForms() {
                                         handleChange(event)
                                     },
                                     type: 'number',
-                                    name: 'amount',
-                                    value: formData['amount'],
+                                    name: 'share_debited',
+                                    value: formData['share_debited'],
                                 }}
 
                             />
                         </GridItem>
                     </GridContainer>
-                    <Button color="rose" onClick={handleSubmit}>Расчитать</Button>
+                    <NavLink to={'/admin/dividends'}>
+                    <Button color="rose">Закрыть</Button>
+                    </NavLink>
+                    <Button color="info" onClick={handleSubmit}>Расчитать</Button>
                 </form>
             </CardBody>
         </Card>

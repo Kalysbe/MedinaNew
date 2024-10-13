@@ -377,7 +377,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: CalculationDividend,
         layout: "/admin",
-        dashboard:true
+        dashboard:false
       }
     ]
   },
