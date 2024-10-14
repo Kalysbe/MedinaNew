@@ -18,7 +18,7 @@ import {
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDividends } from "redux/actions/dividend";
+import { fetchDividendTransactionsById } from "redux/actions/dividend";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -31,13 +31,14 @@ import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import TextField from '@material-ui/core/TextField';
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
 
 const useStyles = makeStyles(styles);
 
 export default function RegularTables() {
+    const { id } = useParams();
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -52,30 +53,13 @@ export default function RegularTables() {
 
 
   const Emitent = useSelector(state => state.emitents?.store);
-  const Dividends = useSelector(state => state.dividend?.dividends);
+  const { dividendTransactions, dividendTransactionsStatus } = useSelector(state => state.dividend.dividendTransaction);
+
+    console.log(id)
 
   useEffect(() => {
-    dispatch(fetchDividends(Emitent?.id));
+    dispatch(fetchDividendTransactionsById(id));
   }, [isAllEmitents, Emitent?.id, dispatch]);
-
-  useEffect(() => {
-    const holdersCount = Dividends?.items.length;
-
-    const calculateSums = (data) => {
-      return data.reduce(
-        (acc, item) => {
-          acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
-          acc.privileged = (acc.privileged || 0) + (item.privileged ? parseFloat(item.privileged) : 0);
-          return acc;
-        },
-        { ordinary: 0, privileged: 0 }
-      );
-    };
-
-    const newSums = calculateSums(Dividends?.items);
-    setTotalHolders(holdersCount);
-  }, [Dividends]);
-
 
 
   const handleSearchChange = (event) => {
@@ -83,11 +67,11 @@ export default function RegularTables() {
   };
 
   const filteredHolders = useMemo(() => {
-    if (!Dividends?.items) return [];
-    return Dividends.items.filter(item =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase())
+    if (!dividendTransactions?.dividend_transactions) return [];
+    return dividendTransactions.dividend_transactions.filter(item =>
+      item.holder.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [Dividends, searchTerm]);
+  }, [dividendTransactions, searchTerm]);
 
   const columns = useMemo(
     () => [
@@ -97,18 +81,18 @@ export default function RegularTables() {
         sortType: 'basic'
       },
       {
-        Header: 'Месяц год',
-        accessor: 'month_year', // Поле данных для этого столбца
+        Header: 'Наименование',
+        accessor: 'holder.name', // Поле данных для этого столбца
         sortType: 'basic'
       },
       {
-        Header: 'Расценка',
-        accessor: 'share_price', // Поле данных для этого столбца
+        Header: 'Количество акций',
+        accessor: 'share_credited', // Поле данных для этого столбца
         sortType: 'basic'
       },
       {
-        Header: 'Категория',
-        accessor: 'dividend_type.name', // Поле данных для этого столбца
+        Header: 'Начислено',
+        accessor: 'amount_pay', // Поле данных для этого столбца
         sortType: 'basic'
       },
 
@@ -116,22 +100,6 @@ export default function RegularTables() {
         Header: 'Наименование',
         accessor: 'name', // Поле данных для этого столбца
         sortType: 'basic'
-      },
-      {
-        Header: 'Действия', // New column for the buttons
-        accessor: 'actions',
-        disableSortBy: true, // Disable sorting for this column
-        Cell: ({ row }) => (
-          <Box display="flex">
-            <NavLink to={`dividend/${row.original.id}`} >
-            <Button
-              variant="outlined"
-              color="info">
-                  Открыть
-            </Button>
-            </NavLink>
-          </Box>
-        )
       }
     ],
     []

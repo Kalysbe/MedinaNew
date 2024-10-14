@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchDividends,fetchDividendById,fetchCreateDividend } from '../actions/dividend'
+import { fetchDividends,fetchDividendById,fetchDividendTransactionsById,fetchCreateDividend } from '../actions/dividend'
 
 
 const initialState = {
@@ -10,6 +10,10 @@ const initialState = {
   dividend: {
     data: {},
     status: "loading"
+  },
+  dividendTransaction: {
+    dividendTransactions: {},
+    dividendTransactionsStatus: "loading"
   }
 }
 
@@ -44,6 +48,19 @@ const dividendSlice = createSlice({
     .addCase(fetchDividendById.rejected, (state) => {
       state.dividend.data = {};
       state.dividend.status = "error";
+    });
+
+  builder
+    .addCase(fetchDividendTransactionsById.pending, (state) => {
+      state.dividendTransaction.status = "loading";
+    })
+    .addCase(fetchDividendTransactionsById.fulfilled, (state, action) => {
+      state.dividendTransaction.dividendTransactions = action.payload;
+      state.dividendTransaction.status = "loaded";
+    })
+    .addCase(fetchDividendTransactionsById.rejected, (state) => {
+      state.dividendTransaction.dividendTransactions = {};
+      state.dividendTransaction.status = "error";
     });
 
     builder

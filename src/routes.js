@@ -57,6 +57,9 @@ import OperationSingle from "views/Pages/Operation/single/index.js"
 
 import Dividends from "views/Pages/Dividend/List.js"
 import CalculationDividend from "views/Pages/Dividend/Calculation.js"
+import DividendDetail from "views/Pages/Dividend/DividendDetail.js"
+import DividendTransactions from "views/Pages/Dividend/DividendTransactions.js"
+
 var dashRoutes = [
 
   {
@@ -370,6 +373,26 @@ var dashRoutes = [
         dashboard:true
       },
       {
+        path: "/dividend/:id",
+        name: "Детали дивиденда",
+        rtlName: "أشكال عادية",
+        mini: "RF",
+        rtlMini: "صو",
+        component: DividendDetail,
+        layout: "/admin",
+        dashboard:false
+      },
+      {
+        path: "/dividend-transactions/:id",
+        name: "Детали дивиденда",
+        rtlName: "أشكال عادية",
+        mini: "RF",
+        rtlMini: "صو",
+        component: DividendTransactions,
+        layout: "/admin",
+        dashboard:false
+      },
+      {
         path: "/calculation-dividend",
         name: "Дивиденды",
         rtlName: "أشكال عادية",
@@ -378,7 +401,8 @@ var dashRoutes = [
         component: CalculationDividend,
         layout: "/admin",
         dashboard:false
-      }
+      },
+
     ]
   },
   // {

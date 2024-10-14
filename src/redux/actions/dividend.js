@@ -11,9 +11,13 @@ export const fetchDividendById = createAsyncThunk("dividend/fetchDividendById", 
   const { data } = await axios.get(`/dividends/${id}/details`);
   return data;
 })
+export const fetchDividendTransactionsById = createAsyncThunk("dividend/fetchDividendTransactionsById", async (id) => {
+  const { data } = await axios.get(`/dividends/${id}/transactions`);
+  return data;
+})
 
   export const fetchCreateDividend = createAsyncThunk("emitents/fetchCreateDividend", async (data) => {
-    const response = await axios.post(`/dividends`, data);
+    const response = await axios.post(`/dividends/create`, data);
     return response.data;
   })
 
