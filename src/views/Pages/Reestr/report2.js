@@ -70,7 +70,7 @@ export default function Report1(props) {
                         {item.actual_address} 
                       </TableCell>
                       <TableCell>
-                        {item.district} 
+                        {item.district.name} 
                       </TableCell>
                     </TableRow>
                   ))}

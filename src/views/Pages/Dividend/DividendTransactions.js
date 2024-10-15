@@ -87,18 +87,23 @@ export default function RegularTables() {
       },
       {
         Header: 'Количество акций',
-        accessor: 'share_credited', // Поле данных для этого столбца
+        accessor: 'share_count', // Поле данных для этого столбца
         sortType: 'basic'
       },
       {
         Header: 'Начислено',
-        accessor: 'amount_pay', // Поле данных для этого столбца
+        accessor: 'share_credited', // Поле данных для этого столбца
         sortType: 'basic'
       },
 
       {
-        Header: 'Наименование',
-        accessor: 'name', // Поле данных для этого столбца
+        Header: 'Отчислено',
+        accessor: 'share_debited', // Поле данных для этого столбца
+        sortType: 'basic'
+      },
+      {
+        Header: 'Сумма к выдаче',
+        accessor: 'amount_pay', // Поле данных для этого столбца
         sortType: 'basic'
       }
     ],
@@ -153,8 +158,8 @@ export default function RegularTables() {
         <GridItem xs={12}>
           <Box display="flex" justifyContent="flex-end" alignItems='flex-end'>
             <NavLink to={'/admin/calculation-dividend'}>
-              <Button variant="outlined" color={'info'}>
-                Добавить
+              <Button variant="outlined" color={'warning'}>
+                Печать
               </Button>
             </NavLink>
           </Box>
@@ -212,8 +217,8 @@ export default function RegularTables() {
                       <TableRow {...row.getRowProps()}>
                         {row.cells.map(cell => (
                           <TableCell {...cell.getCellProps()}>
-                            {cell.column.id === 'share_price' ? (
-                              <NavLink to={`dividend/${row.original.id}`} >
+                            {cell.column.id === 'holder.name' ? (
+                              <NavLink to={`/admin/holder/${row.original.id}`} >
                                 <Typography color="primary">
                                   {cell.render('Cell')}
                                 </Typography>

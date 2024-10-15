@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Datetime from "react-datetime";
+import moment from 'moment';
+import 'moment/locale/ru'
 import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -65,6 +67,8 @@ export default function RegularForms() {
     const [price, setPrice] = useState(null);
 
 
+    moment.locale('ru');
+
 
     const [formData, setFormData] = useState({
         title: "за 2023 период",
@@ -72,7 +76,7 @@ export default function RegularForms() {
         type: "",
         date_close_reestr: "",
         share_price: "",
-        share_debited: ""
+        percent: ""
     });
 
 
@@ -91,12 +95,19 @@ export default function RegularForms() {
     };
 
     const handleChangeDate = (name, value) => {
-        const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
+        let newValue;
+        if (name === 'month_year') {
+            newValue = moment(value).format('MM_YYYY');
+        } else {
+            newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
+        }
+    
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
         }));
     };
+    
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -109,7 +120,7 @@ export default function RegularForms() {
                 throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
 
-            const newId = response.payload.id;
+            const newId = response.payload.dividend.id;
 
             Swal.fire({
                 title: 'Успешно!',
@@ -118,7 +129,7 @@ export default function RegularForms() {
                 confirmButtonText: 'Ок',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    history.push(`/admin/transaction/${newId}`);
+                    history.push(`/admin/dividend/${newId}`);
                 }
             });
         } catch (error) {
@@ -176,6 +187,7 @@ export default function RegularForms() {
                                     inputProps={{ placeholder: "Дата вывода" }}
 
                                     closeOnSelect={true}
+                                    locale="ru"
                                 />
                             </FormControl>
                         </GridItem>
@@ -218,7 +230,14 @@ export default function RegularForms() {
                                     value={formData['type']}
                                     onChange={handleChange}
                                 >
-
+                                      {/* <MenuItem
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={3}>
+                                        Все акционеры 
+                                    </MenuItem> */}
                                     <MenuItem
                                         classes={{
                                             root: classes.selectMenuItem,
@@ -226,6 +245,14 @@ export default function RegularForms() {
                                         }}
                                         value={1}>
                                         Физические нерезиденты
+                                    </MenuItem>
+                                    <MenuItem
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={2}>
+                                        Юридический 
                                     </MenuItem>
 
                                 </Select>
@@ -242,8 +269,8 @@ export default function RegularForms() {
                                         handleChange(event)
                                     },
                                     type: 'number',
-                                    name: 'share_debited',
-                                    value: formData['share_debited'],
+                                    name: 'percent',
+                                    value: formData['percent'],
                                 }}
 
                             />

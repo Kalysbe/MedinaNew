@@ -62,7 +62,7 @@ export default function Report1(props) {
                         {item.percentage} %
                       </TableCell>
                       <TableCell>
-                        {item.district} 
+                        {item.district?.name} 
                       </TableCell>
                     </TableRow>
                   ))}

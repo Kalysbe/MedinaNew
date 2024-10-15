@@ -256,7 +256,7 @@ console.log(isAuth,'auth')
           </div>
         )}
         {/* {getRoute() ? <Footer fluid /> : null} */}
-        <FixedPlugin
+        {/* <FixedPlugin
           handleImageClick={handleImageClick}
           handleColorClick={handleColorClick}
           handleBgColorClick={handleBgColorClick}
@@ -267,7 +267,7 @@ console.log(isAuth,'auth')
           fixedClasses={fixedClasses}
           sidebarMinimize={sidebarMinimize.bind(this)}
           miniActive={miniActive}
-        />
+        /> */}
       </div>
     </div>
   );

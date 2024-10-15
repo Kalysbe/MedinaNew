@@ -7,12 +7,6 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  TablePagination,
-  TableContainer,
-  Paper,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   Box,
   Icon
 } from "@material-ui/core";
@@ -30,7 +24,6 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
-import TextField from '@material-ui/core/TextField';
 import { NavLink } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
@@ -92,30 +85,43 @@ export default function RegularTables() {
   const columns = useMemo(
     () => [
       {
-        Header: 'Счет',
-        accessor: 'id', // Поле данных для этого столбца
+        Header: '№',
+        accessor: 'id',
         sortType: 'basic'
       },
       {
         Header: 'Месяц год',
-        accessor: 'month_year', // Поле данных для этого столбца
-        sortType: 'basic'
-      },
-      {
-        Header: 'Расценка',
-        accessor: 'share_price', // Поле данных для этого столбца
+        accessor: 'month_year',
         sortType: 'basic'
       },
       {
         Header: 'Категория',
-        accessor: 'dividend_type.name', // Поле данных для этого столбца
+        accessor: 'dividend_type.name',
         sortType: 'basic'
       },
-
       {
-        Header: 'Наименование',
-        accessor: 'name', // Поле данных для этого столбца
+        Header: 'Расценка',
+        accessor: 'share_price',
         sortType: 'basic'
+      },
+    
+      {
+        Header: '% отчисл',
+        accessor: 'percent',
+        sortType: 'basic'
+      },
+      {
+        Header: 'Кол-во акций',
+        accessor: 'amount_share',
+        sortType: 'basic'
+      },
+      {
+        Header: 'Дата закрытия реестра',
+        accessor: 'date_close_reestr',
+        sortType: 'basic',
+        Cell: ({ value }) => {
+          return window.formatDate(value);
+        },
       },
       {
         Header: 'Действия', // New column for the buttons
@@ -151,7 +157,7 @@ export default function RegularTables() {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize: setTablePageSize, // Переименовываем для избежания конфликта
+    setPageSize: setTablePageSize, 
     state: { pageIndex: tablePageIndex, pageSize: tablePageSize }
   } = useTable(
     {
@@ -168,7 +174,6 @@ export default function RegularTables() {
     <>
       <GridContainer>
         <GridItem xs={12} sm={6} md={6} lg={4}>
-
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -208,7 +213,6 @@ export default function RegularTables() {
                     onChange: event => {
                       handleSearchChange(event)
                     },
-
                     type: 'text',
                     name: 'emission',
                     value: searchTerm
@@ -218,7 +222,6 @@ export default function RegularTables() {
 
             </CardHeader>
             <CardBody>
-
               <Table {...getTableProps()}>
                 <TableHead>
                   {headerGroups.map(headerGroup => (
@@ -261,8 +264,6 @@ export default function RegularTables() {
                   })}
                 </TableBody>
               </Table>
-
-
             </CardBody>
           </Card>
         </GridItem>

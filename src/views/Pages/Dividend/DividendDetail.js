@@ -102,113 +102,122 @@ export default function RegularTables() {
                     />
 
                 </Box>
-                <Card style={{ maxWidth: '700px' }}>
-                <CardBody>
-                    <Box py={3}>
+                <Card style={{ maxWidth: '700px', margin: '0 auto' }}>
+                    <CardBody>
+                        <Box py={3}>
 
-                        <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
-                            <Typography align="center" variant="h3" mr={2}></Typography>
+                            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
+                                <Typography align="center" variant="h3" mr={2}></Typography>
 
-                            {status === "loading" && id ? (
-                                <Box py="30px" display="flex" justifyContent="center">
-                                    <CircularProgress color="primary" size={80} /> {status}
-                                </Box>
-                            ) : (
-                                <Box minWidth={275} >
-                                    <Typography variant="h5" component="div" align="center">
-                                        Ведомость расчета дивидендов
-                                    </Typography>
+                                {status === "loading" && id ? (
+                                    <Box py="30px" display="flex" justifyContent="center">
+                                        <CircularProgress color="primary" size={80} /> {status}
+                                    </Box>
+                                ) : (
+                                    <Box minWidth={275} >
+                                        <Typography variant="h5" component="div" align="center">
+                                            Ведомость расчета дивидендов
+                                        </Typography>
 
-                                    <Typography variant="h5" component="div" align="center">
-                                        {data?.title}
-                                    </Typography>
+                                        <Typography variant="h5" component="div" align="center">
+                                            {data?.title}
+                                        </Typography>
 
-                                    <Typography variant="body2" color="textSecondary">
-                                        Предприятие:  <b> {data?.share_price}</b>
-                                    </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Предприятие:  <b> {data?.share_price}</b>
+                                        </Typography>
 
-                                    <Typography variant="body2" color="textSecondary">
-                                        Категория:  <b> {data?.dividend_type?.name}</b>
-                                    </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Категория:  <b> {data?.dividend_type?.name}</b>
+                                        </Typography>
 
-                                    <Typography variant="body2" color="textSecondary">
-                                        Дата закрытия реестра:  <b> {window.formatDate(data?.date_close_reestr)} </b>
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Расценка на акцию:  <b> {data?.share_price}</b>
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Количество акций: <b> {data?.amount_share} </b>
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Сумма начислено: <b> {data?.amount_share_credited}</b>
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Сумма ударжано: <b> {data.amount_share_debited}</b>
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Сумма к выдаче:  <b> {data.amount_pay}</b>
-                                    </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Дата закрытия реестра:  <b> {window.formatDate(data?.date_close_reestr)} </b>
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Расценка на акцию:  <b> {data?.share_price}</b>
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Количество акций: <b> {data?.amount_share} </b>
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Сумма начислено: <b> {data?.amount_share_credited}</b>
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Сумма ударжано: <b> {data.amount_share_debited}</b>
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Сумма к выдаче:  <b> {data.amount_pay}</b>
+                                        </Typography>
 
-                                </Box>
-                            )}
+                                    </Box>
+                                )}
 
-                            <div className={classes.printOnly}>
-                                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
-                                    <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
+                                <div >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign:'center' }} >
+                                        <Typography style={{marginTop:'-24px'}}>Руководитель предприятие</Typography>
 
-                                    <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
-                                </div>
-                            </div>
+                                        <Typography style={{ borderTop: '1px solid #000' }}>Подпись</Typography>
 
-                            <hr className={classes.printOnly} />
-                            <div className={classes.printOnly} style={{ marginTop: '14px' }}>
-                                <div>
-                                    <span>Держатель реестра:</span>
-                                    <b> ОсОО "Реестродержатель Медина"</b>
-                                </div>
-                                <div>
-                                    <span>Орган государственной регистрации:</span>
-                                    <b> Чуй-Бишкекское управление юстиции</b>
-                                </div>
-                                <div>
-                                    <span>Регистрационный номер:</span>
-                                    <b> 133580-3301-000 от 09.12.2013 год</b>
-                                </div>
-                                <div>
-                                    <span>Лицензия:</span>
-                                    <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
-                                </div>
-                                <div>
-                                    <span>Юридический адрес:</span>
-                                    <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                                        <Typography style={{width: '40%', borderTop: '1px solid #000' }}>ФИО</Typography>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign:'center' }} >
+                                        <Typography style={{marginTop:'-24px'}}>Главный бухгалтер предприятие</Typography>
+
+                                        <Typography style={{ borderTop: '1px solid #000' }}>Подпись</Typography>
+
+                                        <Typography style={{width: '40%', borderTop: '1px solid #000' }}>ФИО</Typography>
+                                    </div>
                                 </div>
 
-                            </div>
+                                <hr className={classes.printOnly} />
+                                <div className={classes.printOnly} style={{ marginTop: '14px' }}>
+                                    <div>
+                                        <span>Держатель реестра:</span>
+                                        <b> ОсОО "Реестродержатель Медина"</b>
+                                    </div>
+                                    <div>
+                                        <span>Орган государственной регистрации:</span>
+                                        <b> Чуй-Бишкекское управление юстиции</b>
+                                    </div>
+                                    <div>
+                                        <span>Регистрационный номер:</span>
+                                        <b> 133580-3301-000 от 09.12.2013 год</b>
+                                    </div>
+                                    <div>
+                                        <span>Лицензия:</span>
+                                        <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                                    </div>
+                                    <div>
+                                        <span>Юридический адрес:</span>
+                                        <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                                    </div>
 
-
-
-                            <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
-
-                            <div className={classes.printOnly}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                                    <Typography>Номер операции: <b>{id}</b></Typography>
-                                    <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
                                 </div>
-                            </div>
+
+
+
+                                <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
+
+                                <div className={classes.printOnly}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
+                                        <Typography>Номер операции: <b>{id}</b></Typography>
+                                        <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
+                                    </div>
+                                </div>
+                            </Box>
+
+
                         </Box>
-
-
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <NavLink to={'/admin/dividends'}>
-                        <Button color="rose">Закрыть</Button>
-                    </NavLink>
-                    <NavLink to={`/admin/dividend-transactions/${id}`}>
-                        <Button color="info">Детали</Button>
-                    </NavLink>
-                    </Box>
-                            </CardBody>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <NavLink to={'/admin/dividends'}>
+                                <Button color="rose">Закрыть</Button>
+                            </NavLink>
+                            <NavLink to={`/admin/dividend-transactions/${id}`}>
+                                <Button color="info">Детали</Button>
+                            </NavLink>
+                        </Box>
+                    </CardBody>
                 </Card>
             </GridItem>
 
