@@ -53,8 +53,6 @@ export default function CustomTable(props) {
         setSearchTerm(event.target.value);
     };
 
-    console.log(tableData)
-
     const filteredData = useMemo(() => {
         if (!tableData) return [];
         return tableData.filter(item =>
