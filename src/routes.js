@@ -40,6 +40,10 @@ import WidgetsIcon from "@material-ui/icons/Widgets";
 //
 import EmitentList from "views/Pages/EmitentList.js";
 import EditEmitent from "views/Pages/EditEmitent.js"
+
+//Start Reference
+import ReferenceList from "views/Pages/Reference/ReferenceList.js"
+import DistrictList from "views/Pages/Reference/District/DistrictList"
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
@@ -70,7 +74,7 @@ var dashRoutes = [
     icon: DashboardIcon,
     component: Dashboard,
     layout: "/admin",
-    dashboard:true
+    dashboard: true
   },
   {
     path: "/emitent-list",
@@ -84,13 +88,29 @@ var dashRoutes = [
     name: "Новый эмитент",
     component: EditEmitent,
     layout: "/admin"
-    },
+  },
+  //Start Reference
+  {
+    path: "/reference-list",
+    name: "Справочник",
+    icon: DashboardIcon,
+    component: ReferenceList,
+    layout: "/admin"
+  },
+  {
+    path: "/district-list",
+    name: "Список регионов",
+    icon: DashboardIcon,
+    component: DistrictList,
+    layout: "/admin"
+  },
+  //End Reference
   {
     path: "/holder/add",
     name: "Новый акционер",
     component: EditHolder,
     layout: "/admin"
-    },
+  },
   {
     collapse: true,
     name: "Эмитент",
@@ -106,7 +126,7 @@ var dashRoutes = [
         rtlMini: "ع",
         component: EmitentDetail,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
       {
         path: "/emitent-stocks/",
@@ -116,7 +136,7 @@ var dashRoutes = [
         rtlMini: "ع",
         component: EmitentStocks,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
       {
         path: "/emitent-stock/add/",
@@ -126,7 +146,7 @@ var dashRoutes = [
         rtlMini: "ع",
         component: EmitentStockEdit,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/rtl-support-page",
@@ -145,7 +165,7 @@ var dashRoutes = [
         rtlMini: "تي",
         component: TimelinePage,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
       {
         path: "/login-page",
@@ -228,9 +248,9 @@ var dashRoutes = [
         rtlMini: "ب",
         component: Transactions,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
- 
+
       {
         path: "/grid-system",
         name: "Grid System",
@@ -294,7 +314,7 @@ var dashRoutes = [
     icon: WidgetsIcon,
     component: Holders,
     layout: "/admin",
-    dashboard:true
+    dashboard: true
   },
   {
     collapse: true,
@@ -311,7 +331,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: OperationTransfer,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
       {
         path: "/regular-forms",
@@ -321,7 +341,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: RegularForms,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/extended-forms",
@@ -331,7 +351,7 @@ var dashRoutes = [
         rtlMini: "هوو",
         component: ExtendedForms,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/validation-forms",
@@ -341,7 +361,7 @@ var dashRoutes = [
         rtlMini: "تو",
         component: ValidationForms,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/operation-single",
@@ -351,7 +371,7 @@ var dashRoutes = [
         rtlMini: "ث",
         component: OperationSingle,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       }
     ]
   },
@@ -370,7 +390,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: Dividends,
         layout: "/admin",
-        dashboard:true
+        dashboard: true
       },
       {
         path: "/dividend/:id",
@@ -380,7 +400,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: DividendDetail,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/dividend-transactions/:id",
@@ -390,7 +410,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: DividendTransactions,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
       {
         path: "/calculation-dividend",
@@ -400,7 +420,7 @@ var dashRoutes = [
         rtlMini: "صو",
         component: CalculationDividend,
         layout: "/admin",
-        dashboard:false
+        dashboard: false
       },
 
     ]
@@ -500,7 +520,7 @@ var dashRoutes = [
     icon: DateRange,
     component: Calendar,
     layout: "/admin",
-    dashboard:false
+    dashboard: false
   },
   {
     path: "/widgets",
@@ -509,7 +529,7 @@ var dashRoutes = [
     icon: WidgetsIcon,
     component: Widgets,
     layout: "/admin",
-    dashboard:false
+    dashboard: false
   },
   {
     path: "/all-holders",
@@ -518,9 +538,9 @@ var dashRoutes = [
     icon: WidgetsIcon,
     component: EmitentHolders,
     layout: "/admin",
-    dashboard:true
+    dashboard: true
   },
-  
+
   {
     path: "/holder/:id",
     name: "Лицевой счет",
@@ -529,8 +549,8 @@ var dashRoutes = [
     rtlMini: "ب",
     component: HolderDetail,
     layout: "/admin",
-    dashboard:false
-    },
+    dashboard: false
+  },
 
   {
     path: "/transaction/:id",
@@ -540,7 +560,7 @@ var dashRoutes = [
     rtlMini: "ب",
     component: TransactionDetail,
     layout: "/admin",
-    dashboard:false
-    },
+    dashboard: false
+  },
 ];
 export default dashRoutes;

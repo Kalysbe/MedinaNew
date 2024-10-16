@@ -57,7 +57,9 @@ export default function RegularForms() {
         passport_type: "",
         passport_number: "",
         passport_agency: "",
-        inn: ""
+        inn: "",
+        holder_type: "",
+        district_id: ""
     })
 
 
@@ -266,6 +268,38 @@ export default function RegularForms() {
                                 name: 'phone_number',
                                 type: 'number',
                                 value: formData['phone_number']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Тип акционера'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChange(event)
+                                },
+                                name: 'holder_type',
+                                type: 'number',
+                                value: formData['holder_type']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Город'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChange(event)
+                                },
+                                name: 'district_id',
+                                type: 'number',
+                                value: formData['district_id']
                             }}
                         />
                     </GridItem>
