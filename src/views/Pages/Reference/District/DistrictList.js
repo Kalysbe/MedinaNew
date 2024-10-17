@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, TextField, Modal, Button, Typography, Paper } from "@material-ui/core";
+import { Box, TextField, Modal, Typography, Paper } from "@material-ui/core";
+import Button from "components/CustomButtons/Button.js";
 import { fetchDistrictList, fetchUpdateDistrict, fetchCreateDistrict } from "redux/actions/reference";
+import Swal from 'sweetalert2';
 import CustomTable from "components/Table/CustomTable";
 import styles from "assets/jss/material-dashboard-pro-react/views/sweetAlertStyle.js";
 
@@ -25,16 +27,21 @@ const useStyles = makeStyles((theme) => ({
 export default function RegionManager() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const DistrictList = useSelector((state) => state.reference?.districtList);
+  const DistrictList = useSelector((state) => state.reference?.districtList || []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editDistrictId, setEditDistrictId] = useState(null);
   const [regionData, setRegionData] = useState({ name: "" });
+  const [localDistrictList, setLocalDistrictList] = useState(DistrictList);
 
   useEffect(() => {
     dispatch(fetchDistrictList());
   }, [dispatch]);
+
+  useEffect(() => {
+    setLocalDistrictList(DistrictList);
+  }, [DistrictList]);
 
   const tableHeaders = [
     { Header: "Наименование", accessor: "name", sortType: "basic" },
@@ -44,7 +51,7 @@ export default function RegionManager() {
       disableSortBy: true,
       Cell: ({ row }) => (
         <Box display="flex">
-          <Button variant="outlined" color="info" onClick={() => handleEditClick(row.original)}>
+          <Button variant="outlined" color="warning" onClick={() => handleEditClick(row.original)}>
             Изменить
           </Button>
         </Box>
@@ -53,10 +60,8 @@ export default function RegionManager() {
   ];
 
   const handleEditClick = (region) => {
-    console.log(region.id)
     setEditMode(true);
     setEditDistrictId(region.id);
-    console.log(editDistrictId,'id')
     setRegionData({ name: region.name });
     setModalOpen(true);
   };
@@ -72,13 +77,44 @@ export default function RegionManager() {
     setRegionData({ name: value });
   };
 
-  const handleConfirm = () => {
-    if (editMode && editDistrictId) {
-      dispatch(fetchUpdateDistrict(editDistrictId, regionData));
-    } else {
-      dispatch(fetchCreateDistrict(regionData));
+  const handleConfirm = async (e) => {
+    e.preventDefault(); // Предотвращает перезагрузку страницы при отправке формы
+    try {
+      let response;
+      if (editMode && editDistrictId) {
+        response = await dispatch(fetchUpdateDistrict({ id: editDistrictId, data: regionData }));
+        setLocalDistrictList((prevList) =>
+          prevList.map((district) =>
+            district.id === editDistrictId ? { ...district, ...regionData } : district
+          )
+        );
+      } else {
+        response = await dispatch(fetchCreateDistrict(regionData));
+        setLocalDistrictList((prevList) => [...prevList, { ...regionData, id: response.id }]);
+      }
+
+      Swal.fire({
+        title: 'Успешно!',
+        text: 'Данные успешно отправлены',
+        icon: 'success',
+        confirmButtonText: 'Ок',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          console.log('success');
+        }
+      });
+    } catch (error) {
+      console.error('Ошибка при отправке данных:', error);
+
+      Swal.fire({
+        title: 'Ошибка!',
+        text: error.message || 'Произошла ошибка при отправке данных на сервер',
+        icon: 'error',
+        confirmButtonText: 'Ок',
+      });
+    } finally {
+      handleCloseModal();
     }
-    handleCloseModal();
   };
 
   const handleCloseModal = () => {
@@ -91,32 +127,35 @@ export default function RegionManager() {
   return (
     <div>
       <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button color="success" onClick={handleAddClick}>
+        <Button color="info" onClick={handleAddClick}>
           Добавить регион
         </Button>
       </Box>
-      <CustomTable tableName="Регионы" tableHead={tableHeaders} tableData={DistrictList} searchKey="name" />
-      
+      <CustomTable tableName="Регионы" tableHead={tableHeaders} tableData={localDistrictList} searchKey="name" />
+
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <Paper className={classes.modalContainer}>
-          <Typography variant="h6">
-            {editMode ? "Изменить регион" : "Добавить регион"}
-          </Typography>
-          <TextField
-            label="Название региона"
-            fullWidth
-            value={regionData.name}
-            onChange={handleInputChange}
-            margin="normal"
-          />
-          <Box mt={2} display="flex" justifyContent="flex-end">
-            <Button onClick={handleConfirm} color="primary">
-              {editMode ? "Сохранить" : "Добавить"}
-            </Button>
-            <Button onClick={handleCloseModal} color="secondary">
-              Отмена
-            </Button>
-          </Box>
+          <form onSubmit={handleConfirm}>
+            <Typography variant="h6">
+              {editMode ? "Изменить регион" : "Добавить регион"}
+            </Typography>
+            <TextField
+              label="Название региона"
+              fullWidth
+              value={regionData.name}
+              onChange={handleInputChange}
+              margin="normal"
+            />
+            <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={handleCloseModal} color="rose">
+                Отмена
+              </Button>
+              <Button type="submit" color="info">
+                {editMode ? "Сохранить" : "Добавить"}
+              </Button>
+         
+            </Box>
+          </form>
         </Paper>
       </Modal>
     </div>

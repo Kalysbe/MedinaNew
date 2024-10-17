@@ -12,6 +12,7 @@ export const fetchCreateDistrict = createAsyncThunk("emitents/fetchCreateDistric
 })
 
 export const fetchUpdateDistrict = createAsyncThunk("emitents/fetchUpdateDistrict", async ({ id, data }) => {
+  console.log(id,data)
   const response = await axios.put(`/holders/district/${id}`, data);
   return response.data;
 })

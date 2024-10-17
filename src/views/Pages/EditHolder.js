@@ -36,6 +36,7 @@ import CardBody from "components/Card/CardBody.js";
 
 
 import { fetchAddHolder } from 'redux/actions/holders'
+import { fetchDistrictList } from "redux/actions/reference";
 
 
 import Swal from 'sweetalert2';
@@ -48,6 +49,7 @@ export default function RegularForms() {
     const dispatch = useDispatch();
     const history = useHistory();
     const Emitent = useSelector(state => state.emitents?.store);
+    const DistrictList = useSelector((state) => state.reference?.districtList || []);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -62,6 +64,9 @@ export default function RegularForms() {
         district_id: ""
     })
 
+    useEffect(() => {
+        dispatch(fetchDistrictList());
+      }, [dispatch]);
 
 
 
@@ -272,36 +277,70 @@ export default function RegularForms() {
                         />
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Тип акционера'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'holder_type',
-                                type: 'number',
-                                value: formData['holder_type']
-                            }}
-                        />
+                         <FormControl
+                                fullWidth
+                                className={classes.selectFormControl}>
+                                <InputLabel
+                                    htmlFor="simple-select"
+                                    className={classes.selectLabel}>
+                                Тип акционера
+                                </InputLabel>
+                                <Select
+                                    MenuProps={{
+                                        className: classes.selectMenu
+                                    }}
+                                    classes={{
+                                        select: classes.select
+                                    }}
+                                    name='holder_type'
+                                    value={formData['holder_type']}
+                                    onChange={handleChange}
+                                >
+                                    {(DistrictList).map(opt => (
+                                        <MenuItem key={opt.id}
+                                            classes={{
+                                                root: classes.selectMenuItem,
+                                                selected: classes.selectMenuItemSelected
+                                            }}
+                                            value={opt.id}>
+                                            {opt.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Город'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'district_id',
-                                type: 'number',
-                                value: formData['district_id']
-                            }}
-                        />
+                          <FormControl
+                                fullWidth
+                                className={classes.selectFormControl}>
+                                <InputLabel
+                                    htmlFor="simple-select"
+                                    className={classes.selectLabel}>
+                                    Регион
+                                </InputLabel>
+                                <Select
+                                    MenuProps={{
+                                        className: classes.selectMenu
+                                    }}
+                                    classes={{
+                                        select: classes.select
+                                    }}
+                                    name='district_id'
+                                    value={formData['district_id']}
+                                    onChange={handleChange}
+                                >
+                                    {(DistrictList).map(opt => (
+                                        <MenuItem key={opt.id}
+                                            classes={{
+                                                root: classes.selectMenuItem,
+                                                selected: classes.selectMenuItemSelected
+                                            }}
+                                            value={opt.id}>
+                                            {opt.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                     </GridItem>
                    
                 </GridContainer>
