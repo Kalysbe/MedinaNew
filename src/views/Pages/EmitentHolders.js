@@ -173,7 +173,7 @@ export default function RegularTables() {
           <Card >
             <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div style={{ width: '300px' }}>
-                <CardIcon color="rose">
+                <CardIcon color="info">
                   <Assignment />
                 </CardIcon>
                 <h4 className={classes.cardIconTitle}>Акционеры</h4>

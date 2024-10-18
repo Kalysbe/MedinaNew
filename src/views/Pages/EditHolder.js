@@ -36,7 +36,7 @@ import CardBody from "components/Card/CardBody.js";
 
 
 import { fetchAddHolder } from 'redux/actions/holders'
-import { fetchDistrictList } from "redux/actions/reference";
+import { fetchDistrictList, fetchHolderTypeList } from "redux/actions/reference";
 
 
 import Swal from 'sweetalert2';
@@ -50,6 +50,7 @@ export default function RegularForms() {
     const history = useHistory();
     const Emitent = useSelector(state => state.emitents?.store);
     const DistrictList = useSelector((state) => state.reference?.districtList || []);
+    const HolderTypeList = useSelector((state) => state.reference?.holderTypeList || []);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -66,6 +67,7 @@ export default function RegularForms() {
 
     useEffect(() => {
         dispatch(fetchDistrictList());
+        dispatch(fetchHolderTypeList());
       }, [dispatch]);
 
 
@@ -121,8 +123,8 @@ export default function RegularForms() {
     return (
 
         <Card>
-            <CardHeader color="rose" icon>
-                <CardIcon color="rose">
+            <CardHeader color="info" icon>
+                <CardIcon color="info">
                     <MailOutline />
                 </CardIcon>
                 <h4 className={classes.cardIconTitle}>Новый акционер</h4>
@@ -296,7 +298,7 @@ export default function RegularForms() {
                                     value={formData['holder_type']}
                                     onChange={handleChange}
                                 >
-                                    {(DistrictList).map(opt => (
+                                    {(HolderTypeList).map(opt => (
                                         <MenuItem key={opt.id}
                                             classes={{
                                                 root: classes.selectMenuItem,
@@ -344,7 +346,7 @@ export default function RegularForms() {
                     </GridItem>
                    
                 </GridContainer>
-                <Button color="rose" onClick={onSubmit}>Сохранить</Button>
+                <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 <NavLink to={'/admin/all-holders'}>
                 <Button >Закрыть</Button>
                 </NavLink>

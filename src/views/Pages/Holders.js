@@ -183,9 +183,9 @@ export default function RegularTables() {
           />
         </div>
         <Card>
-          <CardHeader color="rose" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '50%' }}>
-              <CardIcon color="rose">
+              <CardIcon color="info">
                 <Assignment />
               </CardIcon>
               <h4 className={classes.cardIconTitle}>{report.label}</h4>

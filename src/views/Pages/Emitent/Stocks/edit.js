@@ -109,8 +109,8 @@ export default function RegularForms() {
     return (
 
         <Card>
-            <CardHeader color="rose" icon>
-                <CardIcon color="rose">
+            <CardHeader color="info" icon>
+                <CardIcon color="info">
                     <MailOutline />
                 </CardIcon>
                 <h4 className={classes.cardIconTitle}>Новая эмиссия</h4>
@@ -182,7 +182,7 @@ export default function RegularForms() {
                             </FormControl>
                         </GridItem>
                 </GridContainer>
-                <Button color="rose" onClick={onSubmit}>Сохранить</Button>
+                <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 <Button  onClick={onClose}>Закрыть</Button>
             </CardBody>
         </Card>
