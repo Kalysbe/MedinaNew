@@ -61,6 +61,7 @@ export default function RegularTables() {
         const emitentData = { id, name };
         dispatch(saveEmitentToLocalStorage(emitentData))
         setSavedEmitent(emitentData);
+        console.log(savedEmitent)
     }
 
     const TableData = (data, keys) => {

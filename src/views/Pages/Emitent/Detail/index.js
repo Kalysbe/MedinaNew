@@ -139,8 +139,8 @@ export default function RegularTables() {
                     />
                 </div>
                 <Card>
-                    <CardHeader color="rose" icon>
-                        <CardIcon color="rose">
+                    <CardHeader color="info" icon>
+                        <CardIcon color="info">
                             <Assignment />
                         </CardIcon>
                         <h4 className={classes.cardIconTitle}>Карточка эмитента</h4>

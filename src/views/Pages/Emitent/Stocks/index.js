@@ -29,6 +29,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
+import CustomTable from "components/Table/CustomTable";
 
 
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -73,6 +74,27 @@ export default function RegularTables() {
     }, []);
 
 
+    const tableHeaders = [
+        { Header: "Наименование", accessor: "reg_number", sortType: "basic" },
+        { Header: "Цена", accessor: "nominal", sortType: "basic" },
+        {
+            Header: 'Выпущено',
+            accessor: 'start_count',
+            sortType: 'basic',
+            Cell: ({ value }) => {
+              return window.formatNumber(value);
+            },
+          },
+          {
+            Header: 'Количество',
+            accessor: 'count',
+            sortType: 'basic',
+            Cell: ({ value }) => {
+              return window.formatNumber(value);
+            },
+          },
+      ];
+
     return (
         <GridContainer>
             <GridItem xs={12}>
@@ -88,19 +110,12 @@ export default function RegularTables() {
                         </Button>
                         </NavLink>
                 </Box>
-                <Card>
-                    <CardHeader color="rose" icon >
-                        {/* <CardIcon color="rose">
-                            <Assignment />
-                        </CardIcon> */}
-                        {/* <h4 className={classes.cardIconTitle}>Эмитенты</h4> */}
-          
-                    </CardHeader>
-                    <CardBody>
-                        {Emissions.items && (
-                            <Table>
-                                <TableHead style={{ display: 'table-header-group' }}>
-                                    <TableRow>
+             
+                  
+                            <CustomTable tableName="Ценные бумаги" tableHead={tableHeaders} tableData={Emissions.items} searchKey="reg_number" />
+                            {/* <Table>
+                                <TableHead style={{ display: 'table-header-group' }}> */}
+                                    {/* <TableRow>
                                         <TableCell>Наименование</TableCell>
                                         <TableCell>Цена</TableCell>
                                         <TableCell>Выпущено</TableCell>
@@ -125,10 +140,9 @@ export default function RegularTables() {
                                         </TableRow>
                                     ))}
                                 </TableBody>
-                            </Table>
-                        )}
-                    </CardBody>
-                </Card>
+                            </Table> */}
+                  
+               
             </GridItem>
 
 

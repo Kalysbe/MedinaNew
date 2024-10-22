@@ -60,8 +60,8 @@ export default function RegularTables() {
         <GridContainer>
             <GridItem xs={12}>
                 <Card>
-                    <CardHeader color="rose" icon>
-                        <CardIcon color="rose">
+                    <CardHeader color="info" icon>
+                        <CardIcon color="info">
                             <Assignment />
                         </CardIcon>
                         <h4 className={classes.cardIconTitle}>Транзакции</h4>
