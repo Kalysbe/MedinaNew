@@ -39,7 +39,7 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 
-import { fetchEmitents } from "redux/actions/emitents";
+import { fetchEmitents, fetchAnalytics } from "redux/actions/emitents";
 import { fetchAllHolders } from "redux/actions/holders";
 import { fetchEmissions } from "redux/actions/emissions";
 
@@ -87,6 +87,7 @@ export default function Dashboard() {
   const Emitent = useSelector(state => state.emitents.emitents);
   const Holders = useSelector(state => state.holders.holders);
   const Emissions = useSelector(state => state.emissions.emissions);
+  const {emissionCount,emitentCount,holderCount,totalVolumePrice} = useSelector(state => state.emitents.analysis)
 
 
   const [emitentsTotal, setEmitentsTotal] = useState(0);
@@ -101,6 +102,7 @@ export default function Dashboard() {
   })   
 
   useEffect(() => {
+    dispatch(fetchAnalytics())
     dispatch(fetchEmitents());
     dispatch(fetchAllHolders());
     dispatch(fetchEmissions());
@@ -117,7 +119,7 @@ export default function Dashboard() {
               </CardIcon>
               <p className={classes.cardCategory}>Эмитентов</p>
               <h3 className={classes.cardTitle}>
-                {emitentsTotal}
+                {emitentCount}
               </h3>
             </CardHeader>
             <CardFooter stats>
@@ -139,7 +141,7 @@ export default function Dashboard() {
                 <Store />
               </CardIcon>
               <p className={classes.cardCategory}>Акционеров</p>
-              <h3 className={classes.cardTitle}>{holdersTotal}</h3>
+              <h3 className={classes.cardTitle}>{holderCount}</h3>
             </CardHeader>
             <CardFooter stats>
               {/* <div className={classes.stats}>
@@ -156,7 +158,7 @@ export default function Dashboard() {
                 <Icon>info_outline</Icon>
               </CardIcon>
               <p className={classes.cardCategory}>Кол-во бумаг</p>
-              <h3 className={classes.cardTitle}>{emissionsTotal}</h3>
+              <h3 className={classes.cardTitle}>{emissionCount}</h3>
             </CardHeader>
             <CardFooter stats>
               {/* <div className={classes.stats}>
@@ -172,16 +174,16 @@ export default function Dashboard() {
               <CardIcon color="info">
                 <i className="fab fa-twitter" />
               </CardIcon>
-              <p className={classes.cardCategory}>Обьем бумаг</p>
-              <h3 className={classes.cardTitle}>400 000 <small>Сом</small></h3>
+              <p className={classes.cardCategory}>Обьем бумаг <small>(Сом)</small></p>
+              <h3 className={classes.cardTitle}>{window.formatNumber(totalVolumePrice)}  </h3>
             </CardHeader>
             <CardFooter stats>
-              <div className={classes.stats}>
+              {/* <div className={classes.stats}>
               <Danger>
                   <Warning />
                 </Danger>
                Номинальная стоимость
-              </div>
+              </div> */}
             </CardFooter>
           </Card>
         </GridItem>

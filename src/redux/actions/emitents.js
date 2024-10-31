@@ -1,6 +1,11 @@
 import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
+export const fetchAnalytics = createAsyncThunk("analysis/fetchAnalytics", async () => {
+  const { data } = await axios.get("/analysis");
+  return data;
+})
+
 export const fetchEmitents = createAsyncThunk("emitents/fetchEmitents", async () => {
   const { data } = await axios.get("/emitents");
   return data;

@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  fetchAnalytics,
   fetchEmitents,
   fetchEmitentById,
   fetchAddEmitent,
@@ -25,6 +26,7 @@ const initialState = {
     items: [],
     status: "loading"
   },
+  analysis: {},
   store: null
 }
 
@@ -34,6 +36,17 @@ const emitentsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     // Действия для получения эмитентов
+    builder
+    .addCase(fetchAnalytics.pending, (state) => {
+      state.analysis = {};
+    })
+    .addCase(fetchAnalytics.fulfilled, (state, action) => {
+      state.analysis = action.payload;
+    })
+    .addCase(fetchAnalytics.rejected, (state) => {
+      state.analysis = {};
+    });
+
     builder
       .addCase(fetchEmitents.pending, (state) => {
         state.emitents.items = [];

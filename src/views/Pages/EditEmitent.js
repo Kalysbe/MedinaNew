@@ -107,7 +107,7 @@ const EditEmitent = () => {
         await dispatch(fetchUpdateEmitent({ id, data: formData }));
       } else {
         const response = await dispatch(fetchAddEmitent(formData));
-        newId = response.payload.id;
+        newId = response.payload?.id;
       }
 
 

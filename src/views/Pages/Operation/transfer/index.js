@@ -113,6 +113,16 @@ export default function RegularForms() {
         }
     }, [formData.emission_id]);
 
+//     useEffect(() => {
+
+//         setFormData(prevData => ({
+//             ...prevData,
+
+//             amount:formData.quantity *price
+//         }));
+    
+// }, [formData.quantity]);
+
     const handleChange = (e, isSelect = false) => {
         const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
         const newValue = type === 'number' ? Number(value) : value;
