@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, NavLink, useHistory  } from 'react-router-dom';
+import { useNavigate, useParams, NavLink, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Card, Container, Typography, Button, TextField } from '@material-ui/core';
@@ -38,7 +38,7 @@ const formConfig = [
 const EditEmitent = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
-  const history = useHistory(); 
+  const history = useHistory();
   const isAuth = useSelector(selectIsAuth);
   const emitent = useSelector(state => state.emitents.emitent);
   const isEditing = Boolean(id);
@@ -80,13 +80,24 @@ const EditEmitent = () => {
     }));
   };
 
+  useEffect(() => {
+    if (isEditing) {return}
+    const currentDate = new Date();
+    const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
+    handleChangeDate('contract_date', formattedDate)
+  }, [])
+
   const handleChangeDate = (name, value) => {
+
     const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
+
     setFormData((prevData) => ({
-        ...prevData,
-        [name]: newValue,
+      ...prevData,
+      [name]: newValue,
     }));
-};
+    console.log(newValue, 'date')
+    console.log(formData, 'data')
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -99,7 +110,7 @@ const EditEmitent = () => {
         newId = response.payload.id;
       }
 
-      
+
       Swal.fire({
         title: 'Успешно!',
         text: 'Данные успешно отправлены',
@@ -127,68 +138,70 @@ const EditEmitent = () => {
 
   return (
 
-      <Card style={{ padding: 30, overflow:'inherit' }}>
-        <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
-          {isEditing ? 'Редактирование' : 'Добавление'} эмитента
-        </Typography>
-        <form>
-          <Grid container spacing={2}>
-            {formConfig.map(({ key, label, type }) => (
-              (type == 'text' ? (
-                <Grid item xs={12} md={4} key={key}>
+    <Card style={{ padding: 30, overflow: 'inherit' }}>
+      <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
+        {isEditing ? 'Редактирование' : 'Добавление'} эмитента
+      </Typography>
+      <form>
+        <Grid container spacing={2}>
+          {formConfig.map(({ key, label, type }) => (
+            (type == 'text' ? (
+              <Grid item xs={12} md={4} key={key}>
                 <CustomInput
-                            labelText={label}
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: key,
-                                type: type,
-                                value: formData[key]
-                            }}
-                        />
+                  labelText={label}
+                  formControlProps={{
+                    fullWidth: true,
+                  }}
+                  inputProps={{
+                    onChange: event => {
+                      handleChange(event)
+                    },
+                    name: key,
+                    type: type,
+                    value: formData[key]
+                  }}
+                />
               </Grid>
-              ) : (
-                <Grid item xs={12} md={4} key={key}>
+            ) : (
+              <Grid item xs={12} md={4} key={key}>
                 <InputLabel className={classes.label}>Дата договора</InputLabel>
-                            <br />
-                            <FormControl fullWidth  >
-                                <Datetime
-                                    value={formData[key]}
-                                    onChange={(date) => handleChangeDate(key, date)}
-                                    timeFormat={false}
-                                    inputProps={{ placeholder: "Дата договора",   style: { zIndex: 1000 } }}
-                                  
-                                />
-                            </FormControl>
-                            </Grid>
-              ) )
-              
-            ))}
-          </Grid>
-          <div style={{ marginTop: 20, textAlign: 'right' }}>
-            <Button
-              color="secondary"
-              component={NavLink}
-              to={`/admin/emitent-list/`}
-              style={{ marginRight: 12 }}
-            >
-              Назад
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={loading}
-              variant="contained"
-              color="primary"
-            >
-              {isEditing ? 'Сохранить' : 'Добавить'}
-            </Button>
-          </div>
-        </form>
-      </Card>
+                <br />
+                <FormControl fullWidth  >
+                  <Datetime
+                    value={formData[key]}
+                    onChange={(date) => handleChangeDate(key, date)}
+                    timeFormat={false}
+                    inputProps={{ placeholder: "Дата договора", style: { zIndex: 1000 } }}
+                    dateFormat="DD-MM-YYYY"
+                    closeOnSelect={true}
+
+                  />
+                </FormControl>
+              </Grid>
+            ))
+
+          ))}
+        </Grid>
+        <div style={{ marginTop: 20, textAlign: 'right' }}>
+          <Button
+            color="secondary"
+            component={NavLink}
+            to={`/admin/emitent-list/`}
+            style={{ marginRight: 12 }}
+          >
+            Назад
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            variant="contained"
+            color="primary"
+          >
+            {isEditing ? 'Сохранить' : 'Добавить'}
+          </Button>
+        </div>
+      </form>
+    </Card>
 
   );
 };

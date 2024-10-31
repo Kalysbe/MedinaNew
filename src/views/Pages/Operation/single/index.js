@@ -420,7 +420,7 @@ export default function RegularForms() {
                                     onChange={(date) => handleChangeDate('contract_date', date)}
                                     timeFormat={false}
                                     inputProps={{ placeholder: "Дата операции" }}
-                                       dateFormat="DD-MM-YYYY"
+                                    dateFormat="DD-MM-YYYY"
                                     closeOnSelect={true}
                                 />
                             </FormControl>

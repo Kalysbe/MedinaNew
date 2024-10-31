@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, NavLink } from 'react-router-dom';
+import { useHistory, NavLink, useParams } from 'react-router-dom';
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -35,7 +35,7 @@ import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
 
-import { fetchAddHolder } from 'redux/actions/holders'
+import { fetchHolderById, fetchAddHolder, fetchUpdateHolder } from 'redux/actions/holders'
 import { fetchDistrictList, fetchHolderTypeList } from "redux/actions/reference";
 
 
@@ -45,13 +45,17 @@ import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsSt
 const useStyles = makeStyles(styles);
 
 export default function RegularForms() {
+    const { id } = useParams();
     const classes = useStyles();
     const dispatch = useDispatch();
     const history = useHistory();
     const Emitent = useSelector(state => state.emitents?.store);
+    const HolderData = useSelector(state => state.holders.holder.data)
     const DistrictList = useSelector((state) => state.reference?.districtList || []);
     const HolderTypeList = useSelector((state) => state.reference?.holderTypeList || []);
 
+    const holderId = id
+    console.log(HolderData)
     const [formData, setFormData] = useState({
         name: "",
         actual_address: "",
@@ -65,16 +69,39 @@ export default function RegularForms() {
         district_id: ""
     })
 
+    const [documentData, setDocumentData] = useState({
+        title: "string",
+        emitent_id: 1,
+        holder_id: 1,
+        provider_name: "string",
+        signer_name: "string",
+        receipt_date: "01.11.2024",
+        sending_date: "05.11.2024",
+        sending_address: "string",
+        reponse_number: 1
+    })
+
     useEffect(() => {
         dispatch(fetchDistrictList());
         dispatch(fetchHolderTypeList());
-      }, [dispatch]);
+        if (holderId) {
+            dispatch(fetchHolderById(holderId));
+        }
+    }, [dispatch]);
+
+    useEffect(() => {
+        setFormData(HolderData)
+    }, [HolderData])
 
 
 
     const onSubmit = async () => {
         try {
-            dispatch(fetchAddHolder({emitent_id: Emitent?.id, ...formData}));
+            if (holderId) {
+                dispatch(fetchUpdateHolder({ id: holderId, data: formData }));
+            } else {
+                dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...formData }));
+            }
 
             await Swal.fire({
                 title: 'Успешно!',
@@ -127,7 +154,7 @@ export default function RegularForms() {
                 <CardIcon color="info">
                     <MailOutline />
                 </CardIcon>
-                <h4 className={classes.cardIconTitle}>Новый акционер</h4>
+                <h4 className={classes.cardIconTitle}>{holderId ? 'Редактирование акционера' : 'Новый акционер'}</h4>
             </CardHeader>
             <CardBody>
 
@@ -279,76 +306,76 @@ export default function RegularForms() {
                         />
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                         <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
+                        <FormControl
+                            fullWidth
+                            className={classes.selectFormControl}>
+                            <InputLabel
+                                htmlFor="simple-select"
+                                className={classes.selectLabel}>
                                 Тип акционера
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='holder_type'
-                                    value={formData['holder_type']}
-                                    onChange={handleChange}
-                                >
-                                    {(HolderTypeList).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    className: classes.selectMenu
+                                }}
+                                classes={{
+                                    select: classes.select
+                                }}
+                                name='holder_type'
+                                value={formData['holder_type']}
+                                onChange={handleChange}
+                            >
+                                {(HolderTypeList).map(opt => (
+                                    <MenuItem key={opt.id}
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={opt.id}>
+                                        {opt.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                          <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Регион
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='district_id'
-                                    value={formData['district_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(DistrictList).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                        <FormControl
+                            fullWidth
+                            className={classes.selectFormControl}>
+                            <InputLabel
+                                htmlFor="simple-select"
+                                className={classes.selectLabel}>
+                                Регион
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    className: classes.selectMenu
+                                }}
+                                classes={{
+                                    select: classes.select
+                                }}
+                                name='district_id'
+                                value={formData['district_id']}
+                                onChange={handleChange}
+                            >
+                                {(DistrictList).map(opt => (
+                                    <MenuItem key={opt.id}
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={opt.id}>
+                                        {opt.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </GridItem>
-                   
+
                 </GridContainer>
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 <NavLink to={'/admin/all-holders'}>
-                <Button >Закрыть</Button>
+                    <Button >Закрыть</Button>
                 </NavLink>
             </CardBody>
         </Card>

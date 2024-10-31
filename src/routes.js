@@ -52,6 +52,10 @@ import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
 
 import Transactions from "views/Pages/Log/Transactions/index"
 import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
+
+import IncomingDocuments from "views/Pages/Log/IncomingDocuments/List.js"
+
+
 import Holders from "views/Pages/Holders.js"
 import HolderDetail from "views/Pages/Holders/detail.js"
 import EmitentHolders from "views/Pages/EmitentHolders.js"
@@ -108,6 +112,12 @@ var dashRoutes = [
   {
     path: "/holder/add",
     name: "Новый акционер",
+    component: EditHolder,
+    layout: "/admin"
+  },
+  {
+    path: "/holder/:id/edit",
+    name: "Редактирование акционера",
     component: EditHolder,
     layout: "/admin"
   },
@@ -247,6 +257,16 @@ var dashRoutes = [
         mini: "B",
         rtlMini: "ب",
         component: Transactions,
+        layout: "/admin",
+        dashboard: true
+      },
+      {
+        path: "/incoming-documents",
+        name: "Входящие документы",
+        rtlName: "وصفت",
+        mini: "B",
+        rtlMini: "ب",
+        component: IncomingDocuments,
         layout: "/admin",
         dashboard: true
       },
