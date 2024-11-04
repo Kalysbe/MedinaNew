@@ -56,6 +56,13 @@ export default function RegularForms() {
     })
 
 
+    useEffect(() => {
+        if (formData['release_date' ]) {return}
+        const currentDate = new Date();
+        const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
+        handleChangeDate('release_date', formattedDate)
+      }, [])
+
 
 
     const onSubmit = async () => {
@@ -87,7 +94,7 @@ export default function RegularForms() {
 
     const handleChange = (e) => {
         const { name, value, type } = e.target;
-        const newValue = type === 'number' ? Number(value) : value;
+        const newValue = type === 'number' && value === '' ? '' : (type === 'number' ? Number(value) : value);
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
