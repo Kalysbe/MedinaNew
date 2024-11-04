@@ -26,6 +26,9 @@ import Button from "components/CustomButtons/Button.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import { NavLink } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
+
+import CustomTable from "components/Table/CustomTable";
+
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
 
 const useStyles = makeStyles(styles);
@@ -45,45 +48,18 @@ export default function RegularTables() {
 
 
   const Emitent = useSelector(state => state.emitents?.store);
-  const Dividends = useSelector(state => state.dividend?.dividends);
+  const Documents = useSelector(state => state.holders?.incomingDocuments);
+
+  console.log(Documents)
+  
 
   useEffect(() => {
     dispatch(fetchEmitentHolderDocuments(Emitent?.id));
   }, [isAllEmitents, Emitent?.id, dispatch]);
 
-  useEffect(() => {
-    const holdersCount = Dividends?.items.length;
-
-    const calculateSums = (data) => {
-      return data.reduce(
-        (acc, item) => {
-          acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
-          acc.privileged = (acc.privileged || 0) + (item.privileged ? parseFloat(item.privileged) : 0);
-          return acc;
-        },
-        { ordinary: 0, privileged: 0 }
-      );
-    };
-
-    const newSums = calculateSums(Dividends?.items);
-    setTotalHolders(holdersCount);
-  }, [Dividends]);
 
 
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const filteredHolders = useMemo(() => {
-    if (!Dividends?.items) return [];
-    return Dividends.items.filter(item =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [Dividends, searchTerm]);
-
-  const columns = useMemo(
-    () => [
+  const tableHeaders = [
       {
         Header: '№',
         accessor: 'id',
@@ -91,38 +67,38 @@ export default function RegularTables() {
       },
       {
         Header: 'Месяц год',
-        accessor: 'month_year',
+        accessor: 'title',
         sortType: 'basic'
       },
-      {
-        Header: 'Категория',
-        accessor: 'dividend_type.name',
-        sortType: 'basic'
-      },
-      {
-        Header: 'Расценка',
-        accessor: 'share_price',
-        sortType: 'basic'
-      },
+      // {
+      //   Header: 'Категория',
+      //   accessor: 'dividend_type.name',
+      //   sortType: 'basic'
+      // },
+      // {
+      //   Header: 'Расценка',
+      //   accessor: 'share_price',
+      //   sortType: 'basic'
+      // },
     
-      {
-        Header: '% отчисл',
-        accessor: 'percent',
-        sortType: 'basic'
-      },
-      {
-        Header: 'Кол-во акций',
-        accessor: 'amount_share',
-        sortType: 'basic'
-      },
-      {
-        Header: 'Дата закрытия реестра',
-        accessor: 'date_close_reestr',
-        sortType: 'basic',
-        Cell: ({ value }) => {
-          return window.formatDate(value);
-        },
-      },
+      // {
+      //   Header: '% отчисл',
+      //   accessor: 'percent',
+      //   sortType: 'basic'
+      // },
+      // {
+      //   Header: 'Кол-во акций',
+      //   accessor: 'amount_share',
+      //   sortType: 'basic'
+      // },
+      // {
+      //   Header: 'Дата закрытия реестра',
+      //   accessor: 'date_close_reestr',
+      //   sortType: 'basic',
+      //   Cell: ({ value }) => {
+      //     return window.formatDate(value);
+      //   },
+      // },
       {
         Header: 'Действия', // New column for the buttons
         accessor: 'actions',
@@ -139,36 +115,11 @@ export default function RegularTables() {
           </Box>
         )
       }
-    ],
-    []
-  );
+    ]
+ 
 
-  const data = useMemo(() => filteredHolders || [], [filteredHolders]);
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize: setTablePageSize, 
-    state: { pageIndex: tablePageIndex, pageSize: tablePageSize }
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex, pageSize: rowsPerPage }
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
+
 
   return (
     <>
@@ -195,77 +146,7 @@ export default function RegularTables() {
               </Button>
             </NavLink>
           </Box>
-          <Card >
-            <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div style={{ width: '350px' }}>
-                <CardIcon color="info">
-                  <Assignment />
-                </CardIcon>
-                <h4 className={classes.cardIconTitle}>Входящие документы</h4>
-              </div>
-              <div style={{ display: 'flex', paddingTop: '14px' }}>
-                <CustomInput
-                  labelText='Поиск'
-                  formControlProps={{
-                    fullWidth: false,
-                  }}
-                  inputProps={{
-                    onChange: event => {
-                      handleSearchChange(event)
-                    },
-                    type: 'text',
-                    name: 'emission',
-                    value: searchTerm
-                  }}
-                />
-              </div>
-
-            </CardHeader>
-            <CardBody>
-              <Table {...getTableProps()}>
-                <TableHead>
-                  {headerGroups.map(headerGroup => (
-                    <TableRow {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map(column => (
-                        <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
-                          {column.render('Header')}
-                          <TableSortLabel
-                            active={column.isSorted}
-                            direction={column.isSortedDesc ? 'desc' : 'asc'}
-                          >
-                            {column.isSorted ? (column.isSortedDesc ? <BiSortUp /> : <BiSortDown />) : <BiSortAlt2 />}
-                          </TableSortLabel>
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHead>
-                <TableBody {...getTableBodyProps()}>
-                  {page.map(row => {
-                    prepareRow(row);
-                    return (
-                      <TableRow {...row.getRowProps()}>
-                        {row.cells.map(cell => (
-                          <TableCell {...cell.getCellProps()}>
-                            {cell.column.id === 'share_price' ? (
-                              <NavLink to={`dividend/${row.original.id}`} >
-                                <Typography color="primary">
-                                  {cell.render('Cell')}
-                                </Typography>
-
-                              </NavLink>
-                            ) : (
-                              cell.render('Cell')
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </CardBody>
-          </Card>
+          <CustomTable tableName="Входящие документы" tableHead={tableHeaders} tableData={Documents} searchKey="title" />
         </GridItem>
       </GridContainer>
     </>

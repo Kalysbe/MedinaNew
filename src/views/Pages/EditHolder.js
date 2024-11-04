@@ -71,8 +71,6 @@ export default function RegularForms() {
 
     const [documentData, setDocumentData] = useState({
         title: "string",
-        emitent_id: 1,
-        holder_id: 1,
         provider_name: "string",
         signer_name: "string",
         receipt_date: "01.11.2024",
@@ -96,11 +94,13 @@ export default function RegularForms() {
 
 
     const onSubmit = async () => {
+        const data = {holder_data:formData,holder_document: {...documentData,emitent_id:Emitent?.id, holder_id: Number(holderId)}} 
+
         try {
             if (holderId) {
-                dispatch(fetchUpdateHolder({ id: holderId, data: formData }));
+                dispatch(fetchUpdateHolder({ id: holderId, data: data }));
             } else {
-                dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...formData }));
+                dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...data }));
             }
 
             await Swal.fire({
@@ -130,6 +130,15 @@ export default function RegularForms() {
         const { name, value, type } = e.target;
         const newValue = type === 'number' ? Number(value) : value;
         setFormData((prevData) => ({
+            ...prevData,
+            [name]: newValue,
+        }));
+    };
+
+    const handleChangeDocument = (e) => {
+        const { name, value, type } = e.target;
+        const newValue = type === 'number' ? Number(value) : value;
+        setDocumentData((prevData) => ({
             ...prevData,
             [name]: newValue,
         }));
@@ -225,22 +234,6 @@ export default function RegularForms() {
                             }}
                         />
                     </GridItem>
-                    {/* <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Юридический адрес'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'legal_address',
-                                type: 'text',
-                                value: formData['legal_address']
-                            }}
-                        />
-                    </GridItem> */}
                     <GridItem xs={6} sm={6} md={4}>
                         <CustomInput
                             labelText='Орган выдачи'
@@ -372,6 +365,122 @@ export default function RegularForms() {
                         </FormControl>
                     </GridItem>
 
+                </GridContainer>
+                <h4 className={classes.cardIconTitle}>Входящий документ</h4>
+                <GridContainer>
+                <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Наименование документа'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'title',
+                                type: 'text',
+                                value: documentData['title']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='ФИО предост документ'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'provider_name',
+                                type: 'text',
+                                value: documentData['provider_name']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Почтовый адрес отправки'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'sending_address',
+                                type: 'text',
+                                value: documentData['sending_address']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Дата получение документа'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'receipt_date',
+                                type: 'text',
+                                value: documentData['receipt_date']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Дата отправки ответа'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'sending_date',
+                                type: 'text',
+                                value: documentData['sending_date']
+                            }}
+                        />
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='Исходящий номер ответа'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'reponse_number',
+                                type: 'text',
+                                value: documentData['reponse_number']
+                            }}
+                        />
+                    </GridItem>
+
+                    <GridItem xs={6} sm={6} md={4}>
+                        <CustomInput
+                            labelText='ФИО подписавший документ'
+                            formControlProps={{
+                                fullWidth: true,
+                            }}
+                            inputProps={{
+                                onChange: event => {
+                                    handleChangeDocument(event)
+                                },
+                                name: 'signer_name',
+                                type: 'text',
+                                value: documentData['signer_name']
+                            }}
+                        />
+                    </GridItem>
                 </GridContainer>
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 <NavLink to={'/admin/all-holders'}>
