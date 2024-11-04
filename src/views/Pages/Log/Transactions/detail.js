@@ -129,7 +129,7 @@ export default function RegularTables() {
               ) : (
                 <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
-                    ПЕРЕДАТОЧНОЕ РАСПОРЯЖЕНИЕ
+                     Детали транзакции
                   </Typography>
 
                   <Typography variant="h5" component="div" align="center">

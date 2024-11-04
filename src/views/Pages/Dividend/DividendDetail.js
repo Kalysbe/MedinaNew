@@ -153,7 +153,7 @@ export default function RegularTables() {
                                     </Box>
                                 )}
 
-                                <div >
+                                {/* <div >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign:'center' }} >
                                         <Typography style={{marginTop:'-24px'}}>Руководитель предприятие</Typography>
 
@@ -168,7 +168,7 @@ export default function RegularTables() {
 
                                         <Typography style={{width: '40%', borderTop: '1px solid #000' }}>ФИО</Typography>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <hr className={classes.printOnly} />
                                 <div className={classes.printOnly} style={{ marginTop: '14px' }}>
