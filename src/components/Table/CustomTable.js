@@ -55,10 +55,13 @@ export default function CustomTable(props) {
 
     const filteredData = useMemo(() => {
         if (!tableData) return [];
-        return tableData.filter(item =>
-            item[searchKey].toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        return tableData.filter(item => {
+            const value = item[searchKey];
+            // Преобразуем значение в строку, если это число, чтобы поддерживать includes и toLowerCase
+            return String(value).toLowerCase().includes(searchTerm.toLowerCase());
+        });
     }, [tableData, searchTerm, searchKey]);
+    
 
     const columns = useMemo(
         () => tableHead,

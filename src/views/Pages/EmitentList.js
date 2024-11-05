@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import {  Box , Card} from '@material-ui/core';
+import { Box, Card } from '@material-ui/core';
 // material-ui icons
 import Assignment from "@material-ui/icons/Assignment";
 
@@ -71,16 +71,16 @@ export default function RegularTables() {
         <GridContainer>
             <GridItem xs={12}>
                 <Box display='flex' justifyContent='flex-end'>
-                <NavLink  to={'/admin/emitent/add'}>
+                    <NavLink to={'/admin/emitent/add'}>
                         <Button color='info'>
                             Добавить
                         </Button>
-                        </NavLink>
+                    </NavLink>
                 </Box>
                 <Card>
                     <CardHeader color="rose" icon>
-                      
-                       
+
+
 
                     </CardHeader>
                     <CardBody>
@@ -88,6 +88,7 @@ export default function RegularTables() {
                             <Table>
                                 <TableHead style={{ display: 'table-header-group' }}>
                                     <TableRow>
+                                        <TableCell>Номер</TableCell>
                                         <TableCell>Наименование</TableCell>
                                         <TableCell>Действие</TableCell>
 
@@ -97,9 +98,10 @@ export default function RegularTables() {
                                     {Emitents.items.map((item, index) => (
                                         <TableRow key={index}>
                                             <TableCell>
-
+                                                {item.id}
+                                            </TableCell>
+                                            <TableCell>
                                                 {item.full_name}
-
                                             </TableCell>
                                             <TableCell>
 

@@ -2,13 +2,13 @@ import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchAllHolders = createAsyncThunk("holders/fetchAllHolders", async (eid) => {
-  const { data } = await axios.get(`/holders`);
+  const { data } = await axios.get(`/emitents/all-holders`);
   return data;
 })
 
 
 export const fetchHolders = createAsyncThunk("holders/fetchHolders", async (eid) => {
-  const { data } = await axios.get(`emitents/${eid}/all-holders`);
+  const { data } = await axios.get(`emitents/${eid}/holders`);
   return data;
 })
 export const fetchHolderById = createAsyncThunk("holders/fetchHolderById", async (id) => {
@@ -39,6 +39,11 @@ export const fetchHoldersByEmitentId = createAsyncThunk("holders/fetchHoldersByE
 //incoming documents
 export const fetchEmitentHolderDocuments = createAsyncThunk("holders/fetchEmitentHolderDocuments", async (eid) => {
   const { data } = await axios.get(`/holders/document/emitent/${eid}`);
+  return data;
+})
+
+export const fetchEmitentHolderDocumentById = createAsyncThunk("holders/fetchEmitentHolderDocumentById", async (eid) => {
+  const { data } = await axios.get(`/holders/document/${eid}`);
   return data;
 })
 // export const fetchDeleteEmitent = createAsyncThunk("holders/fetchDeleteEmitent", async (id) => {

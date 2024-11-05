@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, NavLink } from 'react-router-dom';
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Datetime from "react-datetime";
@@ -101,27 +101,41 @@ export default function RegularForms() {
             setFormData(prevData => ({
                 ...prevData,
                 emission: newEmissionValue.reg_number,
-                quantity: formData.operation_id === 11 ? newEmissionValue?.blocked_count :  newEmissionValue?.count,
+                quantity: formData.operation_id === 11 ? newEmissionValue?.blocked_count : newEmissionValue?.count,
                 amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
-            setMaxCount(formData.operation_id === 11 ? newEmissionValue?.blocked_count :  newEmissionValue?.count)
+            setMaxCount(formData.operation_id === 11 ? newEmissionValue?.blocked_count : newEmissionValue?.count)
+
             setPrice(newEmissionValue?.nominal)
         }
-        
-    }, [formData.emission_id]);
-    useEffect(() => {
 
-            setFormData(prevData => ({
-                ...prevData,
-    
-                amount:formData.quantity *price
-            }));
-        
+    }, [formData.emission_id]);
+
+
+    //Автоматом считаем сумму сделки
+    useEffect(() => {
+        setFormData(prevData => ({
+            ...prevData,
+
+            amount: formData.quantity * price
+        }));
     }, [formData.quantity]);
+
+
+    //Установливаем сегодняшнюю дату по умолчанию
+    useEffect(() => {
+        if (formData['contract_date']) { return }
+        const currentDate = new Date();
+        const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
+        handleChangeDate('contract_date', formattedDate)
+    }, [])
+
+
+
 
     const handleChange = (e, isSelect = false) => {
         const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
-        const newValue = type === 'number' ? Number(value) : value;
+        const newValue = type === 'number' && value === '' ? '' : (type === 'number' ? Number(value) : value);
         console.log(newValue)
         setFormData((prevData) => ({
             ...prevData,
@@ -142,21 +156,21 @@ export default function RegularForms() {
         const emitent_id = Emitent?.id;
         try {
             let updatedFormData = formData;
-    
+
             if (formData.operation_id === 1) {
                 const { holder_from_id, ...newFormData } = formData;
                 updatedFormData = newFormData;
                 await setFormData(newFormData);
             }
-    
+
             const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedFormData }));
             if (response.error) {
                 // Получаем ошибку, если она была отклонена с `rejectWithValue`
                 throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
-    
+
             const newId = response.payload.id;
-    
+
             Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
@@ -169,7 +183,7 @@ export default function RegularForms() {
             });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
-    
+
             Swal.fire({
                 title: 'Ошибка!',
                 text: error.message || 'Произошла ошибка при отправке данных на сервер',
@@ -238,15 +252,15 @@ export default function RegularForms() {
                                     className={classes.selectLabel}>
                                     Кто принимает
                                 </label>
-                                
+
                                 <SelectSearch
-                                 name="holder_to_id"
+                                    name="holder_to_id"
                                     placeholder="Выберите"
                                     options={optionsMap.holders}
                                     getOptionLabel={(option) => option.name}
-                                    getOptionValue={(option) => option.id} 
+                                    getOptionValue={(option) => option.id}
                                     onChange={(selectedOption) => handleChange({ name: 'holder_to_id', value: selectedOption ? selectedOption.id : '' }, true)}
-                                    />
+                                />
 
                             </FormControl>
                         </GridItem>
@@ -415,7 +429,7 @@ export default function RegularForms() {
                             <br />
                             <FormControl fullWidth>
                                 <Datetime
-                                  defaultValue={new Date()}
+                                    defaultValue={new Date()}
                                     value={formData['contract_date']}
                                     onChange={(date) => handleChangeDate('contract_date', date)}
                                     timeFormat={false}
@@ -427,6 +441,9 @@ export default function RegularForms() {
                         </GridItem>
                     </GridContainer>
                     <Button color="info" onClick={handleSubmit}>Сохранить</Button>
+                    <NavLink to={'/admin/dashboard'}>
+                        <Button >Закрыть</Button>
+                    </NavLink>
                 </form>
             </CardBody>
         </Card>

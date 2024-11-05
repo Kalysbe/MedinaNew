@@ -53,9 +53,9 @@ export default function RegularForms() {
     const HolderData = useSelector(state => state.holders.holder.data)
     const DistrictList = useSelector((state) => state.reference?.districtList || []);
     const HolderTypeList = useSelector((state) => state.reference?.holderTypeList || []);
-
     const holderId = id
-    console.log(HolderData)
+    const isEditing = Boolean(holderId);
+
     const [formData, setFormData] = useState({
         name: "",
         actual_address: "",
@@ -70,13 +70,13 @@ export default function RegularForms() {
     })
 
     const [documentData, setDocumentData] = useState({
-        title: "string",
-        provider_name: "string",
-        signer_name: "string",
-        receipt_date: "01.11.2024",
-        sending_date: "05.11.2024",
-        sending_address: "string",
-        reponse_number: 1
+        title: "",
+        provider_name: "",
+        signer_name: "",
+        receipt_date: "",
+        sending_date: "",
+        sending_address: "",
+        reponse_number: ""
     })
 
     useEffect(() => {
@@ -85,6 +85,8 @@ export default function RegularForms() {
         if (holderId) {
             dispatch(fetchHolderById(holderId));
         }
+
+
     }, [dispatch]);
 
     useEffect(() => {
@@ -94,37 +96,47 @@ export default function RegularForms() {
 
 
     const onSubmit = async () => {
-        const data = {holder_data:formData,holder_document: {...documentData,emitent_id:Emitent?.id, holder_id: Number(holderId)}} 
-
         try {
-            if (holderId) {
-                dispatch(fetchUpdateHolder({ id: holderId, data: data }));
+            let response = '';
+            if (isEditing) {
+                const data = { holder_data: formData, holder_document: { ...documentData, emitent_id: Emitent?.id, holder_id: Number(holderId) } };
+                response = await dispatch(fetchUpdateHolder({ id: holderId, data: data }));
             } else {
-                dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...data }));
+                response = await dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...formData }));
             }
-
-            await Swal.fire({
+    
+            // Проверка на наличие ошибки
+            if (response.error) {
+                // Обновленная проверка на наличие payload и message
+                console.log(response,'errror')
+                const errorMessage = response.payload?.message || response.error.message || 'Неизвестная ошибка';
+                throw new Error(errorMessage);
+            }
+    
+            Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
                 icon: 'success',
-                confirmButtonText: 'Ок'
+                confirmButtonText: 'Ок',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    history.push('/admin/all-holders');
+                    history.push(`/admin/incoming-documents`);
                 }
-            });;
-
-
+            });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
-            await Swal.fire({
+    
+            Swal.fire({
                 title: 'Ошибка!',
-                text: 'Произошла ошибка при отправке данных на сервер',
+                text: error.message || 'Произошла ошибка при отправке данных на сервер',
                 icon: 'error',
-                confirmButtonText: 'Ок'
+                confirmButtonText: 'Ок',
             });
+        } finally {
+            // Здесь можно добавить код, который будет выполнен в любом случае
         }
     };
+    
 
     const handleChange = (e) => {
         const { name, value, type } = e.target;
@@ -366,122 +378,126 @@ export default function RegularForms() {
                     </GridItem>
 
                 </GridContainer>
-                <h4 className={classes.cardIconTitle}>Входящий документ</h4>
-                <GridContainer>
-                <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Наименование документа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'title',
-                                type: 'text',
-                                value: documentData['title']
-                            }}
-                        />
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='ФИО предост документ'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'provider_name',
-                                type: 'text',
-                                value: documentData['provider_name']
-                            }}
-                        />
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Почтовый адрес отправки'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'sending_address',
-                                type: 'text',
-                                value: documentData['sending_address']
-                            }}
-                        />
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Дата получение документа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'receipt_date',
-                                type: 'text',
-                                value: documentData['receipt_date']
-                            }}
-                        />
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Дата отправки ответа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'sending_date',
-                                type: 'text',
-                                value: documentData['sending_date']
-                            }}
-                        />
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Исходящий номер ответа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'reponse_number',
-                                type: 'text',
-                                value: documentData['reponse_number']
-                            }}
-                        />
-                    </GridItem>
+                {isEditing && (
+                    <>
+                        <h4 className={classes.cardIconTitle}>Входящий документ</h4>
+                        <GridContainer>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='Наименование документа'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'title',
+                                        type: 'text',
+                                        value: documentData['title']
+                                    }}
+                                />
+                            </GridItem>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='ФИО предост документ'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'provider_name',
+                                        type: 'text',
+                                        value: documentData['provider_name']
+                                    }}
+                                />
+                            </GridItem>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='Почтовый адрес отправки'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'sending_address',
+                                        type: 'text',
+                                        value: documentData['sending_address']
+                                    }}
+                                />
+                            </GridItem>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='Дата получение документа'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'receipt_date',
+                                        type: 'text',
+                                        value: documentData['receipt_date']
+                                    }}
+                                />
+                            </GridItem>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='Дата отправки ответа'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'sending_date',
+                                        type: 'text',
+                                        value: documentData['sending_date']
+                                    }}
+                                />
+                            </GridItem>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='Исходящий номер ответа'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'reponse_number',
+                                        type: 'text',
+                                        value: documentData['reponse_number']
+                                    }}
+                                />
+                            </GridItem>
 
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='ФИО подписавший документ'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChangeDocument(event)
-                                },
-                                name: 'signer_name',
-                                type: 'text',
-                                value: documentData['signer_name']
-                            }}
-                        />
-                    </GridItem>
-                </GridContainer>
+                            <GridItem xs={6} sm={6} md={4}>
+                                <CustomInput
+                                    labelText='ФИО подписавший документ'
+                                    formControlProps={{
+                                        fullWidth: true,
+                                    }}
+                                    inputProps={{
+                                        onChange: event => {
+                                            handleChangeDocument(event)
+                                        },
+                                        name: 'signer_name',
+                                        type: 'text',
+                                        value: documentData['signer_name']
+                                    }}
+                                />
+                            </GridItem>
+                        </GridContainer>
+                    </>
+                )}
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 <NavLink to={'/admin/all-holders'}>
                     <Button >Закрыть</Button>

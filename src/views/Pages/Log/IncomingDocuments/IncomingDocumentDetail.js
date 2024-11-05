@@ -31,6 +31,7 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEmitentById } from "redux/actions/emitents";
 import { fetchTransactionPrintById } from "redux/actions/prints";
+import { fetchEmitentHolderDocumentById } from "redux/actions/holders";
 import { BorderBottom } from "@material-ui/icons";
 const styles = {
   customCardContentClass: {
@@ -70,6 +71,20 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 
+const titles = {
+    id: "ID",
+    holder_type: "Тип держателя",
+    district_id: "ID района",
+    name: "Имя",
+    actual_address: "Фактический адрес",
+    legal_address: "Юридический адрес",
+    email: "Электронная почта",
+    phone_number: "Номер телефона",
+    passport_type: "Тип паспорта",
+    passport_number: "Номер паспорта",
+    passport_agency: "Орган паспорта",
+    inn: "ИНН"
+};
 
 export default function RegularTables() {
   const { id } = useParams();
@@ -79,19 +94,20 @@ export default function RegularTables() {
   const Emitent = useSelector(state => state.emitents.store);
   const EmitentData = useSelector(state => state.emitents.emitent.data);
   const { data, status } = useSelector(state => state.prints.prints.transactionPrint);
+  const { incomingDocument } = useSelector(state => state.holders);
+  const incomingDocumentData = incomingDocument?.data
   useEffect(() => {
     dispatch(fetchEmitentById(Emitent?.id));
-    dispatch(fetchTransactionPrintById(id));
+    dispatch(fetchEmitentHolderDocumentById(id));
   }, []);
+
+  console.log(incomingDocument)
 
   return (
     <GridContainer>
       <GridItem xs={12}>
         <Box display="flex" justifyContent="flex-end">
-        <Button
-              
-                size="small"
-              >Закрыть</Button>
+
           <ReactToPrint
             trigger={() =>
               <Button
@@ -125,112 +141,48 @@ export default function RegularTables() {
             <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
               <Typography align="center" variant="h3" mr={2}></Typography>
 
-              {status === "loading" && id ? (
+              {!incomingDocument && id ? (
                 <Box py="30px" display="flex" justifyContent="center">
                   <CircularProgress color="primary" size={80} /> {status}
                 </Box>
               ) : (
                 <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
-                     Детали транзакции
+                     Просмотр измененных анкетных данных
                   </Typography>
 
                   <Typography variant="h5" component="div" align="center">
-                    {EmitentData?.full_name}
+                    {incomingDocument?.title}
                   </Typography>
 
-                  <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid item xs={12}>
-
-                      {data.holder_from && (
-                        <>
-                          <Typography variant="h6" component="div">
-                            Лицо передающее ценные бумаги
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: <b> {data.holder_from.name}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: <b> {data.holder_from.id}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Документ:  Серия: <b>{data.holder_from?.passport_type}</b> Номер: <b>{data.holder_from?.passport_number}</b> Выдан: <b>{data.holder_from?.passport_agency}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Адрес: <b>{data.holder_from.actual_address}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Телефон, факс: <b> {data.holder_from.phone_number}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            ИНН: <b> {data.holder_from.inn}</b>
-                          </Typography>
-                        </>
-                      )}
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      {data.holder_to && (
-                        <>
-                          <Typography variant="h6" component="div">
-                            Лицо принимающего ценные бумаги
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: <b> {data.holder_to.name}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: <b> {data.holder_to.id}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Документ:  Серия: <b>{data.holder_to?.passport_type}</b> Номер: <b>{data.holder_to?.passport_number}</b> Выдан: <b>{data.holder_to?.passport_agency}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Адрес: <b>{data.holder_to.actual_address}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Телефон, факс: <b> {data.holder_to.phone_number}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            ИНН: <b> {data.holder_to.inn}</b>
-                          </Typography>
-                        </>
-                      )}
-                    </Grid>
-                  </Grid>
-
-                  <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-                    Передаваемые ценные бумаги
+                  <Typography variant="h5" component="div" align="center">
+                   Лицевой счет: {incomingDocument?.holder_id}
                   </Typography>
+
 
                   <Typography variant="body2" color="textSecondary">
-                    Эмитент:  <b> {EmitentData?.full_name} </b>
+                    Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Эмиссия:  <b> {data.emission?.reg_number}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Операция: <b> {data.operation?.name} </b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Количество: <b> {data.quantity}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Сумма сделки: <b> {data.amount}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Дата сделки:
-                    <b> {window.formatDate(data.contract_date)} </b>
-                  </Typography>
-                  {/* <Typography variant="body2" color="textSecondary">
-                    Основание перехода права собственности: <b> Договор дарения </b>
-                  </Typography> */}
-                  {/* <Typography variant="body2" color="textSecondary">
-                    <b> Передаваемые ценные бумаги не обременены обязательствами </b>
-                  </Typography> */}
+                  <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Параметр</TableCell>
+                        <TableCell>До</TableCell>
+                        <TableCell>После</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                   
+                    {incomingDocumentData && Object.keys(incomingDocumentData?.before).map((key) => (
+                        <TableRow key={key}>
+                            <TableCell>{titles[key]}</TableCell>
+                            <TableCell>{incomingDocumentData?.before[key] !== null ? incomingDocumentData?.before[key] : "—"}</TableCell>
+                            <TableCell>{incomingDocumentData?.after[key] !== null ? incomingDocumentData?.after[key] : "—"}</TableCell>
+                        </TableRow>
+                    ))}
+          
+                </TableBody>
+            </Table>
                 </Box>
               )}
 

@@ -54,6 +54,7 @@ import Transactions from "views/Pages/Log/Transactions/index"
 import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
 
 import IncomingDocuments from "views/Pages/Log/IncomingDocuments/List.js"
+import IncomingDocumentDetail from "views/Pages/Log/IncomingDocuments/IncomingDocumentDetail.js"
 
 
 import Holders from "views/Pages/Holders.js"
@@ -269,6 +270,16 @@ var dashRoutes = [
         component: IncomingDocuments,
         layout: "/admin",
         dashboard: true
+      },
+      {
+        path: "/incoming-document-detail/:id",
+        name: "Просмотр измененных анкетных данных акционера",
+        rtlName: "وصفت",
+        mini: "B",
+        rtlMini: "ب",
+        component: IncomingDocumentDetail,
+        layout: "/admin",
+        dashboard: false
       },
 
       {

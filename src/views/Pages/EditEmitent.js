@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, NavLink, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, Card, Container, Typography, Button, TextField } from '@material-ui/core';
+import { Grid, Card, Container, Typography, TextField } from '@material-ui/core';
+
+import Button from "components/CustomButtons/Button.js";
+
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Datetime from "react-datetime";
@@ -182,8 +185,8 @@ const EditEmitent = () => {
 
           ))}
         </Grid>
-        <div style={{ marginTop: 20, textAlign: 'right' }}>
-          <Button
+        <div >
+          {/* <Button
             color="secondary"
             component={NavLink}
             to={`/admin/emitent-list/`}
@@ -198,7 +201,11 @@ const EditEmitent = () => {
             color="primary"
           >
             {isEditing ? 'Сохранить' : 'Добавить'}
-          </Button>
+          </Button> */}
+          <Button color="info" onClick={handleSubmit}>Сохранить</Button>
+                    <NavLink to={'/admin/dashboard'}>
+                        <Button >Закрыть</Button>
+                    </NavLink>
         </div>
       </form>
     </Card>

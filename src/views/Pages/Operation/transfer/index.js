@@ -60,6 +60,9 @@ export default function RegularForms() {
     const { operationTypes } = useSelector(state => state.transactions)
     const { emissions } = useSelector(state => state.emissions)
 
+    const [maxCount, setMaxCount] = useState(null);
+    const [price, setPrice] = useState(null);
+
     // const uniqueHolders = holders?.items.reduce((acc, current) => {
     //     const x = acc.find(item => item.holder_id === current.holder_id);
     //     if (!x) {
@@ -111,29 +114,41 @@ export default function RegularForms() {
                 amount: newEmissionValue?.count * newEmissionValue?.nominal
             }));
         }
+
+        setPrice(newEmissionValue?.nominal)
     }, [formData.emission_id]);
 
-//     useEffect(() => {
 
-//         setFormData(prevData => ({
-//             ...prevData,
+       //Автоматом считаем сумму сделки
+    useEffect(() => {
+        setFormData(prevData => ({
+            ...prevData,
+            amount: formData.quantity * price
+        }));
+    }, [formData.quantity]);
 
-//             amount:formData.quantity *price
-//         }));
-    
-// }, [formData.quantity]);
+      //Установливаем сегодняшнюю дату по умолчанию
+      useEffect(() => {
+        if (formData['contract_date' ]) {return}
+        const currentDate = new Date();
+        const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
+        handleChangeDate('contract_date', formattedDate)
+      }, [])
+
+
+   
 
     const handleChange = (e, isSelect = false) => {
         const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
-        const newValue = type === 'number' ? Number(value) : value;
-        console.log(name,newValue)
+        const newValue = type === 'number' && value === '' ? '' : (type === 'number' ? Number(value) : value);
+        console.log(name, newValue)
         setFormData((prevData) => ({
             ...prevData,
             [name]: newValue,
         }));
     };
 
-    
+
 
 
     const handleSelectChange = (selectedOption) => {
@@ -156,21 +171,21 @@ export default function RegularForms() {
         const emitent_id = Emitent?.id;
         try {
             let updatedFormData = formData;
-    
+
             if (formData.operation_id === 1) {
                 const { holder_from_id, ...newFormData } = formData;
                 updatedFormData = newFormData;
                 await setFormData(newFormData);
             }
-    
+
             const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedFormData }));
             if (response.error) {
                 // Получаем ошибку, если она была отклонена с `rejectWithValue`
                 throw new Error(response.payload.message || 'Неизвестная ошибка');
             }
-    
+
             const newId = response.payload.id;
-    
+
             Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
@@ -183,7 +198,7 @@ export default function RegularForms() {
             });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
-    
+
             Swal.fire({
                 title: 'Ошибка!',
                 text: error.message || 'Произошла ошибка при отправке данных на сервер',
@@ -194,10 +209,10 @@ export default function RegularForms() {
             setLoading(false);
         }
     };
-    
-    
-    
-    
+
+
+
+
 
     const classes = useStyles();
     return (
@@ -223,13 +238,13 @@ export default function RegularForms() {
                                     Операция
                                 </label>
                                 <SelectSearch
-                                 name="operation_id"
+                                    name="operation_id"
                                     placeholder="Выберите"
                                     options={optionsMap.typeOperations}
                                     getOptionLabel={(option) => option.name}
-                                    getOptionValue={(option) => option.id} 
+                                    getOptionValue={(option) => option.id}
                                     onChange={(selectedOption) => handleChange({ name: 'operation_id', value: selectedOption ? selectedOption.id : '' }, true)}
-                                    />
+                                />
 
                             </FormControl>
                         </GridItem>
@@ -264,7 +279,7 @@ export default function RegularForms() {
                                     getOptionLabel={(option) => option.name}
                                     getOptionValue={(option) => option.id}
                                     onChange={(selectedOption) => handleChange({ name: 'holder_to_id', value: selectedOption ? selectedOption.id : '' }, true)}
-                                    />
+                                />
                             </FormControl>
                         </GridItem>
                         <GridItem xs={12} sm={12} md={6}>

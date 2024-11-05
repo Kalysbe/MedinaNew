@@ -113,6 +113,7 @@ export default function RegularTables() {
              
                   
                             <CustomTable tableName="Ценные бумаги" tableHead={tableHeaders} tableData={Emissions.items} searchKey="reg_number" />
+                            
                             {/* <Table>
                                 <TableHead style={{ display: 'table-header-group' }}> */}
                                     {/* <TableRow>

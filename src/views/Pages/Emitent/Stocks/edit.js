@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory , NavLink} from 'react-router-dom';
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Datetime from "react-datetime";
@@ -67,29 +67,38 @@ export default function RegularForms() {
 
     const onSubmit = async () => {
         try {
-            dispatch(fetchAddEmitentEmissions({emitent_id: Emitent?.id, ...formData}));
+          const response = await dispatch(fetchAddEmitentEmissions({emitent_id: Emitent?.id, ...formData}));
 
-            await Swal.fire({
+            if (response.error) {
+                // Получаем ошибку, если она была отклонена с `rejectWithValue`
+                throw new Error(response.payload.message || 'Неизвестная ошибка');
+            }
+
+            Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
                 icon: 'success',
-                confirmButtonText: 'Ок'
+                confirmButtonText: 'Ок',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    history.push('/admin/emitent-stocks');
+                    history.push(`/admin/emitent-stock`);
                 }
-            });;
-
-
+            });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
-            await Swal.fire({
+    
+            Swal.fire({
                 title: 'Ошибка!',
-                text: 'Произошла ошибка при отправке данных на сервер',
+                text: error.message || 'Произошла ошиб`ка при отправке данных на сервер',
                 icon: 'error',
-                confirmButtonText: 'Ок'
+                confirmButtonText: 'Ок',
             });
+        } finally {
+          
         }
+
+          
+
     };
 
     const handleChange = (e) => {
@@ -190,7 +199,9 @@ export default function RegularForms() {
                         </GridItem>
                 </GridContainer>
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
+                <NavLink to={'/admin/emitent-stocks/'}>
                 <Button  onClick={onClose}>Закрыть</Button>
+                </NavLink>
             </CardBody>
         </Card>
     );

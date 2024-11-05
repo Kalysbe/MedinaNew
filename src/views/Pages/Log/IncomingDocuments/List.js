@@ -105,7 +105,7 @@ export default function RegularTables() {
         disableSortBy: true, // Disable sorting for this column
         Cell: ({ row }) => (
           <Box display="flex">
-            <NavLink to={`dividend/${row.original.id}`} >
+            <NavLink to={`incoming-document-detail/${row.original.id}`} >
             <Button
               variant="outlined"
               color="info">

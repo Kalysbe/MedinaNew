@@ -26,6 +26,11 @@ import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTransactions } from "redux/actions/transactions";
+
+import CustomTable from "components/Table/CustomTable";
+
+
+
 const styles = {
     customCardContentClass: {
         paddingLeft: "0",
@@ -51,66 +56,48 @@ export default function RegularTables() {
         dispatch(fetchTransactions(Emitent?.id));
     }, []);
 
- 
+
 
     const TableData = (data, keys) => {
         return data.map(item => keys.map(key => item[key]));
     }
+
+    const tableHeaders = [
+        {
+            Header: '№',
+            accessor: 'id',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Дата',
+            accessor: 'contract_date',
+            sortType: 'basic',
+            Cell: ({ value }) => {
+                return window.formatDate(value);
+            },
+        },
+        {
+            Header: 'Наименование',
+            accessor: 'operation.name',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Действия', // New column for the buttons
+            accessor: 'actions',
+            disableSortBy: true, // Disable sorting for this column
+            Cell: ({ row }) => (
+                    <NavLink to={`/admin/transaction/${row.original.id}`} >
+                        <Button
+                            variant="outlined"
+                            color="info">
+                            Открыть
+                        </Button>
+                    </NavLink>
+            )
+        }
+    ]
+
     return (
-        <GridContainer>
-            <GridItem xs={12}>
-                <Card>
-                    <CardHeader color="info" icon>
-                        <CardIcon color="info">
-                            <Assignment />
-                        </CardIcon>
-                        <h4 className={classes.cardIconTitle}>Транзакции</h4>
-                    </CardHeader>
-                    <CardBody>
-                        {Transactions.items && (
-                            <Table>
-                                <TableHead style={{ display: 'table-header-group' }}>
-                                    <TableRow>
-                                    <TableCell>№</TableCell>
-                                    <TableCell>Дата</TableCell>
-                                        <TableCell>Наименование</TableCell>
-                                        <TableCell>Действие</TableCell>
-
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {Transactions.items.map((item, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                {item.id}
-                                            </TableCell>
-                                            <TableCell>
-                                                {window.formatDate(item.contract_date)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.operation?.name}
-                                            </TableCell>
-                                            <TableCell>
-                                            <NavLink to={`/admin/transaction/${item.id}`}>
-                                                <Button
-                                                    variant="outlined"
-                                                    color='info'
-                                                    size="sm">
-                                                    Открыть
-                                                </Button>
-                                                </NavLink>
-                                            </TableCell>
-
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        )}
-                    </CardBody>
-                </Card>
-            </GridItem>
-
-
-        </GridContainer>
+                <CustomTable tableName="Транзакции" tableHead={tableHeaders} tableData={Transactions.items} searchKey="id" />
     );
 }

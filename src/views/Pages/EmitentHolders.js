@@ -98,7 +98,7 @@ export default function RegularTables() {
   const filteredHolders = useMemo(() => {
     if (!Holders?.items) return [];
     return Holders.items.filter(item =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      item.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [Holders, searchTerm]);
 

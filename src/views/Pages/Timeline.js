@@ -77,30 +77,7 @@ export default function Dashboard() {
   return (
     <div>
       <GridContainer>
-        <GridItem xs={12} sm={6} md={6} lg={3}>
-          <Card>
-            <CardHeader color="warning" stats icon>
-              <CardIcon color="warning">
-                <Icon>content_copy</Icon>
-              </CardIcon>
-              <p className={classes.cardCategory}>Эмитентов</p>
-              <h3 className={classes.cardTitle}>
-                3
-              </h3>
-            </CardHeader>
-            <CardFooter stats>
-              {/* <div className={classes.stats}>
-                <Danger>
-                  <Warning />
-                </Danger>
-                <a href="#pablo" onClick={e => e.preventDefault()}>
-                  Get more space
-                </a>
-              </div> */}
-            </CardFooter>
-          </Card>
-        </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={3}>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
           <Card>
             <CardHeader color="success" stats icon>
               <CardIcon color="success">
@@ -117,7 +94,7 @@ export default function Dashboard() {
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={3}>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
           <Card>
             <CardHeader color="danger" stats icon>
               <CardIcon color="danger">
@@ -134,7 +111,7 @@ export default function Dashboard() {
             </CardFooter>
           </Card>
         </GridItem>
-        <GridItem xs={12} sm={6} md={6} lg={3}>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -144,12 +121,12 @@ export default function Dashboard() {
               <h3 className={classes.cardTitle}>400 000 <small>Сом</small></h3>
             </CardHeader>
             <CardFooter stats>
-              <div className={classes.stats}>
+              {/* <div className={classes.stats}>
               <Danger>
                   <Warning />
                 </Danger>
                Номинальная стоимость
-              </div>
+              </div> */}
             </CardFooter>
           </Card>
         </GridItem>
@@ -244,7 +221,7 @@ export default function Dashboard() {
           </Card>
         </GridItem> */}
       </GridContainer>
-      <GridContainer>
+      {/* <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart className={classes.cardHover}>
             <CardHeader color="info" className={classes.cardHeaderHover}>
@@ -383,7 +360,7 @@ export default function Dashboard() {
             </CardFooter>
           </Card>
         </GridItem>
-      </GridContainer>
+      </GridContainer> */}
       {/* <h3>Manage Listings</h3>
       <br />
       <GridContainer>
