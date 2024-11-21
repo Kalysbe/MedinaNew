@@ -176,7 +176,7 @@ var dashRoutes = [
         rtlMini: "تي",
         component: TimelinePage,
         layout: "/admin",
-        dashboard: true
+        dashboard: false
       },
       {
         path: "/login-page",

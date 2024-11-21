@@ -2,6 +2,8 @@ import React from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 
+import { NavLink } from "react-router-dom";
+
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -52,7 +54,7 @@ export default function Report1(props) {
                         {item.id}
                       </TableCell>
                       <TableCell>
-                        <b>{item.name}</b>
+                      <NavLink to={`holder/${item.id}`}>{item.name}</NavLink>
                       </TableCell>
                       <TableCell>
                         {window.formatNumber(item.ordinary)}

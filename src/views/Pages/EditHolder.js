@@ -499,9 +499,9 @@ export default function RegularForms() {
                     </>
                 )}
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
-                <NavLink to={'/admin/all-holders'}>
+                {/* <NavLink to={`/admin/holder/${id}`}>
                     <Button >Закрыть</Button>
-                </NavLink>
+                </NavLink> */}
             </CardBody>
         </Card>
     );

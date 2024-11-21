@@ -91,7 +91,14 @@ export default function RegularTables() {
     <Box>
     
       <Box display="flex" justifyContent="flex-end">
-         <ReactToPrint
+      <NavLink color="info" to={`/admin/holder/${id}/edit`}>
+      <Button
+               // variant="contained"
+               color="warning"
+               size="small"
+             >Корректировка</Button>
+             </NavLink>,
+         {/* <ReactToPrint
            trigger={() =>
              <Button
                // variant="contained"
@@ -101,7 +108,7 @@ export default function RegularTables() {
 
            }
            content={() => componentRef.current}
-         />
+         /> */}
        </Box>
     
          

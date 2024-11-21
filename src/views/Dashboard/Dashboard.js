@@ -188,7 +188,7 @@ export default function Dashboard() {
           </Card>
         </GridItem>
       </GridContainer>
-      <GridContainer>
+      {/* <GridContainer>
         <GridItem xs={12}>
           <Card>
             <CardHeader color="success" icon>
@@ -248,7 +248,7 @@ export default function Dashboard() {
             </CardBody>
           </Card>
         </GridItem>
-      </GridContainer>
+      </GridContainer> */}
       <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart >
