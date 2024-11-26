@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEmitentHolderDocuments } from "redux/actions/holders";
+import { fetchDocuments } from "redux/actions/documents";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -48,13 +48,13 @@ export default function RegularTables() {
 
 
   const Emitent = useSelector(state => state.emitents?.store);
-  const Documents = useSelector(state => state.holders?.incomingDocuments);
+  const Documents = useSelector(state => state.documents?.documentList);
 
   console.log(Documents)
   
 
   useEffect(() => {
-    dispatch(fetchEmitentHolderDocuments(Emitent?.id));
+    dispatch(fetchDocuments(Emitent?.id));
   }, [isAllEmitents, Emitent?.id, dispatch]);
 
 
@@ -124,7 +124,7 @@ export default function RegularTables() {
   return (
     <>
       <GridContainer>
-        <GridItem xs={12} sm={6} md={6} lg={4}>
+        {/* <GridItem xs={12} sm={6} md={6} lg={4}>
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -135,12 +135,12 @@ export default function RegularTables() {
             </CardHeader>
             <CardFooter stats></CardFooter>
           </Card>
-        </GridItem>
+        </GridItem> */}
       </GridContainer>
       <GridContainer>
         <GridItem xs={12}>
           <Box display="flex" justifyContent="flex-end" alignItems='flex-end'>
-            <NavLink to={'/admin/calculation-dividend'}>
+            <NavLink to={'/admin/incoming-document/add'}>
               <Button variant="outlined" color={'info'}>
                 Добавить
               </Button>

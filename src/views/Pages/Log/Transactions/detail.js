@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import { Card, Box, Typography, Grid, CircularProgress } from '@material-ui/core';
@@ -71,6 +71,13 @@ const useStyles = makeStyles(styles);
 
 
 
+/**
+ * Component that displays detailed information about a transaction.
+ * Fetches and displays data related to the transaction, including 
+ * information about the transferring and receiving holders, the 
+ * securities being transferred, and other transaction details. 
+ * Provides options for printing the transaction details.
+ */
 export default function RegularTables() {
   const { id } = useParams();
   const classes = useStyles();
@@ -79,19 +86,38 @@ export default function RegularTables() {
   const Emitent = useSelector(state => state.emitents.store);
   const EmitentData = useSelector(state => state.emitents.emitent.data);
   const { data, status } = useSelector(state => state.prints.prints.transactionPrint);
+
+  const [transactionTitle, setTransactionTitle] = useState("Детали транзакции");
+
   useEffect(() => {
     dispatch(fetchEmitentById(Emitent?.id));
     dispatch(fetchTransactionPrintById(id));
   }, []);
 
+  useEffect(() => {
+    switch (data.operation?.id) {
+      case 1:
+        setTransactionTitle("Первоначальный ввод")
+        break;
+      case 31:
+        setTransactionTitle("Передаточное распоряжение")
+        break;
+      case 3:
+        alert( 'Перебор' );
+        break;
+      default:
+        setTransactionTitle("Детали транзакции")
+    }
+  }, [data.operation?.id]);
+
   return (
     <GridContainer>
       <GridItem xs={12}>
         <Box display="flex" justifyContent="flex-end">
-        <Button
-              
-                size="small"
-              >Закрыть</Button>
+          <NavLink to="/admin/transactions">
+            <Button size="small">
+              Закрыть</Button>
+          </NavLink>
           <ReactToPrint
             trigger={() =>
               <Button
@@ -132,7 +158,7 @@ export default function RegularTables() {
               ) : (
                 <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
-                     Детали транзакции
+                   {transactionTitle}
                   </Typography>
 
                   <Typography variant="h5" component="div" align="center">

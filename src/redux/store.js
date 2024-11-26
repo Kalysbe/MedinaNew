@@ -7,6 +7,7 @@ import { transactionsReducer } from './slices/transactions';
 import { printsReducer } from './slices/prints';
 import { dividendReducer } from './slices/dividend';
 import { referenceReducer } from './slices/reference';
+import { documentsReducer } from './slices/documents';
 
 const store = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
         prints: printsReducer,
         transactions:transactionsReducer,
         dividend:dividendReducer,
-        reference: referenceReducer
+        reference: referenceReducer,
+        documents: documentsReducer
     }
 })
 

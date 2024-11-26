@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import { Box, TextField, Modal, Typography, Paper } from "@material-ui/core";
 import Button from "components/CustomButtons/Button.js";
-import { fetchDistrictList, fetchUpdateDistrict, fetchCreateDistrict } from "redux/actions/reference";
+import { fetchHolderTypeList, fetchUpdateHolderType, fetchCreateHolderType } from "redux/actions/reference";
 import Swal from 'sweetalert2';
 import CustomTable from "components/Table/CustomTable";
 import styles from "assets/jss/material-dashboard-pro-react/views/sweetAlertStyle.js";
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 export default function RegionManager() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const DistrictList = useSelector((state) => state.reference?.districtList || []);
+  const DistrictList = useSelector((state) => state.reference?.holderTypeList || []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -36,7 +36,7 @@ export default function RegionManager() {
   const [localDistrictList, setLocalDistrictList] = useState(DistrictList);
 
   useEffect(() => {
-    dispatch(fetchDistrictList());
+    dispatch(fetchHolderTypeList());
   }, [dispatch]);
 
   useEffect(() => {
@@ -82,16 +82,21 @@ export default function RegionManager() {
     try {
       let response;
       if (editMode && editDistrictId) {
-        response = await dispatch(fetchUpdateDistrict({ id: editDistrictId, data: regionData }));
+        response = await dispatch(fetchUpdateHolderType({ id: editDistrictId, data: regionData }));
         setLocalDistrictList((prevList) =>
           prevList.map((district) =>
             district.id === editDistrictId ? { ...district, ...regionData } : district
           )
         );
       } else {
-        response = await dispatch(fetchCreateDistrict(regionData));
+        response = await dispatch(fetchCreateHolderType(regionData));
         setLocalDistrictList((prevList) => [...prevList, { ...regionData, id: response.id }]);
       }
+
+      if (response.error) {
+      
+        throw new Error(response.payload.message || 'Неизвестная ошибка');
+    }
 
       Swal.fire({
         title: 'Успешно!',
@@ -128,19 +133,19 @@ export default function RegionManager() {
     <div>
       <Box display="flex" justifyContent="flex-end" mb={2}>
         <Button color="info" onClick={handleAddClick}>
-          Добавить регион
+          Добавить
         </Button>
       </Box>
-      <CustomTable tableName="Регионы" tableHead={tableHeaders} tableData={localDistrictList} searchKey="name" />
+      <CustomTable tableName="Категории акционеров" tableHead={tableHeaders} tableData={localDistrictList} searchKey="name" />
 
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <Paper className={classes.modalContainer}>
           <form onSubmit={handleConfirm}>
             <Typography variant="h6">
-              {editMode ? "Изменить регион" : "Добавить регион"}
+              {editMode ? "Изменить категорию" : "Добавить категорию"}
             </Typography>
             <TextField
-              label="Название региона"
+              label="Название категории"
               fullWidth
               value={regionData.name}
               onChange={handleInputChange}

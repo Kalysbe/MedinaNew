@@ -43,7 +43,8 @@ import EditEmitent from "views/Pages/EditEmitent.js"
 
 //Start Reference
 import ReferenceList from "views/Pages/Reference/ReferenceList.js"
-import DistrictList from "views/Pages/Reference/District/DistrictList"
+import DistrictList from "views/Pages/Reference/DistrictList"
+import HolderTypeList from "views/Pages/Reference/HolderTypeList"
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
@@ -55,6 +56,7 @@ import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
 
 import IncomingDocuments from "views/Pages/Log/IncomingDocuments/List.js"
 import IncomingDocumentDetail from "views/Pages/Log/IncomingDocuments/IncomingDocumentDetail.js"
+import IncomingDocumentEdit from "views/Pages/Log/IncomingDocuments/edit.js"
 
 
 import Holders from "views/Pages/Holders.js"
@@ -109,6 +111,14 @@ var dashRoutes = [
     component: DistrictList,
     layout: "/admin"
   },
+  {
+    path: "/holder-types-list",
+    name: "Категории акционеров",
+    icon: DashboardIcon,
+    component: HolderTypeList,
+    layout: "/admin"
+  },
+  
   //End Reference
   {
     path: "/holder/add",
@@ -273,11 +283,31 @@ var dashRoutes = [
       },
       {
         path: "/incoming-document-detail/:id",
-        name: "Просмотр измененных анкетных данных акционера",
+        name: "Детали входящего документа",
         rtlName: "وصفت",
         mini: "B",
         rtlMini: "ب",
         component: IncomingDocumentDetail,
+        layout: "/admin",
+        dashboard: false
+      },
+      {
+        path: "/incoming-document/add",
+        name: "Новый входящий документ",
+        rtlName: "وصفت",
+        mini: "B",
+        rtlMini: "ب",
+        component: IncomingDocumentEdit,
+        layout: "/admin",
+        dashboard: false
+      },
+      {
+        path: "/incoming-document/edit/:id",
+        name: "Корректировка входящего документа",
+        rtlName: "وصفت",
+        mini: "B",
+        rtlMini: "ب",
+        component: IncomingDocumentEdit,
         layout: "/admin",
         dashboard: false
       },
@@ -569,7 +599,7 @@ var dashRoutes = [
     icon: WidgetsIcon,
     component: EmitentHolders,
     layout: "/admin",
-    dashboard: true
+    dashboard: false
   },
 
   {

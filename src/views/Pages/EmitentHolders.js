@@ -47,7 +47,7 @@ export default function RegularTables() {
   const [totalPrivileged, setTotalPrivileged] = useState(0);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAllEmitents, setIsAllEmitents] = useState(false);
+  const [isAllEmitents, setIsAllEmitents] = useState(true);
 
   const [pageIndex, setPageIndex] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -114,30 +114,30 @@ export default function RegularTables() {
         accessor: 'name', // Поле данных для этого столбца
         sortType: 'basic'
       },
-      {
-        Header: "Действия",
-        accessor: "actions",
-        disableSortBy: true,
-        Cell: ({ row }) => (
-          <Box>
-          <CustomDropdown
-          buttonText="Открыть"
-          hoverColor="info"
-          buttonProps={{
-            round: true,
-            block: false,
-            color: "info"
-          }}
-          dropPlacement="bottom"
-          dropdownList={[
-           <NavLink color="info" to={`holder/${row.original.id}/edit`}>Корректировка</NavLink>,
-           <NavLink to={'/holders'}>Лиц Счет</NavLink>,
-           <NavLink to={'/holders'}>Выписка</NavLink>,
-          ]}
-        />
-        </Box>
-        ),
-      },
+      // {
+      //   Header: "Действия",
+      //   accessor: "actions",
+      //   disableSortBy: true,
+      //   Cell: ({ row }) => (
+      //     <Box>
+      //     <CustomDropdown
+      //     buttonText="Открыть"
+      //     hoverColor="info"
+      //     buttonProps={{
+      //       round: true,
+      //       block: false,
+      //       color: "info"
+      //     }}
+      //     dropPlacement="bottom"
+      //     dropdownList={[
+      //      <NavLink color="info" to={`holder/${row.original.id}/edit`}>Корректировка</NavLink>,
+      //      <NavLink to={'/holders'}>Лиц Счет</NavLink>,
+      //      <NavLink to={'/holders'}>Выписка</NavLink>,
+      //     ]}
+      //   />
+      //   </Box>
+      //   ),
+      // },
     ],
     []
   );
@@ -210,12 +210,12 @@ export default function RegularTables() {
 
               <div style={{ display: 'flex', paddingTop: '14px' }}>
 
-                <FormGroup row>
+                {/* <FormGroup row>
                   <FormControlLabel
                     control={<Checkbox checked={isAllEmitents} onChange={handleCheckboxChange} name="checkedA" color="primary" />}
                     label="По всем эмитентам"
                   />
-                </FormGroup>
+                </FormGroup> */}
 
                 
                 <CustomInput

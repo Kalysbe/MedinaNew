@@ -81,7 +81,7 @@ export default function RegularForms() {
                 confirmButtonText: 'Ок',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    history.push(`/admin/emitent-stock`);
+                    history.push(`/admin/emitent-stocks`);
                 }
             });
         } catch (error) {

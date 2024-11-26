@@ -37,10 +37,10 @@ export default function RegularTables() {
             title: 'Районы',
             link: 'district-list'
         },
-        // {
-        //     title: 'Категории акционеров',
-        //     link: 'test2'
-        // }
+        {
+            title: 'Категории акционеров',
+            link: 'holder-types-list'
+        }
     ]
 
 

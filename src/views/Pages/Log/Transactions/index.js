@@ -65,6 +65,12 @@ export default function RegularTables() {
     const tableHeaders = [
         {
             Header: '№',
+            accessor: (_, rowIndex) => rowIndex + 1, // Расчет индекса строки
+            Cell: ({ value }) => <strong>{value}</strong>,
+            sortType: 'basic'
+        },
+        {
+            Header: 'Номер',
             accessor: 'id',
             sortType: 'basic'
         },
@@ -73,6 +79,7 @@ export default function RegularTables() {
             accessor: 'contract_date',
             sortType: 'basic',
             Cell: ({ value }) => {
+                console.log('TableData -> contract_date -> value', value);
                 return window.formatDate(value);
             },
         },

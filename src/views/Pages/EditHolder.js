@@ -120,7 +120,7 @@ export default function RegularForms() {
                 confirmButtonText: 'Ок',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    history.push(`/admin/incoming-documents`);
+                    history.push(`/admin/all-holders`);
                 }
             });
         } catch (error) {

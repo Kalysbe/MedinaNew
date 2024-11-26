@@ -126,8 +126,8 @@ export default function RegularForms() {
     useEffect(() => {
         if (formData['contract_date']) { return }
         const currentDate = new Date();
-        const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
-        handleChangeDate('contract_date', formattedDate)
+        const formattedDate = currentDate.toISOString();
+        handleChangeDate('contract_date', formattedDate);
     }, [])
 
 
