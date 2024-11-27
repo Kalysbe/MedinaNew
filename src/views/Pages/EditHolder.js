@@ -4,21 +4,9 @@ import { useHistory, NavLink, useParams } from 'react-router-dom';
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import Datetime from "react-datetime";
-import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Radio from "@material-ui/core/Radio";
-import Checkbox from "@material-ui/core/Checkbox";
-
 // @material-ui/icons
 import MailOutline from "@material-ui/icons/MailOutline";
-import Check from "@material-ui/icons/Check";
-import Clear from "@material-ui/icons/Clear";
-import Contacts from "@material-ui/icons/Contacts";
-import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
-
 
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
@@ -30,13 +18,13 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
 
 import { fetchHolderById, fetchAddHolder, fetchUpdateHolder } from 'redux/actions/holders'
 import { fetchDistrictList, fetchHolderTypeList } from "redux/actions/reference";
+import { fetchDocuments } from "redux/actions/documents";
 
 
 import Swal from 'sweetalert2';
@@ -53,6 +41,7 @@ export default function RegularForms() {
     const HolderData = useSelector(state => state.holders.holder.data)
     const DistrictList = useSelector((state) => state.reference?.districtList || []);
     const HolderTypeList = useSelector((state) => state.reference?.holderTypeList || []);
+    const DocumentList = useSelector((state) => state.documents?.documentList || []);
     const holderId = id
     const isEditing = Boolean(holderId);
 
@@ -66,22 +55,14 @@ export default function RegularForms() {
         passport_agency: "",
         inn: "",
         holder_type: "",
-        district_id: ""
-    })
-
-    const [documentData, setDocumentData] = useState({
-        title: "",
-        provider_name: "",
-        signer_name: "",
-        receipt_date: "",
-        sending_date: "",
-        sending_address: "",
-        reponse_number: ""
+        district_id: "",
+        document_id: ""
     })
 
     useEffect(() => {
         dispatch(fetchDistrictList());
         dispatch(fetchHolderTypeList());
+        dispatch(fetchDocuments(Emitent?.id));
         if (holderId) {
             dispatch(fetchHolderById(holderId));
         }
@@ -99,8 +80,7 @@ export default function RegularForms() {
         try {
             let response = '';
             if (isEditing) {
-                const data = { holder_data: formData, holder_document: { ...documentData, emitent_id: Emitent?.id, holder_id: Number(holderId) } };
-                response = await dispatch(fetchUpdateHolder({ id: holderId, data: data }));
+                response = await dispatch(fetchUpdateHolder({ id: holderId, data: formData }));
             } else {
                 response = await dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...formData }));
             }
@@ -147,14 +127,7 @@ export default function RegularForms() {
         }));
     };
 
-    const handleChangeDocument = (e) => {
-        const { name, value, type } = e.target;
-        const newValue = type === 'number' ? Number(value) : value;
-        setDocumentData((prevData) => ({
-            ...prevData,
-            [name]: newValue,
-        }));
-    };
+  
 
     const handleChangeDate = (name, value) => {
         const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
@@ -164,9 +137,7 @@ export default function RegularForms() {
         }));
     };
 
-    const onClose = () => {
-
-    }
+ 
 
     return (
 
@@ -377,127 +348,42 @@ export default function RegularForms() {
                         </FormControl>
                     </GridItem>
 
-                </GridContainer>
-                {isEditing && (
-                    <>
-                        <h4 className={classes.cardIconTitle}>Входящий документ</h4>
-                        <GridContainer>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='Наименование документа'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'title',
-                                        type: 'text',
-                                        value: documentData['title']
-                                    }}
-                                />
-                            </GridItem>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='ФИО предост документ'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'provider_name',
-                                        type: 'text',
-                                        value: documentData['provider_name']
-                                    }}
-                                />
-                            </GridItem>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='Почтовый адрес отправки'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'sending_address',
-                                        type: 'text',
-                                        value: documentData['sending_address']
-                                    }}
-                                />
-                            </GridItem>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='Дата получение документа'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'receipt_date',
-                                        type: 'text',
-                                        value: documentData['receipt_date']
-                                    }}
-                                />
-                            </GridItem>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='Дата отправки ответа'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'sending_date',
-                                        type: 'text',
-                                        value: documentData['sending_date']
-                                    }}
-                                />
-                            </GridItem>
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='Исходящий номер ответа'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'reponse_number',
-                                        type: 'text',
-                                        value: documentData['reponse_number']
-                                    }}
-                                />
-                            </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <FormControl
+                            fullWidth
+                            className={classes.selectFormControl}>
+                            <InputLabel
+                                htmlFor="simple-select"
+                                className={classes.selectLabel}>
+                                Входящий документ
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    className: classes.selectMenu
+                                }}
+                                classes={{
+                                    select: classes.select
+                                }}
+                                name='document_id'
+                                value={formData['document_id']}
+                                onChange={handleChange}
+                            >
+                                {(DocumentList).map(opt => (
+                                    <MenuItem key={opt.id}
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={opt.id}>
+                                        {opt.title}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </GridItem>
 
-                            <GridItem xs={6} sm={6} md={4}>
-                                <CustomInput
-                                    labelText='ФИО подписавший документ'
-                                    formControlProps={{
-                                        fullWidth: true,
-                                    }}
-                                    inputProps={{
-                                        onChange: event => {
-                                            handleChangeDocument(event)
-                                        },
-                                        name: 'signer_name',
-                                        type: 'text',
-                                        value: documentData['signer_name']
-                                    }}
-                                />
-                            </GridItem>
-                        </GridContainer>
-                    </>
-                )}
+                </GridContainer>
+              
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 {/* <NavLink to={`/admin/holder/${id}`}>
                     <Button >Закрыть</Button>

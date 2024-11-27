@@ -8,6 +8,7 @@ import { printsReducer } from './slices/prints';
 import { dividendReducer } from './slices/dividend';
 import { referenceReducer } from './slices/reference';
 import { documentsReducer } from './slices/documents';
+import { journalReducer } from './slices/journal';
 
 const store = configureStore({
     reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
         transactions:transactionsReducer,
         dividend:dividendReducer,
         reference: referenceReducer,
-        documents: documentsReducer
+        documents: documentsReducer,
+        journal: journalReducer
     }
 })
 

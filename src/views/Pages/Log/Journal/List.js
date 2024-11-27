@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDocuments } from "redux/actions/documents";
+import { fetchJournalList } from "redux/actions/journal";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -48,13 +48,11 @@ export default function RegularTables() {
 
 
   const Emitent = useSelector(state => state.emitents?.store);
-  const Documents = useSelector(state => state.documents?.documentList);
-
-  console.log(Documents)
+  const { journalList } = useSelector(state => state.journal);
   
 
   useEffect(() => {
-    dispatch(fetchDocuments(Emitent?.id));
+    dispatch(fetchJournalList(Emitent?.id));
   }, [isAllEmitents, Emitent?.id, dispatch]);
 
 
@@ -105,7 +103,7 @@ export default function RegularTables() {
         disableSortBy: true, // Disable sorting for this column
         Cell: ({ row }) => (
           <Box display="flex">
-            <NavLink to={`incoming-document-detail/${row.original.id}`} >
+            <NavLink to={`journal/${row.original.id}`} >
             <Button
               variant="outlined"
               color="info">
@@ -146,7 +144,7 @@ export default function RegularTables() {
               </Button>
             </NavLink>
           </Box>
-          <CustomTable tableName="Входящие документы" tableHead={tableHeaders} tableData={Documents} searchKey="title" />
+          <CustomTable tableName="Входящие документы" tableHead={tableHeaders} tableData={journalList} searchKey="title" />
         </GridItem>
       </GridContainer>
     </>

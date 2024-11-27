@@ -176,7 +176,7 @@ export default function RegularTables() {
                                           </TableRow>
                                       </TableHead>
                                       <TableBody>
-                                          {operations.map((item, index) => (
+                                          {operations?.map((item, index) => (
                                               <TableRow key={index}>
                                                   <TableCell>
                                                       {item.id}
@@ -256,7 +256,7 @@ export default function RegularTables() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {operations.map((item, index) => (
+                                        {operations?.map((item, index) => (
                                             <TableRow key={index}>
                                                 <TableCell>
                                                     {item.id}

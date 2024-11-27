@@ -22,7 +22,7 @@ export const fetchAddHolder = createAsyncThunk("holders/fetchAddHolder", async (
 })
 
 export const fetchUpdateHolder = createAsyncThunk("holders/fetchUpdateHolder", async ({ id, data }) => {
-  const response = await axios.post(`/holders/document/create`, data);
+  const response = await axios.put(`/holders/${id}`, data);
   return response.data;
 })
 

@@ -58,6 +58,9 @@ import IncomingDocuments from "views/Pages/Log/IncomingDocuments/List.js"
 import IncomingDocumentDetail from "views/Pages/Log/IncomingDocuments/IncomingDocumentDetail.js"
 import IncomingDocumentEdit from "views/Pages/Log/IncomingDocuments/edit.js"
 
+import Journal from "views/Pages/Log/Journal/List.js"
+import JournalDetail from "views/Pages/Log/Journal/Detail"
+
 
 import Holders from "views/Pages/Holders.js"
 import HolderDetail from "views/Pages/Holders/detail.js"
@@ -265,7 +268,7 @@ var dashRoutes = [
         path: "/transactions",
         name: "Операции с акциями",
         rtlName: "وصفت",
-        mini: "B",
+        // mini: "B",
         rtlMini: "ب",
         component: Transactions,
         layout: "/admin",
@@ -275,7 +278,7 @@ var dashRoutes = [
         path: "/incoming-documents",
         name: "Входящие документы",
         rtlName: "وصفت",
-        mini: "B",
+        // mini: "BД",
         rtlMini: "ب",
         component: IncomingDocuments,
         layout: "/admin",
@@ -311,6 +314,27 @@ var dashRoutes = [
         layout: "/admin",
         dashboard: false
       },
+      {
+        path: "/journals",
+        name: "Журнал изменений реестра",
+        rtlName: "وصفت",
+        // mini: "ЖИ",
+        rtlMini: "ب",
+        component: Journal,
+        layout: "/admin",
+        dashboard: true
+      },
+      {
+        path: "/journal/:id",
+        name: "Детали изменений реестра",
+        rtlName: "وصفت",
+        mini: "B",
+        rtlMini: "ب",
+        component: JournalDetail,
+        layout: "/admin",
+        dashboard: false
+      },
+   
 
       {
         path: "/grid-system",
