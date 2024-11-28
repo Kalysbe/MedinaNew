@@ -57,7 +57,7 @@ const formData = [
     { key: 'bank_account', name: 'Счет в банке' },
     { key: 'id_number', name: 'Идентификационный номер' },
     // { key: 'contract_date', name: 'Номер договора с регистратором' },
-    
+
     { key: 'capital', name: 'Размер уставного капитала' },
     { key: 'contract_date', name: 'Дата заключения договора' },
     { key: 'accountant', name: 'Ф.И.О гл. бухгалтера эмитента' },
@@ -70,7 +70,7 @@ const printStyles = {
             margin: '20px',
             padding: '10px',
             border: '1px solid black',
-            borderRadius:'5px'
+            borderRadius: '5px'
         }
     },
     printOnly: {
@@ -126,6 +126,13 @@ export default function RegularTables() {
         <GridContainer>
             <GridItem xs={12}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <NavLink to={`/admin/emitent/edit/${Emitent?.id}`}>
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                    >Корректировка</Button>
+                    </NavLink>
                     <ReactToPrint
                         trigger={() =>
                             <Button
@@ -169,7 +176,7 @@ export default function RegularTables() {
                                         </Typography>
                                     </div>
                                 ))}
-                                <hr className={classes.printOnly}/>
+                                <hr className={classes.printOnly} />
                                 <Typography variant="subtitle2" style={{ marginTop: 14 }}>
                                     <b>Список эмиссий акция</b>
                                 </Typography>
@@ -210,41 +217,41 @@ export default function RegularTables() {
                                         ))}
                                         <TableRow >
 
-                                            <TableCell colSpan={4} style={{borderBottom:'none'}}>
+                                            <TableCell colSpan={4} style={{ borderBottom: 'none' }}>
                                                 Итого:
                                             </TableCell>
-                                            <TableCell style={{borderBottom:'none'}}>
+                                            <TableCell style={{ borderBottom: 'none' }}>
                                                 {startTotal}
                                             </TableCell>
-                                            <TableCell style={{borderBottom:'none'}}>
+                                            <TableCell style={{ borderBottom: 'none' }}>
                                                 {currentTotal}
                                             </TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                                <hr className={classes.printOnly}/>
-                                <div className={classes.printOnly} style={{marginTop:'14px'}}>
-                                   <div>
+                                <hr className={classes.printOnly} />
+                                <div className={classes.printOnly} style={{ marginTop: '14px' }}>
+                                    <div>
                                         <span>Держатель реестра:</span>
                                         <b> ОсОО "Реестродержатель Медина"</b>
                                     </div>
-                                   <div>
+                                    <div>
                                         <span>Орган государственной регистрации:</span>
                                         <b> Чуй-Бишкекское управление юстиции</b>
                                     </div>
-                                   <div>
+                                    <div>
                                         <span>Регистрационный номер:</span>
                                         <b> 133580-3301-000 от 09.12.2013 год</b>
                                     </div>
-                                   <div>
+                                    <div>
                                         <span>Лицензия:</span>
                                         <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
                                     </div>
-                                   <div>
+                                    <div>
                                         <span>Юридический адрес:</span>
                                         <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
                                     </div>
-                                  
+
                                 </div>
                             </div>
                         </CardBody>

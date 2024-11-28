@@ -143,7 +143,7 @@ const EditEmitent = () => {
 
     <Card style={{ padding: 30, overflow: 'inherit' }}>
       <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
-        {isEditing ? 'Редактирование' : 'Добавление'} эмитента
+        {isEditing ? 'Корректировка' : 'Добавление'} эмитента
       </Typography>
       <form>
         <Grid container spacing={2}>

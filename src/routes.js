@@ -99,6 +99,12 @@ var dashRoutes = [
     component: EditEmitent,
     layout: "/admin"
   },
+  {
+    path: "/emitent/edit/:id",
+    name: "Корректировка эмитента",
+    component: EditEmitent,
+    layout: "/admin"
+  },
   //Start Reference
   {
     path: "/reference-list",

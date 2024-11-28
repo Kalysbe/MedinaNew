@@ -103,7 +103,7 @@ export default function RegularTables() {
         setTransactionTitle("Передаточное распоряжение")
         break;
       case 3:
-        alert( 'Перебор' );
+        alert('Перебор');
         break;
       default:
         setTransactionTitle("Детали транзакции")
@@ -158,7 +158,7 @@ export default function RegularTables() {
               ) : (
                 <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
-                   {transactionTitle}
+                    {transactionTitle}
                   </Typography>
 
                   <Typography variant="h5" component="div" align="center">
@@ -257,6 +257,11 @@ export default function RegularTables() {
                   {/* <Typography variant="body2" color="textSecondary">
                     <b> Передаваемые ценные бумаги не обременены обязательствами </b>
                   </Typography> */}
+
+                  <Typography variant="body2" color="textSecondary">
+                
+                    <NavLink to={`/admin/incoming-document/edit/${data.document_id}`}>Входящий документ: {data.document_id} </NavLink>
+                  </Typography>
                 </Box>
               )}
 

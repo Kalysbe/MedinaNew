@@ -37,6 +37,7 @@ import CardBody from "components/Card/CardBody.js";
 import { fetchAllHolders } from "redux/actions/holders";
 import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
+import { fetchDocuments } from "redux/actions/documents";
 
 import { transferTypes } from "constants/operations.js"
 
@@ -59,6 +60,7 @@ export default function RegularForms() {
     const holders = useSelector(state => state.holders.holders);
     const { operationTypes } = useSelector(state => state.transactions)
     const { emissions } = useSelector(state => state.emissions)
+    const { documentList } = useSelector(state => state.documents)
 
     const [maxCount, setMaxCount] = useState(null);
     const [price, setPrice] = useState(null);
@@ -88,12 +90,14 @@ export default function RegularForms() {
         amount: "",
         is_family: false,
         id_number: "",
+        document_id: "",
         contract_date: ""
     });
 
     useEffect(() => {
         dispatch(fetchAllHolders())
         dispatch(fetchOperationTypes())
+        dispatch(fetchDocuments(Emitent?.id))
     }, [])
 
     useEffect(() => {
@@ -171,7 +175,7 @@ export default function RegularForms() {
         const emitent_id = Emitent?.id;
         try {
             let updatedFormData = formData;
-
+            console.log(updatedFormData)
             if (formData.operation_id === 1) {
                 const { holder_from_id, ...newFormData } = formData;
                 updatedFormData = newFormData;
@@ -439,6 +443,39 @@ export default function RegularForms() {
                                         Нет
                                     </MenuItem>
 
+                                </Select>
+                            </FormControl>
+                        </GridItem>
+                        <GridItem xs={12} sm={12} md={6}>
+                            <FormControl
+                                fullWidth
+                                className={classes.selectFormControl}>
+                                <InputLabel
+                                    htmlFor="simple-select"
+                                    className={classes.selectLabel}>
+                                    Входящий документ
+                                </InputLabel>
+                                <Select
+                                    MenuProps={{
+                                        className: classes.selectMenu
+                                    }}
+                                    classes={{
+                                        select: classes.select
+                                    }}
+                                    name='document_id'
+                                    value={formData['document_id']}
+                                    onChange={handleChange}
+                                >
+                                    {(documentList).map(opt => (
+                                        <MenuItem key={opt.id}
+                                            classes={{
+                                                root: classes.selectMenuItem,
+                                                selected: classes.selectMenuItemSelected
+                                            }}
+                                            value={opt.id}>
+                                            {opt.title}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </GridItem>

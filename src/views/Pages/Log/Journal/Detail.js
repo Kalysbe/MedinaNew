@@ -152,7 +152,7 @@ export default function RegularTables() {
                   <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Параметр</TableCell>
+                        {/* <TableCell>Параметр</TableCell> */}
                         <TableCell>До</TableCell>
                         <TableCell>После</TableCell>
                     </TableRow>
@@ -161,7 +161,7 @@ export default function RegularTables() {
                    
                     {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
                         <TableRow key={key}>
-                            <TableCell>{titles[key]}</TableCell>
+                            {/* <TableCell>{titles[key]}</TableCell> */}
                             <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
                             <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
                         </TableRow>

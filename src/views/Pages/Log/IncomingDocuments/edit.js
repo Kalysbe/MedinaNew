@@ -110,7 +110,7 @@ export default function RegularForms() {
                 confirmButtonText: 'Ок',
             });
         } finally {
-           
+
         }
     };
 
@@ -132,6 +132,20 @@ export default function RegularForms() {
             [name]: newValue,
         }));
     };
+
+    useEffect(() => {
+        if (formData['receipt_date']) {return}
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString();
+        handleChangeDate('receipt_date', formattedDate);
+      }, [])
+
+      useEffect(() => {
+        if (formData['sending_date' ]) {return}
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString();
+        handleChangeDate('sending_date', formattedDate);
+      }, [])
 
     return (
         <Card>
@@ -196,36 +210,34 @@ export default function RegularForms() {
                         />
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Дата получение документа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'receipt_date',
-                                type: 'text',
-                                value: formData['receipt_date']
-                            }}
-                        />
+                        <InputLabel className={classes.label}>Дата получение документа</InputLabel>
+                        <br />
+                        <FormControl fullWidth>
+                            <Datetime
+                                defaultValue={new Date()}
+                                value={formData['receipt_date']}
+                                onChange={(date) => handleChangeDate('receipt_date', date)}
+                                timeFormat={false}
+                                inputProps={{ placeholder: "Дата получение документа" }}
+                                dateFormat="DD-MM-YYYY"
+                                closeOnSelect={true}
+                            />
+                        </FormControl>
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Дата отправки ответа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'sending_date',
-                                type: 'text',
-                                value: formData['sending_date']
-                            }}
-                        />
+                        <InputLabel className={classes.label}>Дата отправки ответа</InputLabel>
+                        <br />
+                        <FormControl fullWidth>
+                            <Datetime
+                                defaultValue={new Date()}
+                                value={formData['sending_date']}
+                                onChange={(date) => handleChangeDate('sending_date', date)}
+                                timeFormat={false}
+                                inputProps={{ placeholder: "Дата отправки ответа" }}
+                                dateFormat="DD-MM-YYYY"
+                                closeOnSelect={true}
+                            />
+                        </FormControl>
                     </GridItem>
                     <GridItem xs={6} sm={6} md={4}>
                         <CustomInput
