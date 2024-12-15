@@ -190,7 +190,7 @@ export default function RegularTables() {
               </CardIcon>
               <h4 className={classes.cardIconTitle}>{report.label}</h4>
             </div>
-            {/* <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%' }}>
               <FormControl
                 // fullWidth
                 style={{ width: '150px' }}
@@ -280,7 +280,7 @@ export default function RegularTables() {
               )}
 
 
-            </div> */}
+            </div>
           </CardHeader>
           <CardBody >
             <div ref={componentRef} style={{ padding: '20px' }}>

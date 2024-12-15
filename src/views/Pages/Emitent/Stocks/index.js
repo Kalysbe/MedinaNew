@@ -76,6 +76,7 @@ export default function RegularTables() {
 
     const tableHeaders = [
         { Header: "Наименование", accessor: "reg_number", sortType: "basic" },
+        { Header: "Дата выпуска", accessor: "release_date", sortType: "basic" },
         { Header: "Цена", accessor: "nominal", sortType: "basic" },
         {
             Header: 'Выпущено',
