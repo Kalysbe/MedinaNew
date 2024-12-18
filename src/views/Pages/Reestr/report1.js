@@ -25,6 +25,15 @@ export default function Report1(props) {
     const {data, emitent } = props
     const classes = useStyles();
 
+    const totals = data.reduce(
+      (acc, item) => {
+        acc.ordinary += Number(item.ordinary) || 0;
+        acc.ordinary_nominal += item.ordinary_nominal || 0;
+        return acc;
+      },
+      { ordinary: 0, ordinary_nominal: 0 }
+    );
+
   return (
   <>
     <h5 className={classes.printOnly}> <b>{emitent}</b></h5>
@@ -68,6 +77,15 @@ export default function Report1(props) {
                       </TableCell>
                     </TableRow>
                   ))}
+                   <TableRow>
+                <TableCell colSpan={3} style={{ fontWeight: "bold" }}>
+                  Итого
+                </TableCell>
+                <TableCell>{window.formatNumber(totals.ordinary)}</TableCell>
+                <TableCell>{window.formatNumber(totals.ordinary_nominal)}</TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
                 </TableBody>
               </Table>
             )}
