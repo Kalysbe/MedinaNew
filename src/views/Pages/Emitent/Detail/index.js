@@ -46,22 +46,24 @@ const styles = {
 
 const formData = [
     { key: 'full_name', name: 'Наименование эмитента' },
-    { key: 'short_name', name: 'Номер гос. регистрации' },
-    { key: 'gov_name', name: 'Орган осуществ-ший регистр' },
+    { key: 'short_name', name: 'Краткое наименование' },
+    { key: 'gov_name', name: 'Орган государственной регистрации' },
     { key: 'contract_date', name: 'Дата регистрации' },
-    { key: 'gov_number', name: 'Орган регистрации выпуска ценных бумаг' },
-    { key: 'legal_address', name: 'Адрес' },
-    { key: 'phone_number', name: 'Номер телефона' },
+    { key: 'gov_number', name: 'Номер государственой регистрации' },
+    { key: 'legal_address', name: 'Юридический адрес' },
+    { key: 'postal_address', name: 'Почтовый адрес' },
+    { key: 'phone_number', name: 'Номер телефона, факса' },
     { key: 'email', name: 'Электронный адрес' },
-    { key: 'bank_name', name: 'Наименование банка эмитента' },
+    { key: 'bank_name', name: 'Банк эмитента' },
     { key: 'bank_account', name: 'Счет в банке' },
     { key: 'id_number', name: 'Идентификационный номер' },
     // { key: 'contract_date', name: 'Номер договора с регистратором' },
-
-    { key: 'capital', name: 'Размер уставного капитала' },
-    { key: 'contract_date', name: 'Дата заключения договора' },
-    { key: 'accountant', name: 'Ф.И.О гл. бухгалтера эмитента' },
-    { key: 'director_company', name: 'Ф.И.О руководителя эмитента' }
+    { key: null, name: 'Форма выпуска ценных бумаг' },
+    { key: 'capital', name: 'Размер капитала' },
+    { key: 'contract_date', name: 'Дата заключения договора с регистратором' },
+    { key: 'accountant', name: 'гл. бухгалтера эмитента' },
+    { key: 'director_company', name: 'Директор предприятия' },
+    { key: 'director_registrar', name: 'Директор реестродержателя' }
 ]
 
 const printStyles = {
@@ -78,6 +80,9 @@ const printStyles = {
         '@media print': {
             display: 'block'
         }
+    },
+    tableHeadStyle: {
+        fontWeight: 'bold',
     }
 };
 
@@ -109,7 +114,7 @@ export default function RegularTables() {
         const totalItemCount = Emissions?.reduce((total, item) => {
             return total + item?.count
         }, 0);
-
+        // Нужно доработать что бы выводило сумму для количество новых и фактических
         setStartTotal(totalStartCount);
         setCurrentTotal(totalItemCount);
     }, [Emissions])
@@ -127,11 +132,11 @@ export default function RegularTables() {
             <GridItem xs={12}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <NavLink to={`/admin/emitent/edit/${Emitent?.id}`}>
-                    <Button
-                        variant="contained"
-                        color="warning"
-                        size="small"
-                    >Корректировка</Button>
+                        <Button
+                            variant="contained"
+                            color="warning"
+                            size="small"
+                        >Корректировка</Button>
                     </NavLink>
                     <ReactToPrint
                         trigger={() =>
@@ -157,75 +162,108 @@ export default function RegularTables() {
 
 
                             <div className={classes.printWrapper} ref={componentRef} style={{ fontFamily: 'Arial, Helvetica, sans-serif ' }}>
-                                <Typography className={classes.printOnly} variant="h6" align="center">
+                                <Typography variant="h5" style={{ marginBottom: '16px', fontWeight: 'bold', color: '#333' }}>
 
                                     Карточка эмитента
 
-                                </Typography >
-                                {formData.map((item, key) => (
-                                    <div key={key} style={{ display: 'flex' }}>
-                                        <Typography variant="body2">
+                                </Typography>
 
-                                            {item.name}
-
-                                        </Typography >
-                                        <Typography variant="body1">
-
-                                            : <b>{Emitent[item.key]}</b>
-
-                                        </Typography>
-                                    </div>
-                                ))}
-                                <hr className={classes.printOnly} />
+                                <Table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: "fixed" }}>
+                                    <TableBody>
+                                        {formData.map((item, key) => (
+                                            <TableRow key={key}>
+                                                <TableCell
+                                                    style={{
+                                                        color: '#555',
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                        fontSize: '13px',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    {item.name}
+                                                </TableCell>
+                                                <TableCell
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: '#000',
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                        fontSize: '13px',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    {Emitent[item.key]}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                                 <Typography variant="subtitle2" style={{ marginTop: 14 }}>
                                     <b>Список эмиссий акция</b>
                                 </Typography>
-                                <Table>
-                                    <TableHead style={{ display: 'table-header-group' }}>
-                                        <TableRow>
-                                            <TableCell>№</TableCell>
-                                            <TableCell>Дата выпуска</TableCell>
-                                            <TableCell>Рег номер</TableCell>
-                                            <TableCell>Номинал</TableCell>
-                                            <TableCell>Начальное кол-во акций</TableCell>
-                                            <TableCell>Фактичесое количество</TableCell>
-
+                                <Table style={{ marginTop: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <TableHead>
+                                        <TableRow style={{ backgroundColor: '#f5f5f5' }}>
+                                            <TableCell className="tableHeadStyle">№</TableCell>
+                                            <TableCell className="tableHeadStyle">Дата выпуска</TableCell>
+                                            <TableCell className="tableHeadStyle">Рег номер</TableCell>
+                                            <TableCell className="tableHeadStyle">Категория(тип) ценных бумаг</TableCell>
+                                            <TableCell className="tableHeadStyle">Начальный номинал акций</TableCell>
+                                            <TableCell className="tableHeadStyle">Начальное кол-во акций</TableCell>
+                                            <TableCell className="tableHeadStyle">К дробл</TableCell>
+                                            <TableCell className="tableHeadStyle">Новый номинал акций</TableCell>
+                                            <TableCell className="tableHeadStyle">Новое кол-во акций</TableCell>
+                                            <TableCell className="tableHeadStyle">Фактическое количество</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {Emissions.map((item, index) => (
-                                            <TableRow key={index}>
+                                            <TableRow key={index} hover>
                                                 <TableCell>
                                                     {index + 1}
+                                                    {/* № */}
                                                 </TableCell>
                                                 <TableCell>
                                                     {window.formatDate(item.release_date)}
+                                                    {/* Дата выпуска */}
                                                 </TableCell>
                                                 <TableCell>
                                                     {item.reg_number}
+                                                    {/* Рег номер */}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {item.reg_number}
+                                                    {/* Категория(тип) ценных бумаг */}
                                                 </TableCell>
                                                 <TableCell>
                                                     {window.formatNumber(item.nominal)}
+                                                    {/* Начальный номинал акций */}
                                                 </TableCell>
                                                 <TableCell>
                                                     {window.formatNumber(item.start_count)}
+                                                    {/* Начальное кол-во акций */}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {window.formatNumber(item.count)}
+                                                    {/* К дробл */}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {/* Новый номинал акций */}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {/* Новое кол-во акций */}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {/* Фактическое количество */}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
-                                        <TableRow >
-
-                                            <TableCell colSpan={4} style={{ borderBottom: 'none' }}>
+                                        <TableRow>
+                                            <TableCell colSpan={4} style={{ fontWeight: 'bold', borderBottom: 'none' }}>
                                                 Итого:
                                             </TableCell>
-                                            <TableCell style={{ borderBottom: 'none' }}>
-                                                {startTotal}
-                                            </TableCell>
-                                            <TableCell style={{ borderBottom: 'none' }}>
-                                                {currentTotal}
-                                            </TableCell>
+                                            <TableCell style={{ borderBottom: 'none' }}>{startTotal}</TableCell>
+                                            <TableCell style={{ borderBottom: 'none' }}>{currentTotal}</TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>

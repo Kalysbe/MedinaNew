@@ -96,7 +96,7 @@ export default function RegularTables() {
     setTotalHolders(holdersCount);
     setTotalOrdinary(newSums.ordinary);
   }, [Holders]);
-
+  
   const handleChange = (event) => {
     const selectedReport = event.target.value;
     setReport(selectedReport);

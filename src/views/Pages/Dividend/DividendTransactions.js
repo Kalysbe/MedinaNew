@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react"; // Добавлен useRef для использования react-to-print
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Table,
@@ -34,12 +34,37 @@ import TextField from '@material-ui/core/TextField';
 import { NavLink, useParams } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
+import { useReactToPrint } from "react-to-print"; // Добавлено для печати
 
+const customStyle = {
+  onlyPrint: {
+    display: 'none',
+    '@media print': {
+      display: 'block',
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", 
+      color: '#000'
+    }
+  },
+  notForPrint: {
+    '@media print': {
+      display: 'none',
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", 
+      color: '#000'
+    },
+  },
+  customStyles: {
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", 
+    color: '#000'
+  }
+};
 const useStyles = makeStyles(styles);
+const customUseStyle = makeStyles(customStyle);
+
 
 export default function RegularTables() {
     const { id } = useParams();
   const classes = useStyles();
+  const customClasses = customUseStyle();
   const dispatch = useDispatch();
 
   const [totalHolders, setTotalHolders] = useState(0);
@@ -51,10 +76,10 @@ export default function RegularTables() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
 
-
   const Emitent = useSelector(state => state.emitents?.store);
   const { dividendTransactions, dividendTransactionsStatus } = useSelector(state => state.dividend.dividendTransaction);
-
+  console.log("Дивидендные транзакции:", dividendTransactions);
+  console.log("Статус транзакций:", dividendTransactionsStatus);
     console.log(id)
 
   useEffect(() => {
@@ -112,6 +137,11 @@ export default function RegularTables() {
 
   const data = useMemo(() => filteredHolders || [], [filteredHolders]);
 
+  const totalShares = data.reduce((sum, row) => sum + (row.share_count || 0), 0);
+  const totalCredited = data.reduce((sum, row) => sum + (row.share_credited || 0), 0);
+  const totalDebited = data.reduce((sum, row) => sum + (row.share_debited || 0), 0);
+  const totalAmountPay = data.reduce((sum, row) => sum + (row.amount_pay || 0), 0);
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -137,6 +167,12 @@ export default function RegularTables() {
     usePagination
   );
 
+  const tableRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => tableRef.current // Указываем, что печатать будем таблицу
+  });
+
   return (
     <>
       <GridContainer>
@@ -157,86 +193,118 @@ export default function RegularTables() {
       <GridContainer>
         <GridItem xs={12}>
           <Box display="flex" justifyContent="flex-end" alignItems='flex-end'>
-            <NavLink to={'/admin/calculation-dividend'}>
-              <Button variant="outlined" color={'warning'}>
-                Печать
-              </Button>
-            </NavLink>
+            <Button variant="outlined" color={'warning'} onClick={handlePrint}>
+              Печать
+            </Button>
           </Box>
+
           <Card >
-            <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div style={{ width: '350px' }}>
-                <CardIcon color="info">
-                  <Assignment />
-                </CardIcon>
-                <h4 className={classes.cardIconTitle}>Таблица расчета дивидендов</h4>
+            <div ref={tableRef} style={{fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", color: '#000'}}>
+              <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ width: '350px' }}>
+                  <span className={customClasses.notForPrint}>
+                  <CardIcon color="info" >
+                    <Assignment />
+                  </CardIcon>
+                  </span>
+                  <p className={customClasses.customStyles}>
+                  <h4  className={classes.cardIconTitle}>Ведомость расчета дивидендов <br/>{dividendTransactions?.title}</h4>
+                  </p>
+                </div>
+                
+                <span className={customClasses.notForPrint}>
+                  <div style={{ display: 'flex', paddingTop: '14px' }}>
+                    <CustomInput
+                      labelText='Поиск'
+                      formControlProps={{
+                        fullWidth: false,
+                      }}
+                      inputProps={{
+                        onChange: event => {
+                          handleSearchChange(event)
+                        },
+
+                        type: 'text',
+                        name: 'emission',
+                        value: searchTerm
+                      }}
+                    />
+                  </div></span>
+              </CardHeader>
+              <CardBody>
+                {/* <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <h4 className={classes.cardIconTitle}>Таблица расчета дивидендов</h4>
+              </CardHeader> */}
+              <div style={{display: 'flex'}}>
+                <div className={customClasses.onlyPrint}>
+                  <p>Предприятие (Емитент): {dividendTransactions?.emitent?.full_name}</p>
+                  <p>Вид акций: Простые именные</p>
+                  <p>Категория: {dividendTransactions?.dividend_type?.name}</p>
+                  <p>Расценка на одну акцию: {dividendTransactions?.share_price}</p>
+                  <p>Регион: Все регионы</p>
+                  <p>Дата: {window.formatDate(dividendTransactions?.date_close_reestr)}</p>
+                </div>
               </div>
-              <div style={{ display: 'flex', paddingTop: '14px' }}>
-                <CustomInput
-                  labelText='Поиск'
-                  formControlProps={{
-                    fullWidth: false,
-                  }}
-                  inputProps={{
-                    onChange: event => {
-                      handleSearchChange(event)
-                    },
-
-                    type: 'text',
-                    name: 'emission',
-                    value: searchTerm
-                  }}
-                />
-              </div>
-
-            </CardHeader>
-            <CardBody>
-
-              <Table {...getTableProps()}>
-                <TableHead>
-                  {headerGroups.map(headerGroup => (
-                    <TableRow {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map(column => (
-                        <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
-                          {column.render('Header')}
-                          <TableSortLabel
-                            active={column.isSorted}
-                            direction={column.isSortedDesc ? 'desc' : 'asc'}
-                          >
-                            {column.isSorted ? (column.isSortedDesc ? <BiSortUp /> : <BiSortDown />) : <BiSortAlt2 />}
-                          </TableSortLabel>
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHead>
-                <TableBody {...getTableBodyProps()}>
-                  {page.map(row => {
-                    prepareRow(row);
-                    return (
-                      <TableRow {...row.getRowProps()}>
-                        {row.cells.map(cell => (
-                          <TableCell {...cell.getCellProps()}>
-                            {cell.column.id === 'holder.name' ? (
-                              <NavLink to={`/admin/holder/${row.original.id}`} >
-                                <Typography color="primary">
-                                  {cell.render('Cell')}
-                                </Typography>
-
-                              </NavLink>
-                            ) : (
-                              cell.render('Cell')
-                            )}
+                <Table {...getTableProps()} >
+                  <TableHead>
+                    {headerGroups.map(headerGroup => (
+                      <TableRow {...headerGroup.getHeaderGroupProps()}>
+                        {headerGroup.headers.map(column => (
+                          <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
+                            {column.render('Header')}
+                            <TableSortLabel
+                              active={column.isSorted}
+                              direction={column.isSortedDesc ? 'desc' : 'asc'}
+                            >
+                              {column.isSorted ? (column.isSortedDesc ? <BiSortUp /> : <BiSortDown />) : <BiSortAlt2 />}
+                            </TableSortLabel>
                           </TableCell>
                         ))}
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    ))}
+                  </TableHead>
+                  <TableBody {...getTableBodyProps()}>
+                    {page.map(row => {
+                      prepareRow(row);
+                      return (
+                        <TableRow {...row.getRowProps()}>
+                          {row.cells.map(cell => (
+                            <TableCell {...cell.getCellProps()}>
+                              {cell.column.id === 'holder.name' ? (
+                                <NavLink to={`/admin/holder/${row.original.id}`} >
+                                  <Typography color="primary">
+                                    {cell.render('Cell')}
+                                  </Typography>
+
+                                </NavLink>
+                              ) : (
+                                cell.render('Cell')
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
+                  <TableRow>
+                    <TableCell colSpan={2} style={{ fontWeight: 'bold' }}>Итого по листу:</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalShares}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalCredited}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalDebited}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalAmountPay}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={2} style={{ fontWeight: 'bold' }}>Всего по листам :</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalShares}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalCredited}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalDebited}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{totalAmountPay}</TableCell>
+                  </TableRow>
+                  </TableBody>
+                </Table>
 
 
-            </CardBody>
+              </CardBody>
+            </div>
           </Card>
         </GridItem>
       </GridContainer>

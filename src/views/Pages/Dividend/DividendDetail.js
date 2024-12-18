@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 // @material-ui/core components
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, styled } from "@material-ui/core/styles";
 import { Card, Box, Typography, Grid, CircularProgress } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 
@@ -64,7 +64,11 @@ const styles = {
         borderTop: '1px solid #000',
         marginTop: '100px'
 
-    }
+    },
+    unifiedFont: {
+        fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+        color: '#000'
+    },
 };
 
 const useStyles = makeStyles(styles);
@@ -102,7 +106,7 @@ export default function RegularTables() {
                     />
 
                 </Box>
-                <Card style={{ maxWidth: '700px', margin: '0 auto' }}>
+                <Card style={{ maxWidth: '700px', margin: '0 auto', fontFamily: 'Arial, Helvetica, sans-serif ' }}>
                     <CardBody>
                         <Box py={3}>
 
@@ -114,7 +118,41 @@ export default function RegularTables() {
                                         <CircularProgress color="primary" size={80} /> {status}
                                     </Box>
                                 ) : (
-                                    <Box minWidth={275} >
+                                    <Box minWidth={275} className={classes.unifiedFont}>
+                                        <Table className={classes.printOnly}>
+                                            <TableBody>
+                                                <TableRow>
+                                                    <TableCell style={{
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                        color: '#000'
+                                                    }}>Предприятие</TableCell>
+                                                    <TableCell style={{
+                                                        color: '#000',
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                    }}>
+                                                        {data?.share_price}
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell style={{
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                        color: '#000'
+                                                    }}>Категория</TableCell>
+                                                    <TableCell style={{
+                                                        color: '#000',
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        padding: '4px 12px',
+                                                    }}>
+                                                        {data?.dividend_type?.name}
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableBody>
+                                        </Table>
+                                        <br />
+                                        <br />
                                         <Typography variant="h5" component="div" align="center">
                                             Ведомость расчета дивидендов
                                         </Typography>
@@ -122,89 +160,104 @@ export default function RegularTables() {
                                         <Typography variant="h5" component="div" align="center">
                                             {data?.title}
                                         </Typography>
+                                        <br />
 
-                                        <Typography variant="body2" color="textSecondary">
-                                            Предприятие:  <b> {data?.share_price}</b>
-                                        </Typography>
-
-                                        <Typography variant="body2" color="textSecondary">
-                                            Категория:  <b> {data?.dividend_type?.name}</b>
-                                        </Typography>
-
-                                        <Typography variant="body2" color="textSecondary">
-                                            Дата закрытия реестра:  <b> {window.formatDate(data?.date_close_reestr)} </b>
-                                        </Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Расценка на акцию:  <b> {data?.share_price}</b>
-                                        </Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Количество акций: <b> {data?.amount_share} </b>
-                                        </Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Сумма начислено: <b> {data?.amount_share_credited}</b>
-                                        </Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Сумма ударжано: <b> {data.amount_share_debited}</b>
-                                        </Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Сумма к выдаче:  <b> {data.amount_pay}</b>
-                                        </Typography>
-
+                                        <Table>
+                                            <TableBody>
+                                                {[
+                                                    { label: "Дата закрытия реестра", value: window.formatDate(data?.date_close_reestr) },
+                                                    { label: "Расценка на акцию", value: data?.share_price },
+                                                    { label: "Количество акций", value: data?.amount_share },
+                                                    { label: "Сумма начислено", value: data?.amount_share_credited },
+                                                    { label: "Сумма удержано", value: data?.amount_share_debited },
+                                                    { label: "Сумма к выдаче", value: data?.amount_pay },
+                                                ].map((row, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell style={{
+                                                            borderBottom: '1px solid #e0e0e0',
+                                                            padding: '4px 12px',
+                                                            color: '#000',
+                                                        }}>{row.label}</TableCell>
+                                                        <TableCell style={{
+                                                            color: '#000',
+                                                            borderBottom: '1px solid #e0e0e0',
+                                                            padding: '4px 12px',
+                                                        }}>
+                                                            {row.value}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
                                     </Box>
+
                                 )}
 
-                                {/* <div >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign:'center' }} >
-                                        <Typography style={{marginTop:'-24px'}}>Руководитель предприятие</Typography>
+                                <br />
+                                <br />
+                                <Typography className={classes.printOnly}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign: 'center' }} >
 
-                                        <Typography style={{ borderTop: '1px solid #000' }}>Подпись</Typography>
+                                        <Typography style={{ width: "40%", textAlign: 'start', marginTop: '-24px', color: '#000' }}>Руководитель предприятие</Typography>
 
-                                        <Typography style={{width: '40%', borderTop: '1px solid #000' }}>ФИО</Typography>
+                                        <Typography style={{ borderTop: '1px solid #000', color: '#000', marginTop: '-5px' }}>Подпись</Typography>
+
+                                        <Typography style={{ width: '40%', borderTop: '1px solid #000', color: '#000', marginTop: '-5px' }}>(Ф.И.О полностью)</Typography>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign:'center' }} >
-                                        <Typography style={{marginTop:'-24px'}}>Главный бухгалтер предприятие</Typography>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign: 'center', color: '#000' }} >
+                                        <Typography style={{ width: "40%", textAlign: 'start', marginTop: '-24px' }}>Главный бухгалтер предприятие</Typography>
 
-                                        <Typography style={{ borderTop: '1px solid #000' }}>Подпись</Typography>
+                                        <Typography style={{ borderTop: '1px solid #000', color: '#000' }}>Подпись</Typography>
 
-                                        <Typography style={{width: '40%', borderTop: '1px solid #000' }}>ФИО</Typography>
+                                        <Typography style={{ width: '40%', borderTop: '1px solid #000', color: '#000' }}>(Ф.И.О полностью)</Typography>
                                     </div>
-                                </div> */}
+                                    <br />
+                                    <br />
+                                    <p style={{ fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", color: '#000' }}>М.П.</p>
+                                    <br />
+                                    <br />
+                                </Typography>
+
+
+                                <Typography className={classes.printOnly}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', textAlign: 'center' }} >
+                                        <Typography style={{ width: "40%", textAlign: 'start', marginTop: '-24px', color: '#000' }}>ОсОО "Реестродержатель Медина"</Typography>
+
+                                        <Typography style={{ borderTop: '1px solid #000', color: '#000' }}>Подпись</Typography>
+
+                                        <Typography style={{ width: '40%', borderTop: '1px solid #000', color: '#000' }}> <span style={{ position: "absolute", marginTop: "-25px", marginLeft: '-50px', textAlign: 'center' }}>Тентишева Гульнара Мысанова</span> (Ф.И.О полностью)</Typography>
+                                    </div>
+                                    <br />
+                                    <br />
+                                    <p style={{ fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", color: '#000' }}>М.П.</p>
+                                    <br />
+                                    <br />
+                                </Typography>
 
                                 <hr className={classes.printOnly} />
-                                <div className={classes.printOnly} style={{ marginTop: '14px' }}>
+                                <Typography className={classes.printOnly} style={{ marginTop: '14px', fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", color: '#000', fontSize: '13px' }}>
                                     <div>
                                         <span>Держатель реестра:</span>
-                                        <b> ОсОО "Реестродержатель Медина"</b>
+                                        <span>  ОсОО "Реестродержатель Медина"</span>
                                     </div>
                                     <div>
                                         <span>Орган государственной регистрации:</span>
-                                        <b> Чуй-Бишкекское управление юстиции</b>
+                                        <span> Чуй-Бишкекское управление юстиции</span>
                                     </div>
                                     <div>
                                         <span>Регистрационный номер:</span>
-                                        <b> 133580-3301-000 от 09.12.2013 год</b>
+                                        <span> 133580-3301-000 от 09.12.2013 год</span>
                                     </div>
                                     <div>
                                         <span>Лицензия:</span>
-                                        <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                                        <span> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</span>
                                     </div>
                                     <div>
                                         <span>Юридический адрес:</span>
-                                        <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                                        <span> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</span>
                                     </div>
 
-                                </div>
-
-
-
-                                <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
-
-                                <div className={classes.printOnly}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                                        <Typography>Номер операции: <b>{id}</b></Typography>
-                                        <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
-                                    </div>
-                                </div>
+                                </Typography>
                             </Box>
 
 
