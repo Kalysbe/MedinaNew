@@ -55,7 +55,11 @@ const customStyle = {
   customStyles: {
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", 
     color: '#000'
-  }
+  },
+  fontStyle: {
+    color: "#000",
+    fontWeight: '300',
+  },
 };
 const useStyles = makeStyles(styles);
 const customUseStyle = makeStyles(customStyle);
@@ -208,7 +212,7 @@ export default function RegularTables() {
                   </CardIcon>
                   </span>
                   <p className={customClasses.customStyles}>
-                  <h4  className={classes.cardIconTitle}>Ведомость расчета дивидендов <br/>{dividendTransactions?.title}</h4>
+                  <h4  className={classes.cardIconTitle}> <span className={customClasses.fontStyle}>Ведомость расчета дивидендов <br/>{dividendTransactions?.title}</span></h4>
                   </p>
                 </div>
                 
@@ -237,12 +241,12 @@ export default function RegularTables() {
               </CardHeader> */}
               <div style={{display: 'flex'}}>
                 <div className={customClasses.onlyPrint}>
-                  <p>Предприятие (Емитент): {dividendTransactions?.emitent?.full_name}</p>
-                  <p>Вид акций: Простые именные</p>
-                  <p>Категория: {dividendTransactions?.dividend_type?.name}</p>
-                  <p>Расценка на одну акцию: {dividendTransactions?.share_price}</p>
-                  <p>Регион: Все регионы</p>
-                  <p>Дата: {window.formatDate(dividendTransactions?.date_close_reestr)}</p>
+                  <p><span className={customClasses.fontStyle}>Предприятие (Емитент): {dividendTransactions?.emitent?.full_name}</span></p>
+                  <p><span className={customClasses.fontStyle}>Вид акций: Простые именные</span></p>
+                  <p><span className={customClasses.fontStyle}>Категория: {dividendTransactions?.dividend_type?.name}</span></p>
+                  <p><span className={customClasses.fontStyle}>Расценка на одну акцию: {dividendTransactions?.share_price}</span></p>
+                  <p><span className={customClasses.fontStyle}>Регион: Все регионы</span></p>
+                  <p><span className={customClasses.fontStyle}>Дата: {window.formatDate(dividendTransactions?.date_close_reestr)}</span></p>
                 </div>
               </div>
                 <Table {...getTableProps()} >

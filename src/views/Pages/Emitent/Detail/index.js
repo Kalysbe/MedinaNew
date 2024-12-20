@@ -83,7 +83,21 @@ const printStyles = {
     },
     tableHeadStyle: {
         fontWeight: 'bold',
-    }
+    },
+    table: {
+        borderCollapse: "collapse", 
+        width: "100%",
+      },
+      tableCell: {
+        padding: "4px 8px", 
+        fontSize: "0.9rem", 
+      },
+      tableHeaderCell: {
+        padding: "6px 8px",
+        fontWeight: "bold",
+        backgroundColor: "#f4f4f4", 
+        verticalAlign: 'top'
+      },
 };
 
 const useStyles = makeStyles({ ...styles, ...printStyles });
@@ -176,7 +190,7 @@ export default function RegularTables() {
                                                     style={{
                                                         color: '#555',
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px',
                                                         fontSize: '13px',
                                                         whiteSpace: 'nowrap',
                                                     }}
@@ -188,7 +202,7 @@ export default function RegularTables() {
                                                         fontWeight: 'bold',
                                                         color: '#000',
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px',
                                                         fontSize: '13px',
                                                         whiteSpace: 'nowrap',
                                                     }}
@@ -202,58 +216,58 @@ export default function RegularTables() {
                                 <Typography variant="subtitle2" style={{ marginTop: 14 }}>
                                     <b>Список эмиссий акция</b>
                                 </Typography>
-                                <Table style={{ marginTop: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+                                <Table className={classes.table} style={{ marginTop: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
                                     <TableHead>
                                         <TableRow style={{ backgroundColor: '#f5f5f5' }}>
-                                            <TableCell className="tableHeadStyle">№</TableCell>
-                                            <TableCell className="tableHeadStyle">Дата выпуска</TableCell>
-                                            <TableCell className="tableHeadStyle">Рег номер</TableCell>
-                                            <TableCell className="tableHeadStyle">Категория(тип) ценных бумаг</TableCell>
-                                            <TableCell className="tableHeadStyle">Начальный номинал акций</TableCell>
-                                            <TableCell className="tableHeadStyle">Начальное кол-во акций</TableCell>
-                                            <TableCell className="tableHeadStyle">К дробл</TableCell>
-                                            <TableCell className="tableHeadStyle">Новый номинал акций</TableCell>
-                                            <TableCell className="tableHeadStyle">Новое кол-во акций</TableCell>
-                                            <TableCell className="tableHeadStyle">Фактическое количество</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>№</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Дата выпуска</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Рег номер</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Категория(тип) ценных бумаг</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Начальный номинал акций</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Начальное кол-во акций</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>К дробл</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Новый номинал акций</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Новое кол-во акций</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Фактическое количество</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {Emissions.map((item, index) => (
                                             <TableRow key={index} hover>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {index + 1}
                                                     {/* № */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {window.formatDate(item.release_date)}
                                                     {/* Дата выпуска */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {item.reg_number}
                                                     {/* Рег номер */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {item.reg_number}
                                                     {/* Категория(тип) ценных бумаг */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {window.formatNumber(item.nominal)}
                                                     {/* Начальный номинал акций */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {window.formatNumber(item.start_count)}
                                                     {/* Начальное кол-во акций */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {/* К дробл */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {/* Новый номинал акций */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {/* Новое кол-во акций */}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className={classes.tableCell}>
                                                     {/* Фактическое количество */}
                                                 </TableCell>
                                             </TableRow>

@@ -124,13 +124,13 @@ export default function RegularTables() {
                                                 <TableRow>
                                                     <TableCell style={{
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px 0px',
                                                         color: '#000'
                                                     }}>Предприятие</TableCell>
                                                     <TableCell style={{
                                                         color: '#000',
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px 0px',
                                                     }}>
                                                         {data?.share_price}
                                                     </TableCell>
@@ -138,13 +138,13 @@ export default function RegularTables() {
                                                 <TableRow>
                                                     <TableCell style={{
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px 0px',
                                                         color: '#000'
                                                     }}>Категория</TableCell>
                                                     <TableCell style={{
                                                         color: '#000',
                                                         borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px 12px',
+                                                        padding: '4px 0px',
                                                     }}>
                                                         {data?.dividend_type?.name}
                                                     </TableCell>
@@ -175,13 +175,13 @@ export default function RegularTables() {
                                                     <TableRow key={index}>
                                                         <TableCell style={{
                                                             borderBottom: '1px solid #e0e0e0',
-                                                            padding: '4px 12px',
+                                                            padding: '4px 0px',
                                                             color: '#000',
                                                         }}>{row.label}</TableCell>
                                                         <TableCell style={{
                                                             color: '#000',
                                                             borderBottom: '1px solid #e0e0e0',
-                                                            padding: '4px 12px',
+                                                            padding: '4px 0px',
                                                         }}>
                                                             {row.value}
                                                         </TableCell>
