@@ -1,43 +1,23 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from 'prop-types';
+import React, { useEffect } from "react";
+
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
-import {  Box , Card} from '@material-ui/core';
+import {  Box } from '@material-ui/core';
 
 // material-ui icons
-import Assignment from "@material-ui/icons/Assignment";
+
 
 // core components
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
-// import Table from "components/Table/Table.js";
-// import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardIcon from "components/Card/CardIcon.js";
-import CardBody from "components/Card/CardBody.js";
 
-import FormControl from "@material-ui/core/FormControl";
-import CustomInput from "components/CustomInput/CustomInput.js";
-import InputLabel from "@material-ui/core/InputLabel";
-import Datetime from "react-datetime";
 import Button from "components/CustomButtons/Button.js";
 
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
+
 
 import CustomTable from "components/Table/CustomTable";
 
-
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-
-import Swal from 'sweetalert2';
 
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";

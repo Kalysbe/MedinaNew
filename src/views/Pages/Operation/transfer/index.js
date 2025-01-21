@@ -77,7 +77,7 @@ export default function RegularForms() {
     const optionsMap = {
         holders: holders?.items,
         stocks: emissions?.items,
-        typeOperations: transferTypes,
+        typeOperations: operationTypes,
     };
 
     const [formData, setFormData] = useState({
@@ -313,7 +313,7 @@ export default function RegularForms() {
                                                 selected: classes.selectMenuItemSelected
                                             }}
                                             value={opt.id}>
-                                            {opt.reg_number} - {opt.count} шт.
+                                            {opt.reg_number} - {formData.operation_id == 39 ? opt.pledge_count : opt.count} шт.
                                         </MenuItem>
                                     ))}
                                 </Select>
