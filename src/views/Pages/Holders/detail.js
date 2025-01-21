@@ -300,7 +300,7 @@ export default function RegularTables() {
 
           </Box>
 
-          <div ref={componentRef} style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
+          <div ref={componentRef} className={classes.printOnly} style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
 
             {/* Заголовок */}
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -350,8 +350,8 @@ export default function RegularTables() {
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.nominal)}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.count * item.nominal)}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.pledged_shares}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.accepted_in_pledge}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
                   </tr>
                 ))}

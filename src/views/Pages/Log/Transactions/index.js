@@ -57,6 +57,48 @@ export default function RegularTables() {
     }, []);
 
 
+    // Функция для преобразования
+    function transformData(items) {
+        return items.flatMap(item => {
+          // Проверяем, есть ли security и валидный quantity
+          if (!item.security || typeof item.security.quantity !== 'number') {
+            return []; 
+            // или return [item], если нужно пропускать только в таблицу quantity
+          }
+      
+          const quantity = item.security.quantity;
+          const resultRows = [];
+      
+          // 1) Строка "отправитель" (минусовое количество):
+          //    Если holder_from есть — используем его имя,
+          //    Если нет — берем имя emitent.full_name (как просили).
+          const fromName = item.holder_from
+            ? item.holder_from.name
+            : item.emitent?.full_name || ""; // на всякий случай, если emitent вдруг нет
+      
+          // Будем добавлять эту строку **всегда**, чтобы у нас был «минусовой» участник.
+          resultRows.push({
+            ...item,
+            displayQuantity: -quantity,
+            displayHolder: fromName
+          });
+      
+          // 2) Строка "получатель" (плюсовое количество), только если holder_to есть
+          if (item.holder_to) {
+            resultRows.push({
+              ...item,
+              displayQuantity: quantity,
+              displayHolder: item.holder_to.name
+            });
+          }
+      
+          return resultRows;
+        });
+      }
+  
+  // Применяем преобразование
+  const transformed = transformData(Transactions.items);
+console.log(transformed,'fds')
 
     const TableData = (data, keys) => {
         return data.map(item => keys.map(key => item[key]));
@@ -79,13 +121,23 @@ export default function RegularTables() {
             accessor: 'contract_date',
             sortType: 'basic',
             Cell: ({ value }) => {
-                console.log('TableData -> contract_date -> value', value);
+              
                 return window.formatDate(value);
             },
         },
         {
             Header: 'Наименование',
             accessor: 'operation.name',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Наименование',
+            accessor: 'displayQuantity',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Наименование',
+            accessor: 'displayHolder',
             sortType: 'basic'
         },
         {
@@ -105,6 +157,6 @@ export default function RegularTables() {
     ]
 
     return (
-                <CustomTable tableName="Транзакции" tableHead={tableHeaders} tableData={Transactions.items} searchKey="id" />
+                <CustomTable tableName="Транзакции" tableHead={tableHeaders} tableData={transformed} searchKey="id" />
     );
 }
