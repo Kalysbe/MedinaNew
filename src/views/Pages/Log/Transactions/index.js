@@ -61,12 +61,12 @@ export default function RegularTables() {
     function transformData(items) {
         return items.flatMap(item => {
           // Проверяем, есть ли security и валидный quantity
-          if (!item.security || typeof item.security.quantity !== 'number') {
+          if (!item || typeof item.quantity !== 'number') {
             return []; 
             // или return [item], если нужно пропускать только в таблицу quantity
           }
       
-          const quantity = item.security.quantity;
+          const quantity = item.quantity;
           const resultRows = [];
       
           // 1) Строка "отправитель" (минусовое количество):
@@ -126,12 +126,12 @@ console.log(transformed,'fds')
             },
         },
         {
-            Header: 'Наименование',
+            Header: 'Операция',
             accessor: 'operation.name',
             sortType: 'basic'
         },
         {
-            Header: 'Наименование',
+            Header: 'Количество',
             accessor: 'displayQuantity',
             sortType: 'basic'
         },

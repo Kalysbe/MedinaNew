@@ -313,17 +313,12 @@ export default function RegularTables() {
               <p style={{ margin: '3px 0' }}><strong>Эмитент:</strong> {extractData.emitent?.full_name}</p>
               <p style={{ margin: '3px 0' }}><strong>Зарегистрирован:</strong> {extractData.emitent?.gov_name}</p>
               <p style={{ margin: '3px 0' }}><strong>Номер:</strong> {extractData.emitent?.gov_number}</p>
-              <p style={{ margin: '3px 0' }}><strong>Адрес:</strong> {extractData.emitent?.postal_address}</p>
+              <p style={{ margin: '3px 0' }}><strong>Адрес:</strong> {extractData.emitent?.actual_address}</p>
             </div>
 
             {/* Раздел: Информация о держателе акций */}
             <div style={{ marginBottom: '1em' }}>
-              <p style={{ margin: '3px 0' }}><strong>Лицевой счет №:</strong> 21</p>
-              <p style={{ margin: '3px 0' }}><strong>Ф.И.О.:</strong> Ахтямова Нина Александровна</p>
-              <p style={{ margin: '3px 0' }}><strong>Адрес:</strong> г. Бишкек, пер. Геологический, 1-105</p>
-              <p style={{ margin: '3px 0' }}><strong>Документ:</strong> серия П-НС №738616</p>
-              <p style={{ margin: '3px 0' }}><strong>Выдан:</strong> г. Фрунзе Октябрьским РОВД 01.06.1978</p>
-              <p style={{ margin: '3px 0' }}><strong>Отношение к акциям владельца:</strong> расчётный счёт</p>
+            <p style={{ margin: '3px 0' }}><strong>Лицевой счет №:</strong> {extractData.holder?.id}</p> <p style={{ margin: '3px 0' }}><strong>Ф.И.О.:</strong> {extractData.holder?.name}</p> <p style={{ margin: '3px 0' }}><strong>Адрес:</strong> {extractData.holder?.actual_address}</p> <p style={{ margin: '3px 0' }}><strong>Документ:</strong> Серия: {extractData.holder?.passport_type}, Номер: {extractData.holder?.passport_number}, Выдан: {extractData.holder?.passport_agency} , {extractData.holder?.actual_address}</p> <p style={{ margin: '3px 0' }}><strong>Отношение к акциям владельца:</strong> расчётный счёт</p>
             </div>
 
             {/* Таблица */}
@@ -350,8 +345,8 @@ export default function RegularTables() {
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.nominal)}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.count * item.nominal)}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.pledged_shares}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.accepted_in_pledge}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
                   </tr>
                 ))}
