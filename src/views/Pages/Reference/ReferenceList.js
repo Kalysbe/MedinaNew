@@ -40,6 +40,10 @@ export default function RegularTables() {
         {
             title: 'Категории акционеров',
             link: 'holder-types-list'
+        },
+        {
+            title: 'Типы эмиссий',
+            link: 'emission-types-list'
         }
     ]
 

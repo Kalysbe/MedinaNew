@@ -2,7 +2,7 @@ import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchTransactions = createAsyncThunk("transactions/fetchTransactions", async (eid) => {
-    const response = await axios.get(`/transactions/emitent/${eid}`, );
+    const response = await axios.get(`/transactions/emitent/${eid}`, ); 
     return response.data;
 })
 

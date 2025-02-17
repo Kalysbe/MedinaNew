@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchDistrictList, fetchHolderTypeList } from '../actions/reference'
+import { fetchDistrictList, fetchHolderTypeList, fetchEmissionTypeList } from '../actions/reference'
 
 
 const initialState = {
   districtList: [],
-  holderTypeList: []
+  holderTypeList: [],
+  emissionTypeList: []
 }
 
 const referenceSlice = createSlice({
@@ -32,6 +33,17 @@ const referenceSlice = createSlice({
       })
       .addCase(fetchHolderTypeList.rejected, (state) => {
         state.holderTypeList = [];
+      });
+    
+    builder
+      .addCase(fetchEmissionTypeList.pending, (state) => {
+        state.emissionTypeList = [];
+      })
+      .addCase(fetchEmissionTypeList.fulfilled, (state, action) => {
+        state.emissionTypeList = action.payload;
+      })
+      .addCase(fetchEmissionTypeList.rejected, (state) => {
+        state.emissionTypeList = [];
       });
     
   },

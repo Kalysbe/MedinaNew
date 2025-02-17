@@ -32,5 +32,18 @@ export const fetchUpdateHolderType = createAsyncThunk("reference/fetchUpdateHold
   return response.data;
 })
 
+export const fetchEmissionTypeList = createAsyncThunk("reference/fetchEmissionTypeList", async () => {
+  const { data } = await axios.get(`/emissions/types`, data);
+  return data;
+})
+export const fetchCreateEmissionType = createAsyncThunk("reference/fetchCreateEmissionType", async (data) => {
+  const response = await axios.post(`emissions/types`, data);
+  return response.data;
+})
+export const fetchUpdateEmissionType = createAsyncThunk("reference/fetchCreateEmissionType", async ({id, data }) => {
+  const response = await axios.put(`emissions/types`, data);
+  return response.data;
+})
+
 
 
