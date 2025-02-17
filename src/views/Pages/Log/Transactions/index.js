@@ -56,38 +56,42 @@ export default function RegularTables() {
     console.log("Selected date range:", startDate, "to", endDate);
     console.log("Filtered data:", filteredData);
 
-    // You can store or otherwise use the filtered data:
-    // setFilteredTransactions(filteredData);
-  };
-
-  // Example function to transform the data (as you already had)
-  function transformData(items) {
-    if (!items) return [];
-    return items.flatMap((item) => {
-      if (!item.security || typeof item.security.quantity !== "number") {
-        return [];
-      }
-
-      const quantity = item.security.quantity;
-      const resultRows = [];
-
-      const fromName = item.holder_from
-        ? item.holder_from.name
-        : item.emitent?.full_name || "";
-
-      // Negative (from)
-      resultRows.push({
-        ...item,
-        displayQuantity: -quantity,
-        displayHolder: fromName
-      });
-
-      // Positive (to)
-      if (item.holder_to) {
-        resultRows.push({
-          ...item,
-          displayQuantity: quantity,
-          displayHolder: item.holder_to.name
+    // Функция для преобразования
+    function transformData(items) {
+        return items.flatMap(item => {
+          // Проверяем, есть ли security и валидный quantity
+          if (!item || typeof item.quantity !== 'number') {
+            return []; 
+            // или return [item], если нужно пропускать только в таблицу quantity
+          }
+      
+          const quantity = item.quantity;
+          const resultRows = [];
+      
+          // 1) Строка "отправитель" (минусовое количество):
+          //    Если holder_from есть — используем его имя,
+          //    Если нет — берем имя emitent.full_name (как просили).
+          const fromName = item.holder_from
+            ? item.holder_from.name
+            : item.emitent?.full_name || ""; // на всякий случай, если emitent вдруг нет
+      
+          // Будем добавлять эту строку **всегда**, чтобы у нас был «минусовой» участник.
+          resultRows.push({
+            ...item,
+            displayQuantity: -quantity,
+            displayHolder: fromName
+          });
+      
+          // 2) Строка "получатель" (плюсовое количество), только если holder_to есть
+          if (item.holder_to) {
+            resultRows.push({
+              ...item,
+              displayQuantity: quantity,
+              displayHolder: item.holder_to.name
+            });
+          }
+      
+          return resultRows;
         });
       }
 
@@ -149,35 +153,59 @@ export default function RegularTables() {
     }
   ];
 
-  return (
-    <GridContainer>
-      <GridItem xs={12}>
-        <Card>
-          <CardHeader color="primary" icon>
-            <CardIcon color="primary">
-              <Assignment />
-            </CardIcon>
-            <h4 className={classes.cardIconTitle}>Пример транзакций</h4>
-          </CardHeader>
-          <CardBody>
-            {/* 
-              Pass the following props to enable date filtering:
-               - filterData (true or false)
-               - onDateRangeChange (the callback)
-               - dateField (the name of the field that holds the date in your data; here "contract_date")
-            */}
-            <CustomTable
-              tableName="Транзакции"
-              tableHead={tableHeaders}
-              tableData={transformed}
-              searchKey="id"
-              filterData={true}
-              onDateRangeChange={handleDateRangeChange}
-              dateField="contract_date"
-            />
-          </CardBody>
-        </Card>
-      </GridItem>
-    </GridContainer>
-  );
+    const tableHeaders = [
+        {
+            Header: '№',
+            accessor: (_, rowIndex) => rowIndex + 1, // Расчет индекса строки
+            Cell: ({ value }) => <strong>{value}</strong>,
+            sortType: 'basic'
+        },
+        {
+            Header: 'Номер',
+            accessor: 'id',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Дата',
+            accessor: 'contract_date',
+            sortType: 'basic',
+            Cell: ({ value }) => {
+              
+                return window.formatDate(value);
+            },
+        },
+        {
+            Header: 'Операция',
+            accessor: 'operation.name',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Количество',
+            accessor: 'displayQuantity',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Наименование',
+            accessor: 'displayHolder',
+            sortType: 'basic'
+        },
+        {
+            Header: 'Действия', // New column for the buttons
+            accessor: 'actions',
+            disableSortBy: true, // Disable sorting for this column
+            Cell: ({ row }) => (
+                    <NavLink to={`/admin/transaction/${row.original.id}`} >
+                        <Button
+                            variant="outlined"
+                            color="info">
+                            Открыть
+                        </Button>
+                    </NavLink>
+            )
+        }
+    ]
+
+    return (
+                <CustomTable tableName="Транзакции" tableHead={tableHeaders} tableData={transformed} searchKey="id" />
+    );
 }
