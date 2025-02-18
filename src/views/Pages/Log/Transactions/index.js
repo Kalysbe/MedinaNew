@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-// material-ui icons
 import Assignment from "@material-ui/icons/Assignment";
-
-// core components
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Card from "components/Card/Card.js";
@@ -11,13 +8,10 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 import Button from "components/CustomButtons/Button.js";
-
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTransactions } from "redux/actions/transactions";
-
-// <-- Our custom table that has date filtering built in
 import CustomTable from "components/Table/CustomTable";
 
 const styles = {
@@ -40,58 +34,52 @@ export default function RegularTables() {
   const Emitent = useSelector((state) => state.emitents?.store);
   const Transactions = useSelector((state) => state.transactions?.transactions);
 
+  // При монтировании компонента (или при изменении Emitent.id) выполняем первоначальный запрос
   useEffect(() => {
     if (Emitent?.id) {
-      dispatch(fetchTransactions(Emitent?.id));
+      dispatch(fetchTransactions({eid:Emitent.id}));
     }
   }, [Emitent, dispatch]);
 
-  // We’ll keep track of whatever is returned via onDateRangeChange, 
-  // so we can see the currently filtered data or date range:
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  // Колбэк для фильтрации по датам (по выбору в дочернем компоненте)
+  const handleFilterChange = ({ startDate, endDate }) => {
+    if (Emitent?.id && startDate && endDate) {
+      console.log(startDate,endDate)
+      // Экшен fetchTransactions должен принимать emitent.id, startDate и endDate,
+      // формируя запрос вида:
+      // http://localhost:5050/transactions?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+      dispatch(fetchTransactions({eid:Emitent.id, startDate: startDate,endDate: endDate}));
+    }
+  };
 
-  // This callback will be passed to CustomTable and triggered 
-  // whenever the date range or the filtered data changes in CustomTable.
-  const handleDateRangeChange = ({ startDate, endDate, filteredData }) => {
-    console.log("Selected date range:", startDate, "to", endDate);
-    console.log("Filtered data:", filteredData);
+  // Преобразование полученных транзакций для отображения в таблице.
+  // Например, создаём две строки: для отправителя (отрицательное количество) и для получателя (положительное).
+  function transformData(items) {
+    if (!items) return [];
+    return items.flatMap((item) => {
+      if (!item.security || typeof item.security.quantity !== "number") {
+        return [];
+      }
 
-    // Функция для преобразования
-    function transformData(items) {
-        return items.flatMap(item => {
-          // Проверяем, есть ли security и валидный quantity
-          if (!item || typeof item.quantity !== 'number') {
-            return []; 
-            // или return [item], если нужно пропускать только в таблицу quantity
-          }
-      
-          const quantity = item.quantity;
-          const resultRows = [];
-      
-          // 1) Строка "отправитель" (минусовое количество):
-          //    Если holder_from есть — используем его имя,
-          //    Если нет — берем имя emitent.full_name (как просили).
-          const fromName = item.holder_from
-            ? item.holder_from.name
-            : item.emitent?.full_name || ""; // на всякий случай, если emitent вдруг нет
-      
-          // Будем добавлять эту строку **всегда**, чтобы у нас был «минусовой» участник.
-          resultRows.push({
-            ...item,
-            displayQuantity: -quantity,
-            displayHolder: fromName
-          });
-      
-          // 2) Строка "получатель" (плюсовое количество), только если holder_to есть
-          if (item.holder_to) {
-            resultRows.push({
-              ...item,
-              displayQuantity: quantity,
-              displayHolder: item.holder_to.name
-            });
-          }
-      
-          return resultRows;
+      const quantity = item.security.quantity;
+      const resultRows = [];
+
+      // Строка "отправитель" – отрицательное количество.
+      const fromName = item.holder_from
+        ? item.holder_from.name
+        : item.emitent?.full_name || "";
+      resultRows.push({
+        ...item,
+        displayQuantity: -quantity,
+        displayHolder: fromName
+      });
+
+      // Строка "получатель" – положительное количество, если присутствует holder_to.
+      if (item.holder_to) {
+        resultRows.push({
+          ...item,
+          displayQuantity: quantity,
+          displayHolder: item.holder_to.name
         });
       }
 
@@ -99,13 +87,14 @@ export default function RegularTables() {
     });
   }
 
+  // Трансформируем данные, полученные из Redux
   const transformed = transformData(Transactions?.items || []);
 
-  // React Table columns
+  // Определяем колонки для react-table.
+  // Обратите внимание: поиск будет производиться локально по полю "id".
   const tableHeaders = [
     {
       Header: "№",
-      // Row index
       accessor: (_, rowIndex) => rowIndex + 1,
       Cell: ({ value }) => <strong>{value}</strong>,
       sortType: "basic"
@@ -117,15 +106,13 @@ export default function RegularTables() {
     },
     {
       Header: "Дата",
-      // This should match the field name you want to filter by date
-      // (if you pass `dateField="contract_date"` below, 
-      //  you'll want this accessor to read from `contract_date`).
       accessor: "contract_date",
       sortType: "basic",
-      Cell: ({ value }) => window.formatDate(value) // if you have a window.formatDate function
+      // Пример форматирования даты (убедитесь, что window.formatDate определена)
+      Cell: ({ value }) => window.formatDate(value)
     },
     {
-      Header: "Наименование",
+      Header: "Операция",
       accessor: "operation.name",
       sortType: "basic"
     },
@@ -153,59 +140,31 @@ export default function RegularTables() {
     }
   ];
 
-    const tableHeaders = [
-        {
-            Header: '№',
-            accessor: (_, rowIndex) => rowIndex + 1, // Расчет индекса строки
-            Cell: ({ value }) => <strong>{value}</strong>,
-            sortType: 'basic'
-        },
-        {
-            Header: 'Номер',
-            accessor: 'id',
-            sortType: 'basic'
-        },
-        {
-            Header: 'Дата',
-            accessor: 'contract_date',
-            sortType: 'basic',
-            Cell: ({ value }) => {
-              
-                return window.formatDate(value);
-            },
-        },
-        {
-            Header: 'Операция',
-            accessor: 'operation.name',
-            sortType: 'basic'
-        },
-        {
-            Header: 'Количество',
-            accessor: 'displayQuantity',
-            sortType: 'basic'
-        },
-        {
-            Header: 'Наименование',
-            accessor: 'displayHolder',
-            sortType: 'basic'
-        },
-        {
-            Header: 'Действия', // New column for the buttons
-            accessor: 'actions',
-            disableSortBy: true, // Disable sorting for this column
-            Cell: ({ row }) => (
-                    <NavLink to={`/admin/transaction/${row.original.id}`} >
-                        <Button
-                            variant="outlined"
-                            color="info">
-                            Открыть
-                        </Button>
-                    </NavLink>
-            )
-        }
-    ]
-
-    return (
-                <CustomTable tableName="Транзакции" tableHead={tableHeaders} tableData={transformed} searchKey="id" />
-    );
+  return (
+    <GridContainer>
+      <GridItem xs={12}>
+        <Card>
+          <CardHeader color="primary" icon>
+            <CardIcon color="primary">
+              <Assignment />
+            </CardIcon>
+            <h4 className={classes.cardIconTitle}>Транзакции</h4>
+          </CardHeader>
+          <CardBody>
+            {/* Передаём в дочерний компонент:
+                - данные для таблицы (уже отфильтрованные на сервере по датам)
+                - локальный поиск будет выполнен внутри CustomTable
+                - колбэк для серверной фильтрации по датам */}
+            <CustomTable
+              tableName="Транзакции"
+              tableHead={tableHeaders}
+              tableData={transformed}
+              searchKey="id"
+              onFilterChange={handleFilterChange}
+            />
+          </CardBody>
+        </Card>
+      </GridItem>
+    </GridContainer>
+  );
 }

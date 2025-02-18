@@ -1,489 +1,433 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, NavLink } from 'react-router-dom';
-// @material-ui/core components
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, NavLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Datetime from "react-datetime";
-import FormLabel from "@material-ui/core/FormLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Radio from "@material-ui/core/Radio";
-import Checkbox from "@material-ui/core/Checkbox";
-
-// @material-ui/icons
-import MailOutline from "@material-ui/icons/MailOutline";
-import Check from "@material-ui/icons/Check";
-import Clear from "@material-ui/icons/Clear";
-import Contacts from "@material-ui/icons/Contacts";
-import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
-
-
 import InputLabel from "@material-ui/core/InputLabel";
-import SelectSearch from 'react-select'
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-// core components
+import SelectSearch from "react-select"; // для selectSearch
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
+import MailOutline from "@material-ui/icons/MailOutline";
+import Swal from "sweetalert2";
+import { useForm, Controller } from "react-hook-form";
 
 import { fetchAllHolders } from "redux/actions/holders";
 import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
-
-
-import { singleTypes } from "constants/operations.js"
-
+import { fetchDocuments } from "redux/actions/documents";
+import { transferTypes, singleTypes } from "constants/operations.js";
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
-
-import Swal from 'sweetalert2';
 
 const useStyles = makeStyles(styles);
 
-
-
 export default function RegularForms() {
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const [checked, setChecked] = React.useState([24, 22]);
-    const [selectedEnabled, setSelectedEnabled] = React.useState("b");
-    const [selectedValue, setSelectedValue] = React.useState(null);
-    const [loading, setLoading] = useState(null);
-    const Emitent = useSelector(state => state.emitents.store);
-    const holders = useSelector(state => state.holders.holders);
-    const { operationTypes } = useSelector(state => state.transactions)
-    const { emissions } = useSelector(state => state.emissions)
-    const { documentList } = useSelector(state => state.documents)
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const history = useHistory();
 
-    const [maxCount, setMaxCount] = useState(null);
-    const [price, setPrice] = useState(null);
+  // Получаем данные из Redux
+  const Emitent = useSelector((state) => state.emitents.store);
+  const holders = useSelector((state) => state.holders.holders);
+  const { operationTypes } = useSelector((state) => state.transactions);
+  const { emissions } = useSelector((state) => state.emissions);
+  const { documentList } = useSelector((state) => state.documents);
 
-    const optionsMap = {
-        holders: holders?.items,
-        stocks: emissions?.items,
-        typeOperations: singleTypes,
-    };
+  // Локальные состояния для вычисляемых значений
+  const [maxCount, setMaxCount] = useState(null);
+  const [price, setPrice] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    const [formData, setFormData] = useState({
-        operation_id: "",
-        holder_to_id: "",
-        emission_id: "",
-        is_exchange: true,
-        emission: "",
-        quantity: "",
-        amount: "",
-        is_family: true,
-        id_number: "",
-        document_id: "",
-        contract_date: ""
-    });
+  // Карта опций для селектов
+  const optionsMap = {
+    holders: holders?.items || [],
+    stocks: emissions?.items || [],
+    // Для одноместной операции используем singleTypes, если требуется
+    typeOperations: singleTypes || [],
+    documents: documentList || [],
+  };
 
-    useEffect(() => {
-        dispatch(fetchAllHolders())
-        dispatch(fetchOperationTypes())
-    }, [])
+  // Массив-конфигурация обязательных полей (без поля "Кто отдает")
+  const fieldsConfig = [
+    {
+      name: "operation_id",
+      label: "Операция",
+      component: "selectSearch",
+      options: optionsMap.typeOperations,
+      optionValueKey: "id",
+      optionLabelKey: "name",
+      grid: { xs: 12, sm: 12, md: 12 },
+      validation: { required: "Операция обязательна" },
+    },
+    {
+      name: "holder_to_id",
+      label: "Кто принимает",
+      component: "selectSearch",
+      options: optionsMap.holders,
+      optionValueKey: "id",
+      optionLabelKey: "name",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Выберите получателя" },
+    },
+    {
+      name: "emission_id",
+      label: "Эмиссия",
+      component: "select",
+      options: optionsMap.stocks,
+      optionValueKey: "id",
+      optionLabelKey: "reg_number", // отображается reg_number
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Эмиссия обязательна" },
+    },
+    {
+      name: "is_exchange",
+      label: "Вид сделки",
+      component: "select",
+      options: [
+        { value: true, label: "Биржевая" },
+        { value: false, label: "Не биржевая" },
+      ],
+      optionValueKey: "value",
+      optionLabelKey: "label",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: {
+        validate: (value) =>
+          typeof value === "boolean" || "Выберите вид сделки",
+      },
+    },
+    {
+      name: "emission",
+      label: "Эмиссия (номер)",
+      component: "input",
+      type: "text",
+      disabled: true,
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Эмиссия обязательна" },
+    },
+    {
+      name: "quantity",
+      label: "Количество" + (maxCount ? ` (Макс. ${maxCount})` : ""),
+      component: "input",
+      type: "number",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Количество обязательно" },
+    },
+    {
+      name: "amount",
+      label: "Сумма сделки",
+      component: "input",
+      type: "number",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: {}, // убираем проверку для суммы сделки
+    },
+    {
+      name: "is_family",
+      label: "Признак родственника",
+      component: "select",
+      options: [
+        { value: true, label: "Да" },
+        { value: false, label: "Нет" },
+      ],
+      optionValueKey: "value",
+      optionLabelKey: "label",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: {
+        validate: (value) =>
+          typeof value === "boolean" || "Поле обязательно",
+      },
+    },
+    {
+      name: "document_id",
+      label: "Входящий документ",
+      component: "select",
+      options: optionsMap.documents,
+      optionValueKey: "id",
+      optionLabelKey: "title",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Входящий документ обязателен" },
+    },
+    {
+      name: "contract_date",
+      label: "Дата операции",
+      component: "datetime",
+      grid: { xs: 12, sm: 12, md: 6 },
+      validation: { required: "Дата операции обязательна" },
+    },
+  ];
 
-    useEffect(() => {
-        if (formData.operation_id === 1) {
-            dispatch(fetchEmissionsByEmitentId(Emitent?.id))
-        } else if (formData.holder_to_id) {
-            dispatch(fetchSecuritiesByEmitentId(formData.holder_to_id))
-        }
-    }, [formData.operation_id, formData.holder_to_id])
+  // Инициализация React Hook Form с дефолтными значениями
+  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      operation_id: "",
+      holder_to_id: "",
+      emission_id: "",
+      is_exchange: true,
+      emission: "",
+      quantity: "",
+      amount: "",
+      is_family: false,
+      document_id: "",
+      contract_date: new Date().toISOString().split("T")[0],
+    },
+  });
 
-    useEffect(() => {
-        const newEmissionValue = emissions.items.find(item => item.id === formData.emission_id)
-        if (newEmissionValue && newEmissionValue.reg_number) {
-            setFormData(prevData => ({
-                ...prevData,
-                emission: newEmissionValue.reg_number,
-                quantity: formData.operation_id === 11 ? newEmissionValue?.blocked_count : newEmissionValue?.count,
-                amount: newEmissionValue?.count * newEmissionValue?.nominal
-            }));
-            setMaxCount(formData.operation_id === 11 ? newEmissionValue?.blocked_count : newEmissionValue?.count)
+  const watchedOperationId = watch("operation_id");
+  const watchedEmissionId = watch("emission_id");
+  const watchedQuantity = watch("quantity");
 
-            setPrice(newEmissionValue?.nominal)
-        }
+  useEffect(() => {
+    dispatch(fetchAllHolders());
+    dispatch(fetchOperationTypes());
+    dispatch(fetchDocuments(Emitent?.id));
+  }, [dispatch, Emitent]);
 
-    }, [formData.emission_id]);
+  useEffect(() => {
+    if (watchedOperationId === 1) {
+      dispatch(fetchEmissionsByEmitentId(Emitent?.id));
+    }
+  }, [watchedOperationId, dispatch, Emitent]);
 
-
-    //Автоматом считаем сумму сделки
-    useEffect(() => {
-        setFormData(prevData => ({
-            ...prevData,
-
-            amount: formData.quantity * price
-        }));
-    }, [formData.quantity]);
-
-
-    //Установливаем сегодняшнюю дату по умолчанию
-    useEffect(() => {
-        if (formData['contract_date']) { return }
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString();
-        handleChangeDate('contract_date', formattedDate);
-    }, [])
-
-
-
-
-    const handleChange = (e, isSelect = false) => {
-        const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
-        const newValue = type === 'number' && value === '' ? '' : (type === 'number' ? Number(value) : value);
-        console.log(newValue)
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: newValue,
-        }));
-    };
-
-    const handleChangeDate = (name, value) => {
-        const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: newValue,
-        }));
-    };
-
-    const handleSubmit = async () => {
-        setLoading(true);
-        const emitent_id = Emitent?.id;
-        try {
-            let updatedFormData = formData;
-
-            if (formData.operation_id === 1) {
-                const { holder_from_id, ...newFormData } = formData;
-                updatedFormData = newFormData;
-                await setFormData(newFormData);
-            }
-
-            const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedFormData }));
-            if (response.error) {
-                // Получаем ошибку, если она была отклонена с `rejectWithValue`
-                throw new Error(response.payload.message || 'Неизвестная ошибка');
-            }
-
-            const newId = response.payload.id;
-
-            Swal.fire({
-                title: 'Успешно!',
-                text: 'Данные успешно отправлены',
-                icon: 'success',
-                confirmButtonText: 'Ок',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    history.push(`/admin/transaction/${newId}`);
-                }
-            });
-        } catch (error) {
-            console.error('Ошибка при отправке данных:', error);
-
-            Swal.fire({
-                title: 'Ошибка!',
-                text: error.message || 'Произошла ошибка при отправке данных на сервер',
-                icon: 'error',
-                confirmButtonText: 'Ок',
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const classes = useStyles();
-    return (
-
-        <Card>
-            <CardHeader color="info" icon>
-                <CardIcon color="info">
-                    <MailOutline />
-                </CardIcon>
-                <h4 className={classes.cardIconTitle}>Одноместная операция</h4>
-            </CardHeader>
-            <CardBody>
-                <form>
-                    <GridContainer>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}
-                            >
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}
-                                >
-                                    Операция
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='operation_id'
-                                    value={formData['operation_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.typeOperations).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <label
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Кто принимает
-                                </label>
-
-                                <SelectSearch
-                                    name="holder_to_id"
-                                    placeholder="Выберите"
-                                    options={optionsMap.holders}
-                                    getOptionLabel={(option) => option.name}
-                                    getOptionValue={(option) => option.id}
-                                    onChange={(selectedOption) => handleChange({ name: 'holder_to_id', value: selectedOption ? selectedOption.id : '' }, true)}
-                                />
-
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Эмиссия
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='emission_id'
-                                    value={formData['emission_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(optionsMap.stocks).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.reg_number} -  {formData.operation_id === 11 ? opt.blocked_count : opt.count} шт.
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Вид сделки
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='is_exchange'
-                                    value={formData['is_exchange']}
-                                    onChange={handleChange}>
-                                    <MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={true}>
-                                        Биржевая
-                                    </MenuItem>
-                                    < MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={false}>
-                                        Не биржевая
-                                    </MenuItem>
-
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <CustomInput
-                                labelText='Эмиссия'
-                                formControlProps={{
-                                    fullWidth: true,
-                                }}
-                                inputProps={{
-                                    disabled: true,
-                                    type: 'text',
-                                    name: 'emission',
-                                    value: formData['emission'],
-                                }}
-
-                            />
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <CustomInput
-                                labelText={`Количество  ${maxCount}`}
-                                formControlProps={{
-                                    fullWidth: true,
-                                }}
-                                inputProps={{
-                                    onChange: event => {
-                                        handleChange(event)
-                                    },
-                                    type: 'number',
-                                    name: 'quantity',
-                                    value: formData['quantity'],
-                                }}
-
-                            />
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <CustomInput
-                                labelText='Сумма сделки'
-                                formControlProps={{
-                                    fullWidth: true,
-                                }}
-                                inputProps={{
-                                    onChange: event => {
-                                        handleChange(event)
-                                    },
-                                    type: 'number',
-                                    name: 'amount',
-                                    value: formData['amount'],
-                                }}
-
-                            />
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Признак родственника
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='is_family'
-                                    value={formData['is_family']}
-                                    onChange={handleChange}>
-                                    <MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={true}>
-                                        Да
-                                    </MenuItem>
-                                    < MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={false}>
-                                        Нет
-                                    </MenuItem>
-
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}>
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}>
-                                    Входящий документ
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='document_id'
-                                    value={formData['document_id']}
-                                    onChange={handleChange}
-                                >
-                                    {(documentList).map(opt => (
-                                        <MenuItem key={opt.id}
-                                            classes={{
-                                                root: classes.selectMenuItem,
-                                                selected: classes.selectMenuItemSelected
-                                            }}
-                                            value={opt.id}>
-                                            {opt.title}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-
-                        <GridItem xs={12} sm={12} md={6}>
-                            <InputLabel className={classes.label}>Дата операции</InputLabel>
-                            <br />
-                            <FormControl fullWidth>
-                                <Datetime
-                                    defaultValue={new Date()}
-                                    value={formData['contract_date']}
-                                    onChange={(date) => handleChangeDate('contract_date', date)}
-                                    timeFormat={false}
-                                    inputProps={{ placeholder: "Дата операции" }}
-                                    dateFormat="DD-MM-YYYY"
-                                    closeOnSelect={true}
-                                />
-                            </FormControl>
-                        </GridItem>
-                    </GridContainer>
-                    <Button color="info" onClick={handleSubmit}>Сохранить</Button>
-                    <NavLink to={'/admin/dashboard'}>
-                        <Button >Закрыть</Button>
-                    </NavLink>
-                </form>
-            </CardBody>
-        </Card>
+  useEffect(() => {
+    const newEmissionValue = emissions.items.find(
+      (item) => item.id === watchedEmissionId
     );
+    if (newEmissionValue && newEmissionValue.reg_number) {
+      setValue("emission", newEmissionValue.reg_number);
+      const qty =
+        watchedOperationId === 11
+          ? newEmissionValue.blocked_count
+          : newEmissionValue.count;
+      setValue("quantity", qty);
+      setValue("amount", parseFloat((qty * newEmissionValue.nominal).toFixed(2)));
+      setMaxCount(
+        watchedOperationId === 11
+          ? newEmissionValue.blocked_count
+          : newEmissionValue.count
+      );
+      setPrice(newEmissionValue.nominal);
+    }
+  }, [watchedEmissionId, emissions, watchedOperationId, setValue]);
+
+  useEffect(() => {
+    if (price && watchedQuantity) {
+      setValue("amount", parseFloat((watchedQuantity * price).toFixed(2)));
+    }
+  }, [watchedQuantity, price, setValue]);
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const emitent_id = Emitent?.id;
+      let updatedData = { ...data };
+      // Если операция равна 1 и поле holder_from_id присутствует, удаляем его
+      if (data.operation_id === 1 && data.holder_from_id) {
+        const { holder_from_id, ...rest } = data;
+        updatedData = rest;
+      }
+      const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedData }));
+      if (response.error) {
+        throw new Error(response.payload.message || "Неизвестная ошибка");
+      }
+      const newId = response.payload.id;
+      Swal.fire({
+        title: "Успешно!",
+        text: "Данные успешно отправлены",
+        icon: "success",
+        confirmButtonText: "Ок",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          history.push(`/admin/transaction/${newId}`);
+        }
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Ошибка!",
+        text: error.message || "Произошла ошибка при отправке данных на сервер",
+        icon: "error",
+        confirmButtonText: "Ок",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader color="info" icon>
+        <CardIcon color="info">
+          <MailOutline />
+        </CardIcon>
+        <h4 className={classes.cardIconTitle}>Передача</h4>
+      </CardHeader>
+      <CardBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <GridContainer>
+            {fieldsConfig.map(field => (
+              <GridItem
+                key={field.name}
+                xs={field.grid?.xs || 12}
+                sm={field.grid?.sm || 12}
+                md={field.grid?.md || 12}
+              >
+                {field.component === "input" && (
+                  <>
+                    <CustomInput
+                      labelText={field.label}
+                      formControlProps={{
+                        fullWidth: true,
+                        error: Boolean(errors[field.name]),
+                      }}
+                      inputProps={{
+                        type: field.type || "text",
+                        disabled: field.disabled || false,
+                        ...register(field.name, field.validation),
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    {errors[field.name] && (
+                      <FormHelperText error>
+                        {errors[field.name].message}
+                      </FormHelperText>
+                    )}
+                  </>
+                )}
+                {field.component === "select" && (
+                  <FormControl fullWidth className={classes.selectFormControl} error={Boolean(errors[field.name])}>
+                    <InputLabel htmlFor={field.name} className={classes.selectLabel}>
+                      {field.label}
+                    </InputLabel>
+                    <Controller
+                      name={field.name}
+                      control={control}
+                      rules={field.validation}
+                      render={({ field: controllerField }) => (
+                        <Select
+                          {...controllerField}
+                          MenuProps={{ className: classes.selectMenu }}
+                          classes={{ select: classes.select }}
+                          inputProps={{ id: field.name }}
+                        >
+                          {field.options &&
+                            field.options.map(opt => (
+                              <MenuItem
+                                key={opt[field.optionValueKey || "id"]}
+                                value={opt[field.optionValueKey || "id"]}
+                                classes={{
+                                  root: classes.selectMenuItem,
+                                  selected: classes.selectMenuItemSelected,
+                                }}
+                              >
+                                {opt[field.optionLabelKey || "name"] || opt.label || opt.title}
+                              </MenuItem>
+                            ))}
+                        </Select>
+                      )}
+                    />
+                    {errors[field.name] && (
+                      <FormHelperText error>
+                        {errors[field.name].message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+                {field.component === "selectSearch" && (
+                  <>
+                    <InputLabel htmlFor={field.name} className={classes.selectLabel}>
+                      {field.label}
+                    </InputLabel>
+                    <FormControl fullWidth className={classes.selectFormControl} error={Boolean(errors[field.name])}>
+                      <Controller
+                        name={field.name}
+                        control={control}
+                        rules={field.validation}
+                        render={({ field: controllerField }) => {
+                          const selectedOption = field.options.find(
+                            option => option[field.optionValueKey || "id"] === controllerField.value
+                          );
+                          return (
+                            <SelectSearch
+                              {...controllerField}
+                              options={field.options}
+                              getOptionLabel={(option) =>
+                                option[field.optionLabelKey || "name"] || option.label || option.title
+                              }
+                              getOptionValue={(option) =>
+                                option[field.optionValueKey || "id"]
+                              }
+                              placeholder="Выберите"
+                              value={selectedOption}
+                              onChange={(selectedOption) => {
+                                console.log("Выбранная опция: ", selectedOption);
+                                controllerField.onChange(
+                                  selectedOption ? selectedOption[field.optionValueKey || "id"] : ""
+                                );
+                              }}
+                            />
+                          );
+                        }}
+                      />
+                      {errors[field.name] && (
+                        <FormHelperText error>
+                          {errors[field.name].message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  </>
+                )}
+                {field.component === "datetime" && (
+                  <>
+                    <InputLabel className={classes.label}>{field.label}</InputLabel>
+                    <FormControl fullWidth error={Boolean(errors[field.name])}>
+                      <Controller
+                        name={field.name}
+                        control={control}
+                        rules={field.validation}
+                        render={({ field: controllerField }) => (
+                          <Datetime
+                            {...controllerField}
+                            timeFormat={false}
+                            dateFormat="DD-MM-YYYY"
+                            inputProps={{ placeholder: field.label }}
+                            closeOnSelect={true}
+                            onChange={(date) => {
+                              if (date && date.toISOString) {
+                                controllerField.onChange(date.toISOString().split("T")[0]);
+                              } else {
+                                controllerField.onChange(date);
+                              }
+                            }}
+                            value={controllerField.value}
+                          />
+                        )}
+                      />
+                      {errors[field.name] && (
+                        <FormHelperText error>
+                          {errors[field.name].message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  </>
+                )}
+              </GridItem>
+            ))}
+          </GridContainer>
+          <Button color="info" type="submit">
+            {loading ? "Загрузка..." : "Сохранить"}
+          </Button>
+          <NavLink to={"/admin/dashboard"}>
+            <Button>Закрыть</Button>
+          </NavLink>
+        </form>
+      </CardBody>
+    </Card>
+  );
 }

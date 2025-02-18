@@ -1,15 +1,11 @@
 import React from "react";
-// nodejs library to set properties for components
 import PropTypes from "prop-types";
-// nodejs library that concatenates classes
 import classNames from "classnames";
-// @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Input from "@material-ui/core/Input";
-
 import styles from "assets/jss/material-dashboard-pro-react/components/customInputStyle.js";
 
 const useStyles = makeStyles(styles);
@@ -21,6 +17,7 @@ export default function CustomInput(props) {
     labelText,
     id,
     labelProps,
+    InputLabelProps, // новый пропс для дополнительных свойств InputLabel
     inputProps,
     error,
     white,
@@ -33,32 +30,32 @@ export default function CustomInput(props) {
     [" " + classes.labelRootError]: error,
     [" " + classes.labelRootSuccess]: success && !error
   });
+
   const underlineClasses = classNames({
     [classes.underlineError]: error,
     [classes.underlineSuccess]: success && !error,
     [classes.underline]: true,
     [classes.whiteUnderline]: white
   });
+
   const marginTop = classNames({
     [inputRootCustomClasses]: inputRootCustomClasses !== undefined
   });
+
   const inputClasses = classNames({
     [classes.input]: true,
     [classes.whiteInput]: white
   });
-  var formControlClasses;
-  if (formControlProps !== undefined) {
-    formControlClasses = classNames(
-      formControlProps.className,
-      classes.formControl
-    );
-  } else {
-    formControlClasses = classes.formControl;
-  }
-  var helpTextClasses = classNames({
+
+  const formControlClasses = formControlProps
+    ? classNames(formControlProps.className, classes.formControl)
+    : classes.formControl;
+
+  const helpTextClasses = classNames({
     [classes.labelRootError]: error,
     [classes.labelRootSuccess]: success && !error
   });
+
   return (
     <FormControl {...formControlProps} className={formControlClasses}>
       {labelText !== undefined ? (
@@ -66,6 +63,7 @@ export default function CustomInput(props) {
           className={classes.labelRoot + " " + labelClasses}
           htmlFor={id}
           {...labelProps}
+          {...InputLabelProps} // передаём дополнительные свойства
         >
           {labelText}
         </InputLabel>
@@ -92,6 +90,7 @@ export default function CustomInput(props) {
 CustomInput.propTypes = {
   labelText: PropTypes.node,
   labelProps: PropTypes.object,
+  InputLabelProps: PropTypes.object, // объявляем новый пропс
   id: PropTypes.string,
   inputProps: PropTypes.object,
   formControlProps: PropTypes.object,

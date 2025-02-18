@@ -1,8 +1,12 @@
 import axios from "../../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-export const fetchTransactions = createAsyncThunk("transactions/fetchTransactions", async (eid) => {
-    const response = await axios.get(`/transactions/emitent/${eid}`, ); 
+export const fetchTransactions = createAsyncThunk("transactions/fetchTransactions", async ({eid, startDate, endDate}) => {
+    let api = `/transactions/emitent/${eid}`
+    if(startDate && endDate){
+        api += `?start_date=${startDate}&end_date=${endDate}`
+    }
+    const response = await axios.get(api, );
     return response.data;
 })
 

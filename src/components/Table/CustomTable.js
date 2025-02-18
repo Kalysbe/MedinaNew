@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Table,
@@ -12,15 +12,17 @@ import {
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
 import { NavLink } from "react-router-dom";
-import { useTable, useSortBy, useGlobalFilter, usePagination } from "react-table";
+import { useTable, useSortBy, usePagination } from "react-table";
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
-// --- Your project-specific components
-import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
+
+// Компоненты из вашего проекта
+import CustomInput from "components/CustomInput/CustomInput.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
+import Button from "components/CustomButtons/Button.js";
+import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
 
@@ -30,60 +32,34 @@ export default function CustomTable(props) {
     tableName,
     tableHead,
     tableData,
-    searchKey,
-    filterData,              // <-- New: indicates if date filter should be shown
-    onDateRangeChange,       // <-- New: callback to pass filtered data or date range to parent
-    dateField = "date"       // <-- New: name of the date field in `tableData` items
+    searchKey,         // ключ для локального поиска (например, "id")
+    onFilterChange,    // колбэк для передачи выбранного диапазона дат родителю
   } = props;
 
+  // Состояния для локального поиска и выбора дат
   const [searchTerm, setSearchTerm] = useState("");
-  // Date range states
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Handle text search
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  // Filter by search term
-  // Then, if filterData is enabled and date range is provided, filter by date
-  const finalFilteredData = useMemo(() => {
+  // Локальная фильтрация по поисковому запросу
+  const filteredData = useMemo(() => {
     if (!tableData) return [];
-
-    let tempData = tableData.filter((item) => {
-      const value = item[searchKey] ?? "";
+    return tableData.filter((item) => {
+      const value = item[searchKey];
       return String(value).toLowerCase().includes(searchTerm.toLowerCase());
     });
+  }, [tableData, searchTerm, searchKey]);
 
-    // If date filtering is enabled, apply that as well
-    if (filterData && startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      tempData = tempData.filter((item) => {
-        const itemDate = new Date(item[dateField]);
-        // Inclusive filtering: from startDate to endDate
-        return itemDate >= start && itemDate <= end;
-      });
+  // Обработка клика на кнопку "Применить фильтр" для дат
+  const handleApplyFilter = () => {
+    if (onFilterChange) {
+      onFilterChange({ startDate, endDate });
     }
-    return tempData;
-  }, [tableData, searchTerm, searchKey, filterData, startDate, endDate, dateField]);
+  };
 
-  // Pass filtered data (or date range) to parent whenever it changes
-  useEffect(() => {
-    if (filterData && typeof onDateRangeChange === "function") {
-      // You can pass just the selected date range, or the entire finalFilteredData
-      onDateRangeChange({
-        startDate,
-        endDate,
-        filteredData: finalFilteredData
-      });
-    }
-  }, [filterData, startDate, endDate, finalFilteredData, onDateRangeChange]);
-
-  // Columns & data for react-table
+  // Определяем колонки и данные для таблицы с помощью react-table
   const columns = useMemo(() => tableHead, [tableHead]);
-  const data = useMemo(() => finalFilteredData || [], [finalFilteredData]);
+  const data = useMemo(() => filteredData, [filteredData]);
 
   const {
     getTableProps,
@@ -91,21 +67,15 @@ export default function CustomTable(props) {
     headerGroups,
     page,
     prepareRow,
-    canPreviousPage,
-    canNextPage,
-    nextPage,
-    previousPage,
     gotoPage,
-    pageOptions,
     setPageSize,
-    state: { pageIndex, pageSize }
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 }
+      initialState: { pageIndex: 0, pageSize: 10 },
     },
-    useGlobalFilter,
     useSortBy,
     usePagination
   );
@@ -115,51 +85,60 @@ export default function CustomTable(props) {
       <CardHeader
         color="info"
         icon
-        style={{ display: "flex", justifyContent: "space-between" }}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap"
+        }}
       >
-        <div style={{ width: "350px" }}>
+        {/* Левая часть: Заголовок */}
+        <div style={{ display: "flex", alignItems: "center" }}>
           <CardIcon color="info">
             <Assignment />
           </CardIcon>
           <h4 className={classes.cardIconTitle}>{tableName}</h4>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {/* Search input */}
+        {/* Правая часть: Панель фильтров */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            marginTop: "1rem"
+          }}
+        >
+          {/* Локальный поиск */}
           <CustomInput
             labelText="Поиск"
-            formControlProps={{
-              fullWidth: false
-            }}
+            formControlProps={{ fullWidth: false }}
             inputProps={{
-              onChange: handleSearchChange,
+              onChange: (e) => setSearchTerm(e.target.value),
               type: "text",
               name: "search",
-              value: searchTerm
+              value: searchTerm,
             }}
           />
-
-          {/* Conditionally render date pickers if filterData is provided */}
-          {filterData && (
-            <>
-              <TextField
-                label="Дата от"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="Дата до"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </>
-          )}
+          {/* Выбор дат */}
+          <TextField
+            label="Дата от"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="Дата до"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+          {/* Кнопка для передачи выбранных дат родителю */}
+          <Button onClick={handleApplyFilter} color="primary">
+            Применить фильтр
+          </Button>
         </div>
       </CardHeader>
-
       <CardBody>
         <Table {...getTableProps()}>
           <TableHead>
@@ -167,7 +146,9 @@ export default function CustomTable(props) {
               <TableRow {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
                   <TableCell
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    {...column.getHeaderProps(
+                      column.getSortByToggleProps()
+                    )}
                   >
                     {column.render("Header")}
                     <TableSortLabel
@@ -196,14 +177,7 @@ export default function CustomTable(props) {
                 <TableRow {...row.getRowProps()}>
                   {row.cells.map((cell) => (
                     <TableCell {...cell.getCellProps()}>
-                      {/* Example: If the column is `share_price`, wrap its cell in a NavLink */}
-                      {cell.column.id === "share_price" ? (
-                        <NavLink to={`dividend/${row.original.id}`}>
-                          {cell.render("Cell")}
-                        </NavLink>
-                      ) : (
-                        cell.render("Cell")
-                      )}
+                      {cell.render("Cell")}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -217,7 +191,9 @@ export default function CustomTable(props) {
           page={pageIndex}
           onChangePage={(event, newPage) => gotoPage(newPage)}
           rowsPerPage={pageSize}
-          onChangeRowsPerPage={(event) => setPageSize(Number(event.target.value))}
+          onChangeRowsPerPage={(event) =>
+            setPageSize(Number(event.target.value))
+          }
           rowsPerPageOptions={[5, 10, 25, 50]}
           labelRowsPerPage="Строк на странице:"
         />
