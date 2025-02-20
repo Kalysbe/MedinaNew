@@ -73,7 +73,7 @@ export default function RegularForms() {
       validation: { required: "Количество обязательно", valueAsNumber: true },
     },
     {
-      name: "type",
+      name: "type_id",
       label: "Тип эмиссии",
       component: "select",
       gridSize: { xs: 12, sm: 12, md: 6 },
@@ -101,7 +101,7 @@ export default function RegularForms() {
       reg_number: "",
       nominal: "",
       start_count: "",
-      type: "",
+      type_id: "",
       release_date: defaultReleaseDate,
     },
   });

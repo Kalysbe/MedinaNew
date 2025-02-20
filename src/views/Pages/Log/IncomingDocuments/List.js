@@ -30,6 +30,11 @@ export default function RegularTables() {
         sortType: 'basic'
       },
       {
+        Header: 'ФИО предост документ',
+        accessor: 'provider_name',
+        sortType: 'basic'
+      },
+      {
         Header: 'Действия', // New column for the buttons
         accessor: 'actions',
         disableSortBy: true, // Disable sorting for this column

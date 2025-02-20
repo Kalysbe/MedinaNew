@@ -223,11 +223,8 @@ export default function RegularTables() {
                                             <TableCell className={classes.tableHeaderCell}>Дата выпуска</TableCell>
                                             <TableCell className={classes.tableHeaderCell}>Рег номер</TableCell>
                                             <TableCell className={classes.tableHeaderCell}>Категория(тип) ценных бумаг</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Начальный номинал акций</TableCell>
+                                            <TableCell className={classes.tableHeaderCell}>Номинал акций</TableCell>
                                             <TableCell className={classes.tableHeaderCell}>Начальное кол-во акций</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>К дробл</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Новый номинал акций</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Новое кол-во акций</TableCell>
                                             <TableCell className={classes.tableHeaderCell}>Фактическое количество</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -247,7 +244,7 @@ export default function RegularTables() {
                                                     {/* Рег номер */}
                                                 </TableCell>
                                                 <TableCell className={classes.tableCell}>
-                                                    {item.reg_number}
+                                                    {item.type}
                                                     {/* Категория(тип) ценных бумаг */}
                                                 </TableCell>
                                                 <TableCell className={classes.tableCell}>
@@ -258,22 +255,16 @@ export default function RegularTables() {
                                                     {window.formatNumber(item.start_count)}
                                                     {/* Начальное кол-во акций */}
                                                 </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {/* К дробл */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {/* Новый номинал акций */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {/* Новое кол-во акций */}
-                                                </TableCell>
+                                             
+                                          
                                                 <TableCell className={classes.tableCell}>
                                                     {/* Фактическое количество */}
+                                                    {item.count}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
                                         <TableRow>
-                                            <TableCell colSpan={4} style={{ fontWeight: 'bold', borderBottom: 'none' }}>
+                                            <TableCell colSpan={5} style={{ fontWeight: 'bold', borderBottom: 'none' }}>
                                                 Итого:
                                             </TableCell>
                                             <TableCell style={{ borderBottom: 'none' }}>{startTotal}</TableCell>

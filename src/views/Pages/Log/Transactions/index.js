@@ -143,14 +143,7 @@ export default function RegularTables() {
   return (
     <GridContainer>
       <GridItem xs={12}>
-        <Card>
-          <CardHeader color="primary" icon>
-            <CardIcon color="primary">
-              <Assignment />
-            </CardIcon>
-            <h4 className={classes.cardIconTitle}>Транзакции</h4>
-          </CardHeader>
-          <CardBody>
+     
             {/* Передаём в дочерний компонент:
                 - данные для таблицы (уже отфильтрованные на сервере по датам)
                 - локальный поиск будет выполнен внутри CustomTable
@@ -160,10 +153,10 @@ export default function RegularTables() {
               tableHead={tableHeaders}
               tableData={transformed}
               searchKey="id"
+              filterDate={true}
               onFilterChange={handleFilterChange}
             />
-          </CardBody>
-        </Card>
+        
       </GridItem>
     </GridContainer>
   );

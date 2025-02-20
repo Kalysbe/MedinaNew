@@ -32,7 +32,8 @@ export default function CustomTable(props) {
     tableName,
     tableHead,
     tableData,
-    searchKey,         // ключ для локального поиска (например, "id")
+    searchKey,      
+    filterDate ,  // ключ для локального поиска (например, "id")
     onFilterChange,    // колбэк для передачи выбранного диапазона дат родителю
   } = props;
 
@@ -119,24 +120,29 @@ export default function CustomTable(props) {
             }}
           />
           {/* Выбор дат */}
-          <TextField
-            label="Дата от"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Дата до"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          {/* Кнопка для передачи выбранных дат родителю */}
-          <Button onClick={handleApplyFilter} color="primary">
-            Применить фильтр
-          </Button>
+          {filterDate && (
+            <>
+              <TextField
+                label="Дата от"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="Дата до"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+              {/* Кнопка для передачи выбранных дат родителю */}
+              <Button onClick={handleApplyFilter} color="info">
+                Применить
+              </Button>
+            </>
+          )}
+
         </div>
       </CardHeader>
       <CardBody>
@@ -198,6 +204,6 @@ export default function CustomTable(props) {
           labelRowsPerPage="Строк на странице:"
         />
       </CardBody>
-    </Card>
+    </Card >
   );
 }

@@ -7,6 +7,7 @@ import {
   fetchEmissionTypeList,
   fetchCreateEmissionType,
   fetchUpdateEmissionType,
+  fetchDeleteEmissionType
 } from "redux/actions/reference";
 import Swal from "sweetalert2";
 import CustomTable from "components/Table/CustomTable";
@@ -80,6 +81,13 @@ export default function EmissionTypeManager() {
           >
             Изменить
           </Button>
+          <Button
+            variant="outlined"
+            color="danger"
+            onClick={() => handleDeleteClick(row.original.id)}
+          >
+            Удалить
+          </Button>
         </Box>
       ),
     },
@@ -99,6 +107,42 @@ export default function EmissionTypeManager() {
     setEmissionTypeData({ name: "" });
     setModalOpen(true);
   };
+
+  const handleDeleteClick = (id) => {
+    Swal.fire({
+      title: "Вы уверены, что хотите удалить тип эмиссии?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Да, удалить",
+      cancelButtonText: "Отмена",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(fetchDeleteEmissionType(id))
+        .unwrap()
+        .then(() => {
+          Swal.fire({
+            icon: "success",
+            title: "Успешно!",
+            text: "Тип эмиссии был удалён.",
+          });
+          // После успеха обновляем список
+          dispatch(fetchEmissionTypeList());
+        })
+        .catch((errorFromServer) => {
+          // Если произошла ошибка, она здесь
+          Swal.fire({
+            icon: "error",
+            title: "Ошибка!",
+            text: errorFromServer || "Что-то пошло не так...",
+          });
+        });
+      
+        
+      
+      }
+    });
+  };
+  
 
   // Обработчик изменения поля ввода (название типа эмиссии)
   const handleInputChange = (e) => {

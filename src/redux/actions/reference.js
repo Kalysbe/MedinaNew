@@ -36,14 +36,31 @@ export const fetchEmissionTypeList = createAsyncThunk("reference/fetchEmissionTy
   const { data } = await axios.get(`/emissions/types`, data);
   return data;
 })
+
 export const fetchCreateEmissionType = createAsyncThunk("reference/fetchCreateEmissionType", async (data) => {
   const response = await axios.post(`emissions/types`, data);
   return response.data;
 })
+
 export const fetchUpdateEmissionType = createAsyncThunk("reference/fetchCreateEmissionType", async ({id, data }) => {
   const response = await axios.put(`emissions/types`, data);
   return response.data;
 })
 
-
-
+export const fetchDeleteEmissionType = createAsyncThunk(
+  "reference/fetchDeleteEmissionType",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`emissions/types/${id}`);
+      return response.data;
+    } catch (err) {
+      // Если от бэкенда пришёл ответ с ошибкой
+      if (err.response && err.response.data) {
+        // Прокидываем текст ошибки (или весь объект) в rejectWithValue
+        return rejectWithValue(err.response.data.message);
+      }
+      // Если это какая-то другая ошибка (без response.data), кидаем обычное err.message
+      return rejectWithValue(err.message);
+    }
+  }
+);
