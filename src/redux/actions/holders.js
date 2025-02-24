@@ -46,6 +46,11 @@ export const fetchEmitentHolderDocumentById = createAsyncThunk("holders/fetchEmi
   const { data } = await axios.get(`/holders/document/${eid}`);
   return data;
 })
+
+export const fetchHolderEmitents = createAsyncThunk("holders/fetchHolderEmitents", async (hid) => {
+  const { data } = await axios.get(`/holders/${hid}/emitents`);
+  return data;
+})
 // export const fetchDeleteEmitent = createAsyncThunk("holders/fetchDeleteEmitent", async (id) => {
 //     await axios.delete(`/holders/${id}`);
 // })

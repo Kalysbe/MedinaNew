@@ -1,154 +1,176 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
-// @material-ui/core components
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, NavLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Datetime from "react-datetime";
-import moment from 'moment';
-import 'moment/locale/ru'
-import FormLabel from "@material-ui/core/FormLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Radio from "@material-ui/core/Radio";
-import Checkbox from "@material-ui/core/Checkbox";
-
-// @material-ui/icons
-import MailOutline from "@material-ui/icons/MailOutline";
-import Check from "@material-ui/icons/Check";
-import Clear from "@material-ui/icons/Clear";
-import Contacts from "@material-ui/icons/Contacts";
-import FiberManualRecord from "@material-ui/icons/FiberManualRecord";
-
-
+import moment from "moment";
+import "moment/locale/ru";
 import InputLabel from "@material-ui/core/InputLabel";
-import SelectSearch from 'react-select'
+import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-// core components
-import GridContainer from "components/Grid/GridContainer.js";
-import GridItem from "components/Grid/GridItem.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardText from "components/Card/CardText.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
+import MailOutline from "@material-ui/icons/MailOutline";
+import Swal from "sweetalert2";
+import { useForm, Controller } from "react-hook-form";
 
-import { NavLink } from "react-router-dom";
-
+import { fetchEmissionTypeList } from "redux/actions/reference";
 import { fetchCreateDividend } from "redux/actions/dividend";
-
-
-import { singleTypes } from "constants/operations.js"
 
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
 
-import Swal from 'sweetalert2';
-
 const useStyles = makeStyles(styles);
 
-
-
-export default function RegularForms() {
+export default function DividendCalculation() {
+    const classes = useStyles();
     const dispatch = useDispatch();
     const history = useHistory();
-    const [checked, setChecked] = React.useState([24, 22]);
-    const [selectedEnabled, setSelectedEnabled] = React.useState("b");
-    const [selectedValue, setSelectedValue] = React.useState(null);
-    const [loading, setLoading] = useState(null);
-    const Emitent = useSelector(state => state.emitents.store);
-    const holders = useSelector(state => state.holders.holders);
-    const { operationTypes } = useSelector(state => state.transactions)
-    const { emissions } = useSelector(state => state.emissions)
 
-    const [maxCount, setMaxCount] = useState(null);
-    const [price, setPrice] = useState(null);
+    // Настройка локали для moment
+    moment.locale("ru");
+
+    // Получаем данные из Redux
+    const Emitent = useSelector((state) => state.emitents.store);
+    const EmissionTypeList = useSelector(
+        (state) => state.reference?.emissionTypeList || []
+    );
 
 
-    moment.locale('ru');
+    useEffect(() => {
+        dispatch(fetchEmissionTypeList());
+    }, [dispatch]);
 
+    // Массив-конфигурация полей формы
+    // Поля: title (необязательно, можно задать фиксированное значение), 
+    // month_year, type (категория акционеров), emission_type_id, 
+    // date_close_reestr, share_price, percent
+    const fields = [
+        {
+            name: "title",
+            label: "Заголовок",
+            type: "text",
+            component: "input",
+            grid: { xs: 12, sm: 12, md: 6 },
+            validation: { required: "Заголовок обязателен"},
+        },
+        {
+            name: "month_year",
+            label: "Месяц и год расчёта",
+            component: "datetime",
+            grid: { xs: 12, sm: 12, md: 6 },
+            validation: { required: "Месяц и год расчёта обязательны" },
+            // defaultValue будет устанавливаться через defaultValues в useForm
+            customOnChange: (value) => moment(value).format("MM_YYYY"),
+        },
+        {
+            name: "type",
+            label: "Категория акционеров",
+            component: "select",
+            grid: { xs: 12, sm: 12, md: 6 },
+            options: [
+                { value: 1, label: "Физические нерезиденты" },
+                { value: 2, label: "Юридический" },
+            ],
+            validation: { required: "Категория акционеров обязательна" },
+            optionValueKey: "value",
+            optionLabelKey: "label",
+        },
+        {
+            name: "emission_type",
+            label: "Тип эмиссии",
+            component: "select",
+            grid: { xs: 12, sm: 12, md: 6 },
+            options: EmissionTypeList,
+            validation: { required: "Тип эмиссии обязателен" },
+            optionValueKey: "id",
+            optionLabelKey: "name",
+        },
+        {
+            name: "date_close_reestr",
+            label: "Дата вывода",
+            component: "datetime",
+            grid: { xs: 12, sm: 12, md: 6 },
+            validation: { required: "Дата вывода обязательна" },
+            // defaultValue будет задаваться через defaultValues
+        },
+        {
+            name: "share_price",
+            label: "Расценка на одну акцию",
+            type: "number",
+            component: "input",
+            grid: { xs: 12, sm: 12, md: 6 },
+            validation: { required: "Расценка обязательна", valueAsNumber: true },
+        },
+        {
+            name: "percent",
+            label: "Процент удержания",
+            type: "number",
+            component: "input",
+            grid: { xs: 12, sm: 12, md: 6 },
+            validation: { required: "Процент обязателен", valueAsNumber: true },
+        },
+    ];
 
-    const [formData, setFormData] = useState({
-        title: "за 2023 период",
-        month_year: "",
+    // Дефолтные значения для полей
+    const defaultValues = {
+        month_year: moment().format("MM_YYYY"),
         type: "",
-        date_close_reestr: "",
+        emission_type: "",
+        date_close_reestr: new Date().toISOString().split("T")[0],
         share_price: "",
-        percent: ""
-    });
-
-
-
-
-
-
-    const handleChange = (e, isSelect = false) => {
-        const { name, value, type } = isSelect === true ? { name: e.name, value: e.value, type: 'select' } : e.target;
-        const newValue = type === 'number' ? Number(value) : value;
-     
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: newValue,
-        }));
+        percent: "",
     };
 
-    const handleChangeDate = (name, value) => {
-        let newValue;
-        if (name === 'month_year') {
-            newValue = moment(value).format('MM_YYYY');
-        } else {
-            newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
-        }
-    
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: newValue,
-        }));
-    };
-    
+    // Инициализируем React Hook Form
+    const {
+        register,
+        handleSubmit,
+        control,
+        watch,
+        formState: { errors },
+    } = useForm({ defaultValues });
 
-    const handleSubmit = async () => {
-        setLoading(true);
-        const emitent_id = Emitent?.id
-       
+    const onSubmit = async (data) => {
         try {
-          
-            const response =  await dispatch(fetchCreateDividend({ emitent_id, ...formData }));
+            const response = await dispatch(
+                fetchCreateDividend({ emitent_id: Emitent?.id, ...data })
+            );
             if (response.error) {
-                throw new Error(response.payload.message || 'Неизвестная ошибка');
+                throw new Error(response.payload.message || "Неизвестная ошибка");
             }
-
             const newId = response.payload.dividend.id;
-
             Swal.fire({
-                title: 'Успешно!',
-                text: 'Данные успешно отправлены',
-                icon: 'success',
-                confirmButtonText: 'Ок',
+                title: "Успешно!",
+                text: "Данные успешно отправлены",
+                icon: "success",
+                confirmButtonText: "Ок",
             }).then((result) => {
                 if (result.isConfirmed) {
                     history.push(`/admin/dividend/${newId}`);
                 }
             });
         } catch (error) {
-            console.error('Ошибка при отправке данных:', error);
-
+            console.error("Ошибка при отправке данных:", error);
             Swal.fire({
-                title: 'Ошибка!',
-                text: error.message || 'Произошла ошибка при отправке данных на сервер',
-                icon: 'error',
-                confirmButtonText: 'Ок',
+                title: "Ошибка!",
+                text:
+                    error.message ||
+                    "Произошла ошибка при отправке данных на сервер",
+                icon: "error",
+                confirmButtonText: "Ок",
             });
-        } finally {
-            setLoading(false);
         }
     };
 
-    const classes = useStyles();
     return (
-
         <Card>
             <CardHeader color="info" icon>
                 <CardIcon color="info">
@@ -157,131 +179,141 @@ export default function RegularForms() {
                 <h4 className={classes.cardIconTitle}>Расчет дивиденда</h4>
             </CardHeader>
             <CardBody>
-                <form>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <GridContainer>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <InputLabel className={classes.label}>Дата вывода</InputLabel>
-                            <br />
-                            <FormControl fullWidth>
-                                <Datetime
-                                    defaultValue={new Date()}
-                                    value={formData['date_close_reestr']}
-                                    onChange={(date) => handleChangeDate('date_close_reestr', date)}
-                                    timeFormat={false}
-                                    inputProps={{ placeholder: "Дата вывода" }}
-                                    dateFormat="DD-MM-YYYY"
-                                    closeOnSelect={true}
-                                />
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <InputLabel className={classes.label}>Месяц и год расчета</InputLabel>
-                            <br />
-                            <FormControl fullWidth>
-                                <Datetime
-                                    defaultValue={new Date()}
-                                    dateFormat="MMMM YYYY"
-                                    value={formData['month_year']}
-                                    onChange={(date) => handleChangeDate('month_year', date)}
-                                    timeFormat={false}
-                                    inputProps={{ placeholder: "Дата вывода" }}
-
-                                    closeOnSelect={true}
-                                    locale="ru"
-                                />
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <CustomInput
-                                labelText='Расценка на одну акцию'
-                                formControlProps={{
-                                    fullWidth: true,
-                                }}
-                                inputProps={{
-                                    onChange: event => {
-                                        handleChange(event)
-                                    },
-                                    type: 'number',
-                                    name: 'share_price',
-                                    value: formData['share_price'],
-                                }}
-
-                            />
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                className={classes.selectFormControl}
-                            >
-                                <InputLabel
-                                    htmlFor="simple-select"
-                                    className={classes.selectLabel}
-                                >
-                                    Категория акционеров
-                                </InputLabel>
-                                <Select
-                                    MenuProps={{
-                                        className: classes.selectMenu
-                                    }}
-                                    classes={{
-                                        select: classes.select
-                                    }}
-                                    name='type'
-                                    value={formData['type']}
-                                    onChange={handleChange}
-                                >
-                                      {/* <MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={3}>
-                                        Все акционеры 
-                                    </MenuItem> */}
-                                    <MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={1}>
-                                        Физические нерезиденты
-                                    </MenuItem>
-                                    <MenuItem
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={2}>
-                                        Юридический 
-                                    </MenuItem>
-
-                                </Select>
-                            </FormControl>
-                        </GridItem>
-                        <GridItem xs={12} sm={12} md={6}>
-                            <CustomInput
-                                labelText='Процент удержание'
-                                formControlProps={{
-                                    fullWidth: true,
-                                }}
-                                inputProps={{
-                                    onChange: event => {
-                                        handleChange(event)
-                                    },
-                                    type: 'number',
-                                    name: 'percent',
-                                    value: formData['percent'],
-                                }}
-
-                            />
-                        </GridItem>
+                        {fields.map((field) => {
+                            // Для input-компонентов получаем текущее значение через watch
+                            const fieldValue = watch(field.name);
+                            if (field.component === "input") {
+                                return (
+                                    <GridItem
+                                        key={field.name}
+                                        xs={field.grid?.xs || 12}
+                                        sm={field.grid?.sm || 12}
+                                        md={field.grid?.md || 12}
+                                    >
+                                        <CustomInput
+                                            labelText={field.label}
+                                            formControlProps={{
+                                                fullWidth: true,
+                                                error: Boolean(errors[field.name]),
+                                            }}
+                                            inputProps={{
+                                                type: field.type || "text",
+                                                ...register(field.name, field.validation),
+                                            }}
+                                            InputLabelProps={{ shrink: Boolean(fieldValue) }}
+                                        />
+                                        {errors[field.name] && (
+                                            <FormHelperText error>
+                                                {errors[field.name].message}
+                                            </FormHelperText>
+                                        )}
+                                    </GridItem>
+                                );
+                            } else if (field.component === "select") {
+                                return (
+                                    <GridItem
+                                        key={field.name}
+                                        xs={field.grid?.xs || 12}
+                                        sm={field.grid?.sm || 12}
+                                        md={field.grid?.md || 12}
+                                    >
+                                        <FormControl
+                                            fullWidth
+                                            className={classes.selectFormControl}
+                                            error={Boolean(errors[field.name])}
+                                        >
+                                            <InputLabel htmlFor={field.name} className={classes.selectLabel}>
+                                                {field.label}
+                                            </InputLabel>
+                                            <Controller
+                                                name={field.name}
+                                                control={control}
+                                                rules={field.validation}
+                                                render={({ field: controllerField }) => (
+                                                    <Select
+                                                        {...controllerField}
+                                                        MenuProps={{ className: classes.selectMenu }}
+                                                        classes={{ select: classes.select }}
+                                                        inputProps={{ id: field.name }}
+                                                    >
+                                                        {field.options &&
+                                                            field.options.map((opt) => (
+                                                                <MenuItem
+                                                                    key={opt[field.optionValueKey || "id"]}
+                                                                    value={opt[field.optionValueKey || "id"]}
+                                                                >
+                                                                    {opt[field.optionLabelKey || "name"] || opt.label || opt.title}
+                                                                </MenuItem>
+                                                            ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                            {errors[field.name] && (
+                                                <FormHelperText error>
+                                                    {errors[field.name].message}
+                                                </FormHelperText>
+                                            )}
+                                        </FormControl>
+                                    </GridItem>
+                                );
+                            } else if (field.component === "datetime") {
+                                return (
+                                    <GridItem
+                                        key={field.name}
+                                        xs={field.grid?.xs || 12}
+                                        sm={field.grid?.sm || 12}
+                                        md={field.grid?.md || 12}
+                                    >
+                                        <InputLabel className={classes.label}>{field.label}</InputLabel>
+                                        <FormControl fullWidth error={Boolean(errors[field.name])}>
+                                            <Controller
+                                                name={field.name}
+                                                control={control}
+                                                rules={field.validation}
+                                                render={({ field: controllerField }) => (
+                                                    <Datetime
+                                                        {...controllerField}
+                                                        timeFormat={false}
+                                                        dateFormat="DD-MM-YYYY"
+                                                        inputProps={{ placeholder: "Нажмите, чтобы выбрать дату" }}
+                                                        closeOnSelect={true}
+                                                        onChange={(date) => {
+                                                            // Если поле month_year, применяем кастомное форматирование
+                                                            if (field.name === "month_year" && date) {
+                                                                controllerField.onChange(moment(date).format("MM_YYYY"));
+                                                            } else if (date && date.toISOString) {
+                                                                controllerField.onChange(date.toISOString().split("T")[0]);
+                                                            } else {
+                                                                controllerField.onChange(date);
+                                                            }
+                                                        }}
+                                                        value={controllerField.value}
+                                                    />
+                                                )}
+                                            />
+                                            {errors[field.name] && (
+                                                <FormHelperText error>
+                                                    {errors[field.name].message}
+                                                </FormHelperText>
+                                            )}
+                                        </FormControl>
+                                    </GridItem>
+                                );
+                            }
+                            return null;
+                        })}
                     </GridContainer>
-                    <NavLink to={'/admin/dividends'}>
-                    <Button color="rose">Закрыть</Button>
+                    <NavLink to={"/admin/dividends"}>
+                        <Button color="rose">Закрыть</Button>
                     </NavLink>
-                    <Button color="info" onClick={handleSubmit}>Расчитать</Button>
+                    <Button color="info" type="submit">
+                        Расчитать
+                    </Button>
                 </form>
             </CardBody>
         </Card>
     );
 }
+

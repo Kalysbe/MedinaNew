@@ -1,6 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import {fetchAllHolders, fetchHolders, fetchHolderById, fetchAddHolder,fetchUpdateHolder, fetchHoldersByEmitentId, fetchHolderOperation, fetchEmitentHolderDocuments, fetchEmitentHolderDocumentById } from '../actions/holders'
+import {fetchAllHolders, 
+  fetchHolders,
+   fetchHolderById, 
+  fetchAddHolder,
+  fetchUpdateHolder, 
+  fetchHoldersByEmitentId,
+   fetchHolderOperation, 
+   fetchEmitentHolderDocuments,
+    fetchEmitentHolderDocumentById,
+    fetchHolderEmitents
+   } from '../actions/holders'
 
 const initialState = {
   holders: {
@@ -12,7 +22,8 @@ const initialState = {
     status: "loading"
   },
   incomingDocuments: [],
-  incomingDocument: {}
+  incomingDocument: {},
+  emitents: []
 }
 
 const holdersSlice = createSlice({
@@ -124,6 +135,7 @@ const holdersSlice = createSlice({
       .addCase(fetchEmitentHolderDocuments.rejected, (state) => {
         state.incomingDocuments = [];
       });
+
       builder
       .addCase(fetchEmitentHolderDocumentById.pending, (state) => {
         state.incomingDocument = [];
@@ -133,6 +145,17 @@ const holdersSlice = createSlice({
       })
       .addCase(fetchEmitentHolderDocumentById.rejected, (state) => {
         state.incomingDocument = [];
+      });
+
+      builder
+      .addCase(fetchHolderEmitents.pending, (state) => {
+        state.emitents = [];
+      })
+      .addCase(fetchHolderEmitents.fulfilled, (state, action) => {
+        state.emitents = action.payload;
+      })
+      .addCase(fetchHolderEmitents.rejected, (state) => {
+        state.emitents = [];
       });
     // Действия для удаления эмитента
     // builder.addCase(fetchDeleteEmitent.pending, (state, action) => {

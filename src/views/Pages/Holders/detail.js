@@ -35,7 +35,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchExtractReestr } from 'redux/actions/prints'
 
-import { fetchHolderOperation } from "redux/actions/holders";
+import { fetchHolderOperation, fetchHolderEmitents } from "redux/actions/holders";
 import { BorderBottom } from "@material-ui/icons";
 const styles = {
   customCardContentClass: {
@@ -86,14 +86,18 @@ export default function RegularTables() {
   const { emitent, holder, operations, emissions } = useSelector(state => state.holders.holder.data);
   const { status } = useSelector(state => state.holders.holder);
   const extractData = useSelector(state => state.prints.prints.extractReestr?.data);
+  const holderEmitents = useSelector(state => state.holders.emitents);
 
   useEffect(() => {
     dispatch(fetchHolderOperation({ eid: Emitent?.id, hid: id }));
     dispatch(fetchExtractReestr({ eid: Emitent?.id, hid: id }));
+    dispatch(fetchHolderEmitents(id));
   }, []);
 
 
-  const totalCount = extractData?.emission?.reduce((acc, item) => acc + (item.count || 0), 0);
+  console.log(holderEmitents)
+
+  const totalCount = extractData?.emission?.reduce((acc, item) => acc + (item.total_shares || 0), 0);
   const totalNominal = extractData?.emission?.reduce((acc, item) => acc + (item.nominal || 0), 0);
   const totalAmount = extractData?.emission?.reduce((acc, item) => acc + (item.count || 0) * (item.nominal || 0), 0);
   const totalBlockedCount = extractData?.emission?.reduce((acc, item) => acc + (item.blocked_count || 0), 0);
@@ -252,6 +256,49 @@ export default function RegularTables() {
                           </Table>
                         </div>
                       )
+                    },
+                    {
+                      tabButton: "Список эмитентов",
+                      tabContent: (
+                        <div>
+                          <Table>
+                            <TableHead style={{ display: 'table-header-group' }}>
+                              <TableRow>
+                                <TableCell>№</TableCell>
+                                <TableCell>Рег. номер</TableCell>
+                                <TableCell>Акций</TableCell>
+                                <TableCell>Номинал</TableCell>
+                                <TableCell>Сумма по номиналу</TableCell>
+                                <TableCell>Блокир. акций</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {holderEmitents?.map((item, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>
+                                    {index + 1}
+                                  </TableCell>
+                                  <TableCell>
+                                    {item.full_name}
+                                  </TableCell>
+                                  <TableCell>
+                                    {item.count}
+                                  </TableCell>
+                                  <TableCell>
+                                    {window.formatNumber(item.nominal)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {window.formatNumber(item.count * item.nominal)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {window.formatNumber(item.blocked_count)}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )
                     }
                   ]}
                 />   <div className={classes.printOnly}>
@@ -325,7 +372,7 @@ export default function RegularTables() {
             <table style={{ width: '100%', borderCollapse: 'collapse', margin: '10px 0' }}>
               <thead>
                 <tr>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>№ эмиссии</th>
+                 
                   <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>регистрационный номер</th>
                   <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>вид акций</th>
                   <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>наличие акций (шт.)</th>
@@ -339,14 +386,14 @@ export default function RegularTables() {
               <tbody>
                 {extractData?.emission?.map((item, index) => (
                   <tr key={index}>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.id}</td>
+                
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.reg_number}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.name}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.type}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.total_shares}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.nominal)}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.count * item.nominal)}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.total_shares * item.nominal)}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.count}</td>
+                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.total_shares}</td>
                     <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
                   </tr>
                 ))}

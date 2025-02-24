@@ -43,7 +43,7 @@ export const fetchCreateEmissionType = createAsyncThunk("reference/fetchCreateEm
 })
 
 export const fetchUpdateEmissionType = createAsyncThunk("reference/fetchCreateEmissionType", async ({id, data }) => {
-  const response = await axios.put(`emissions/types`, data);
+  const response = await axios.put(`emissions/types/${id}`, data);
   return response.data;
 })
 

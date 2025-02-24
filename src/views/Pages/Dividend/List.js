@@ -78,7 +78,7 @@ export default function RegularTables() {
   const filteredHolders = useMemo(() => {
     if (!Dividends?.items) return [];
     return Dividends.items.filter(item =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      item.title?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [Dividends, searchTerm]);
 
