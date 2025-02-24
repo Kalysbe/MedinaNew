@@ -104,6 +104,12 @@ export default function RegularTables() {
 
   console.log(extractData,'datas')
 
+  const today = new Date().toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+
   return (
     <Box>
 
@@ -265,11 +271,7 @@ export default function RegularTables() {
                             <TableHead style={{ display: 'table-header-group' }}>
                               <TableRow>
                                 <TableCell>№</TableCell>
-                                <TableCell>Рег. номер</TableCell>
-                                <TableCell>Акций</TableCell>
-                                <TableCell>Номинал</TableCell>
-                                <TableCell>Сумма по номиналу</TableCell>
-                                <TableCell>Блокир. акций</TableCell>
+                                <TableCell>Наименование</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -281,18 +283,7 @@ export default function RegularTables() {
                                   <TableCell>
                                     {item.full_name}
                                   </TableCell>
-                                  <TableCell>
-                                    {item.count}
-                                  </TableCell>
-                                  <TableCell>
-                                    {window.formatNumber(item.nominal)}
-                                  </TableCell>
-                                  <TableCell>
-                                    {window.formatNumber(item.count * item.nominal)}
-                                  </TableCell>
-                                  <TableCell>
-                                    {window.formatNumber(item.blocked_count)}
-                                  </TableCell>
+                                
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -347,12 +338,15 @@ export default function RegularTables() {
 
           </Box>
 
-          <div ref={componentRef} className={classes.printOnly} style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
+          <div ref={componentRef} 
+          className={classes.printOnly}
+          
+          style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
 
             {/* Заголовок */}
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, padding: 0 }}>ВЫПИСКА ИЗ РЕЕСТРА</h3>
-              <p style={{ margin: 0, padding: 0 }}>28.11.2024 года</p>
+              <p style={{ margin: 0, padding: 0 }}>{today} года</p>
             </div>
 
             {/* Раздел: Информация об эмитенте */}
@@ -373,46 +367,46 @@ export default function RegularTables() {
               <thead>
                 <tr>
                  
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>регистрационный номер</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>вид акций</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>наличие акций (шт.)</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>номинал акции (СОМ)</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>сумма по номинальной<br />стоимости акций (сом)</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>акций в залоге</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>акций принятых в залог</th>
-                  <th style={{ border: '1px solid #333', padding: '8px', textAlign: 'left', verticalAlign: 'top' }}>блокир. акций</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>регистрационный номер</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>вид акций</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>наличие акций (шт.)</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>номинал акции (СОМ)</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>сумма по номинальной<br />стоимости акций (сом)</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>акций в залоге</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>акций принятых в залог</th>
+                  <th style={{ border: '1px solid #333', padding: '2px', textAlign: 'left', verticalAlign: 'top' }}>блокир. акций</th>
                 </tr>
               </thead>
               <tbody>
                 {extractData?.emission?.map((item, index) => (
                   <tr key={index}>
                 
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.reg_number}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.type}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.total_shares}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.nominal)}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{window.formatNumber(item.total_shares * item.nominal)}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.total_shares}</td>
-                    <td style={{ border: '1px solid #333', padding: '8px' }}>{item.blocked_count}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.reg_number}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.type}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.total_shares}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(item.nominal)}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(item.total_shares * item.nominal)}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.pledged_shares}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.accepted_in_pledge}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.blocked_count}</td>
                   </tr>
                 ))}
                 <tr>
-                  <td style={{ border: '1px solid #333', padding: '8px' }} colSpan={3}><strong>Итого:</strong></td>
-                  <td style={{ border: '1px solid #333', padding: '8px' }}>{totalCount}</td>
-                  <td style={{ border: '1px solid #333', padding: '8px' }}></td>
-                  <td style={{ border: '1px solid #333', padding: '8px' }}></td>
-                  <td style={{ border: '1px solid #333', padding: '8px' }} colSpan={3}></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={3}><strong>Итого:</strong></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}>{totalCount}</td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={3}></td>
                 </tr>
               </tbody>
             </table>
 
             {/* Дополнительная информация об акциях */}
             <div style={{ marginBottom: '1em' }}>
-              <p style={{ margin: '3px 0' }}><strong>% от общего количества выпущенных акций:</strong> 0.016726</p>
-              <p style={{ margin: '3px 0' }}><strong>Все на 28.11.2024 (дата отчёта)</strong></p>
-              <p style={{ margin: '3px 0' }}><strong>Всего простых акций:</strong> 200 (двести)</p>
-              <p style={{ margin: '3px 0' }}><strong>Из них свободных акций:</strong> 22 (двадцать две)</p>
+              {/* <p style={{ margin: '3px 0' }}><strong>% от общего количества выпущенных акций:</strong> 0.016726</p> */}
+              {/* <p style={{ margin: '3px 0' }}><strong>Все на {today} (дата отчёта)</strong></p> */}
+              <p style={{ margin: '3px 0' }}><strong>Всего акций:</strong> {totalCount} </p>
+              {/* <p style={{ margin: '3px 0' }}><strong>Из них свободных акций:</strong> 22 </p> */}
             </div>
 
             {/* Информация о держателе реестра */}

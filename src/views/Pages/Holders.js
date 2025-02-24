@@ -69,9 +69,7 @@ export default function RegularTables() {
   const Holders = useSelector(state => state.holders?.holders);
   const Emissions = useSelector(state => state.emissions?.emissions);
 
-  console.log("Emitent", Emitent);
-  console.log("Holders", Holders);
-  console.log("Emissions", Emissions );
+  
   
 
   useEffect(() => {

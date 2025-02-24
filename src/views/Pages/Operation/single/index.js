@@ -266,7 +266,7 @@ export default function RegularForms() {
         <CardIcon color="info">
           <MailOutline />
         </CardIcon>
-        <h4 className={classes.cardIconTitle}>Передача</h4>
+        <h4 className={classes.cardIconTitle}>Одноместная операция</h4>
       </CardHeader>
       <CardBody>
         <form onSubmit={handleSubmit(onSubmit)}>
