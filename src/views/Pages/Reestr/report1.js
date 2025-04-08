@@ -84,19 +84,19 @@ export default function Report1(props) {
                 {item.id}
               </TableCell>
               <TableCell>
-                <NavLink to={`holder/${item.id}`}>{item.name}</NavLink>
+                <NavLink to={`holder/${item.holder_id}`}>{item.full_name}</NavLink>
               </TableCell>
               <TableCell>
-                {window.formatNumber(item.ordinary)}
+                {window.formatNumber(item.quantity)}
               </TableCell>
               <TableCell>
-                {window.formatNumber(item.ordinary_nominal)}
+                {window.formatNumber(item.nominal)}
               </TableCell>
               <TableCell>
                 {item.percentage} %
               </TableCell>
               <TableCell>
-                {item.district?.name} 
+                {item.country} 
               </TableCell>
             </TableRow>
           ))}

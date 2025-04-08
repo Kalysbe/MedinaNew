@@ -27,3 +27,19 @@ export const fetchEmissionById = createAsyncThunk("emitents/fetchEmissionById", 
   const { data } = await axios.get(`/emissions/${esid}`);
   return data;
 })
+
+
+export const fetchEmissionCancellation = createAsyncThunk(
+  "emissions/fetchEmissionCancellation",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`emissions/${id}/cancel`, data);
+      return response.data;
+    } catch (err) {
+      if (err.response && err.response.data) {
+        return rejectWithValue(err.response.data.message);
+      }
+      return rejectWithValue(err.message);
+    }
+  }
+);

@@ -113,15 +113,15 @@ export default function Report1(props) {
               <TableRow key={index}>
                 <TableCell className={classes.tableCell}>{index + 1}</TableCell>
                 <TableCell className={classes.tableCell}>{item.id}</TableCell>
-                <TableCell className={classes.tableCell}><NavLink to={`holder/${item.id}`}>{item.name}</NavLink></TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.ordinary)}</TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.ordinary_nominal)}</TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.privileged)}</TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.privileged_nominal)}</TableCell>
+                <TableCell className={classes.tableCell}><NavLink to={`holder/${item.id}`}>{item.full_name}</NavLink></TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(item.common_quantity)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(item.common_nominal)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_nominal)}</TableCell>
                 <TableCell className={classes.tableCell}>{item.percentage}%</TableCell>
                 <TableCell className={classes.tableCell}>{item.passport}</TableCell>
-                <TableCell className={classes.tableCell}>{item.actual_address}</TableCell>
-                <TableCell className={classes.tableCell}>{item.district.name}</TableCell>
+                <TableCell className={classes.tableCell}>{item.address}</TableCell>
+                <TableCell className={classes.tableCell}>{item.country}</TableCell>
               </TableRow>
             ))}
           </TableBody>

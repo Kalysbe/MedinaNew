@@ -143,7 +143,16 @@ export default function RegularTables() {
   return (
     <GridContainer>
       <GridItem xs={12}>
+           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        
+                   <Button
+                     variant="contained"
+                     color="warning"
+                     size="small"
+                   >Печать</Button>
      
+               
+             </div>
             {/* Передаём в дочерний компонент:
                 - данные для таблицы (уже отфильтрованные на сервере по датам)
                 - локальный поиск будет выполнен внутри CustomTable

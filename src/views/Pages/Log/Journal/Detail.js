@@ -221,7 +221,122 @@ export default function RegularTables() {
           </Box>
         </Card>
       </GridItem>
+      <GridItem xs={12}>
+        <Box display="flex" justifyContent="flex-end">
 
+          <ReactToPrint
+            trigger={() =>
+              <Button
+                // variant="contained"
+                color="warning"
+                size="small"
+              >Печать</Button>
+
+            }
+            content={() => componentRef.current}
+          />
+
+        </Box>
+        <Card>
+          <Box py={3}>
+           
+            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
+              <Typography align="center" variant="h3" mr={2}></Typography>
+
+              {!journalDetail && id ? (
+                <Box py="30px" display="flex" justifyContent="center">
+                  <CircularProgress color="primary" size={80} /> {status}
+                </Box>
+              ) : (
+                <Box minWidth={275} >
+                  <Typography variant="h5" component="div" align="center">
+                    Заявление
+                  </Typography>
+
+                  {/* <Typography variant="h5" component="div" align="center">
+                    {journalDetail?.title}
+                  </Typography> */}
+
+                  {/* <Typography variant="h5" component="div" align="center">
+                   Лицевой счет: {incomingDocument?.holder_id}
+                  </Typography> */}
+
+
+                  {/* <Typography variant="body2" color="textSecondary">
+                    Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
+                  </Typography> */}
+                  <Table>
+                <TableHead>
+                    <TableRow>
+                        {/* <TableCell>Параметр</TableCell> */}
+                        <TableCell>До</TableCell>
+                        <TableCell>После</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                   
+                    {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
+                        <TableRow key={key}>
+                            {/* <TableCell>{titles[key]}</TableCell> */}
+                            <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
+                            <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
+                        </TableRow>
+                    ))}
+          
+                </TableBody>
+            </Table>
+                </Box>
+              )}
+
+              <div className={classes.printOnly}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
+                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
+
+                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
+                </div>
+              </div>
+
+              <hr className={classes.printOnly} />
+              <div className={classes.printOnly} style={{ marginTop: '14px' }}>
+                <div>
+                  <span>Держатель реестра:</span>
+                  <b> ОсОО "Реестродержатель Медина"</b>
+                </div>
+                <div>
+                  <span>Орган государственной регистрации:</span>
+                  <b> Чуй-Бишкекское управление юстиции</b>
+                </div>
+                <div>
+                  <span>Регистрационный номер:</span>
+                  <b> 133580-3301-000 от 09.12.2013 год</b>
+                </div>
+                <div>
+                  <span>Лицензия:</span>
+                  <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                </div>
+                <div>
+                  <span>Юридический адрес:</span>
+                  <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                </div>
+
+              </div>
+
+
+
+              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
+
+              <div className={classes.printOnly}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
+                  <Typography>Номер операции: <b>{id}</b></Typography>
+                  <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
+                </div>
+              </div>
+            </Box>
+
+
+          </Box>
+        </Card>
+      </GridItem>
 
     </GridContainer>
   );

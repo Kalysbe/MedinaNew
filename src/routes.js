@@ -50,6 +50,7 @@ import EmissionTypesList from "views/Pages/Reference/EmissionTypesList"
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
 import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
 import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
+import CancellationStocks from "views/Pages/Emitent/Stocks/cancellation.js"
 
 
 import Transactions from "views/Pages/Log/Transactions/index"
@@ -182,6 +183,16 @@ var dashRoutes = [
         mini: "PP",
         rtlMini: "ع",
         component: EmitentStockEdit,
+        layout: "/admin",
+        dashboard: false
+      },
+      {
+        path: "/emitent-stock/сancellation/",
+        name: "Аннулирование бумаги",
+        rtlName: "عالتسعير",
+        mini: "PP",
+        rtlMini: "ع",
+        component: CancellationStocks,
         layout: "/admin",
         dashboard: false
       },

@@ -80,6 +80,16 @@ export default function RegularTables() {
         <GridContainer>
             <GridItem xs={12}>
                 <Box display='flex' justifyContent='flex-end'>
+                <NavLink to={'/admin/emitent-stock/сancellation'}>
+                        <Button
+                            variant="outlined"
+                            color={'danger'}
+
+                            // onClick={onAdd}
+                        >
+                            Аннулирование
+                        </Button>
+                        </NavLink>
                 <NavLink to={'/admin/emitent-stock/add'}>
                         <Button
                             variant="outlined"
