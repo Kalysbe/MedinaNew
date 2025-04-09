@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, forwardRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Table,
@@ -8,14 +8,13 @@ import {
   TableRow,
   TableSortLabel,
   TablePagination,
-  TextField
+  TextField,
 } from "@material-ui/core";
 import Assignment from "@material-ui/icons/Assignment";
-import { NavLink } from "react-router-dom";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
 
-// Компоненты из вашего проекта
+// Ваши компоненты
 import CustomInput from "components/CustomInput/CustomInput.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -26,23 +25,24 @@ import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle
 
 const useStyles = makeStyles(styles);
 
-export default function CustomTable(props) {
+const CustomTable = forwardRef((props, ref) => {
   const classes = useStyles();
   const {
     tableName,
     tableHead,
     tableData,
-    searchKey,      
-    filterDate ,  // ключ для локального поиска (например, "id")
-    onFilterChange,    // колбэк для передачи выбранного диапазона дат родителю
+    searchKey,
+    filterDate,
+    onFilterChange,
+    stripedPairs 
   } = props;
 
-  // Состояния для локального поиска и выбора дат
+  // Локальные состояния
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Локальная фильтрация по поисковому запросу
+  // Фильтрация по поиску
   const filteredData = useMemo(() => {
     if (!tableData) return [];
     return tableData.filter((item) => {
@@ -51,14 +51,14 @@ export default function CustomTable(props) {
     });
   }, [tableData, searchTerm, searchKey]);
 
-  // Обработка клика на кнопку "Применить фильтр" для дат
+  // Кнопка "Применить" для дат
   const handleApplyFilter = () => {
     if (onFilterChange) {
       onFilterChange({ startDate, endDate });
     }
   };
 
-  // Определяем колонки и данные для таблицы с помощью react-table
+  // Реализация react-table
   const columns = useMemo(() => tableHead, [tableHead]);
   const data = useMemo(() => filteredData, [filteredData]);
 
@@ -86,40 +86,27 @@ export default function CustomTable(props) {
       <CardHeader
         color="info"
         icon
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap"
-        }}
+        style={{ display: "flex", justifyContent: "space-between" }}
       >
-        {/* Левая часть: Заголовок */}
+        {/* Заголовок */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <CardIcon color="info">
             <Assignment />
           </CardIcon>
           <h4 className={classes.cardIconTitle}>{tableName}</h4>
         </div>
-        {/* Правая часть: Панель фильтров */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "1rem",
-            marginTop: "1rem"
-          }}
-        >
-          {/* Локальный поиск */}
+
+        {/* Фильтры (не попадают в печать, т.к. ref будет на самой таблице) */}
+        <div style={{ display: "flex", gap: "1rem" }}>
           <CustomInput
             labelText="Поиск"
             formControlProps={{ fullWidth: false }}
             inputProps={{
               onChange: (e) => setSearchTerm(e.target.value),
               type: "text",
-              name: "search",
               value: searchTerm,
             }}
           />
-          {/* Выбор дат */}
           {filterDate && (
             <>
               <TextField
@@ -136,74 +123,87 @@ export default function CustomTable(props) {
                 onChange={(e) => setEndDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
               />
-              {/* Кнопка для передачи выбранных дат родителю */}
-              <Button onClick={handleApplyFilter} color="info">
+              <Button color="info" onClick={handleApplyFilter}>
                 Применить
               </Button>
             </>
           )}
-
         </div>
       </CardHeader>
+
       <CardBody>
-        <Table {...getTableProps()}>
-          <TableHead>
-            {headerGroups.map((headerGroup) => (
-              <TableRow {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <TableCell
-                    {...column.getHeaderProps(
-                      column.getSortByToggleProps()
-                    )}
-                  >
-                    {column.render("Header")}
-                    <TableSortLabel
-                      active={column.isSorted}
-                      direction={column.isSortedDesc ? "desc" : "asc"}
+        {/* Важно: div ref={ref} -- печатаем только это */}
+        <div ref={ref}>
+          <Table {...getTableProps()}>
+            <TableHead>
+              {headerGroups.map((headerGroup) => (
+                <TableRow {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <TableCell
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
                     >
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <BiSortUp />
+                      {column.render("Header")}
+                      <TableSortLabel
+                        active={column.isSorted}
+                        direction={column.isSortedDesc ? "desc" : "asc"}
+                      >
+                        {column.isSorted ? (
+                          column.isSortedDesc ? <BiSortUp /> : <BiSortDown />
                         ) : (
-                          <BiSortDown />
-                        )
-                      ) : (
-                        <BiSortAlt2 />
-                      )}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody {...getTableBodyProps()}>
-            {page.map((row) => {
-              prepareRow(row);
-              return (
-                <TableRow {...row.getRowProps()}>
-                  {row.cells.map((cell) => (
-                    <TableCell {...cell.getCellProps()}>
-                      {cell.render("Cell")}
+                          <BiSortAlt2 />
+                        )}
+                      </TableSortLabel>
                     </TableCell>
                   ))}
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHead>
+            <TableBody {...getTableBodyProps()}>
+              {page.map((row) => {
+                prepareRow(row);
+
+                // pairIndex для этой строки
+            const { pairIndex } = row.original;
+            console.log(pairIndex, 'para')
+            // Если нет pairIndex, это не пара — оставим как есть
+            // Если есть, и striping включен, чередуем
+            let rowStyle = {};
+            if (stripedPairs && typeof pairIndex === "number") {
+              // Например: чётные пары красим в серый,
+              // нечётные — оставляем белый (или наоборот).
+              // pairIndex % 2 === 0 => backgroundColor: "#f9f9f9" (пример)
+              if (pairIndex % 2 === 0) {
+                rowStyle = { backgroundColor: "#f0f0f0" };
+              }
+            }
+
+                return (
+                  <TableRow {...row.getRowProps()} style={rowStyle}>
+                    {row.cells.map((cell) => (
+                      <TableCell {...cell.getCellProps()}>
+                        {cell.render("Cell")}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+
         <TablePagination
           component="div"
           count={data.length}
           page={pageIndex}
-          onChangePage={(event, newPage) => gotoPage(newPage)}
+          onChangePage={(e, newPage) => gotoPage(newPage)}
           rowsPerPage={pageSize}
-          onChangeRowsPerPage={(event) =>
-            setPageSize(Number(event.target.value))
-          }
+          onChangeRowsPerPage={(e) => setPageSize(Number(e.target.value))}
           rowsPerPageOptions={[5, 10, 25, 50]}
           labelRowsPerPage="Строк на странице:"
         />
       </CardBody>
-    </Card >
+    </Card>
   );
-}
+});
+
+export default CustomTable;

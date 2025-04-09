@@ -72,19 +72,19 @@ const useStyles = makeStyles(styles);
 
 
 const titles = {
-    id: "ID",
-    holder_type: "Тип держателя",
-    district_id: "ID района",
-    name: "Имя",
-    actual_address: "Фактический адрес",
-    legal_address: "Юридический адрес",
-    email: "Электронная почта",
-    phone_number: "Номер телефона",
-    passport_type: "Тип паспорта",
-    passport_number: "Номер паспорта",
-    passport_agency: "Орган паспорта",
-    inn: "ИНН",
-    document_id: "Входящий документ"
+  id: "ID",
+  holder_type: "Тип держателя",
+  district_id: "ID района",
+  name: "Имя",
+  actual_address: "Фактический адрес",
+  legal_address: "Юридический адрес",
+  email: "Электронная почта",
+  phone_number: "Номер телефона",
+  passport_type: "Тип паспорта",
+  passport_number: "Номер паспорта",
+  passport_agency: "Орган паспорта",
+  inn: "ИНН",
+  document_id: "Входящий документ"
 };
 
 export default function RegularTables() {
@@ -123,7 +123,7 @@ export default function RegularTables() {
         </Box>
         <Card>
           <Box py={3}>
-           
+
             <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
               <Typography align="center" variant="h3" mr={2}></Typography>
 
@@ -134,7 +134,7 @@ export default function RegularTables() {
               ) : (
                 <Box minWidth={275} >
                   <Typography variant="h5" component="div" align="center">
-                     Просмотр измененных анкетных данных
+                    Просмотр измененных анкетных данных
                   </Typography>
 
                   {/* <Typography variant="h5" component="div" align="center">
@@ -150,25 +150,25 @@ export default function RegularTables() {
                     Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
                   </Typography> */}
                   <Table>
-                <TableHead>
-                    <TableRow>
+                    <TableHead>
+                      <TableRow>
                         {/* <TableCell>Параметр</TableCell> */}
                         <TableCell>До</TableCell>
                         <TableCell>После</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                   
-                    {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+
+                      {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
                         <TableRow key={key}>
-                            {/* <TableCell>{titles[key]}</TableCell> */}
-                            <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
-                            <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
+                          {/* <TableCell>{titles[key]}</TableCell> */}
+                          <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
+                          <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
                         </TableRow>
-                    ))}
-          
-                </TableBody>
-            </Table>
+                      ))}
+
+                    </TableBody>
+                  </Table>
                 </Box>
               )}
 
@@ -239,7 +239,7 @@ export default function RegularTables() {
         </Box>
         <Card>
           <Box py={3}>
-           
+
             <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
               <Typography align="center" variant="h3" mr={2}></Typography>
 
@@ -249,6 +249,12 @@ export default function RegularTables() {
                 </Box>
               ) : (
                 <Box minWidth={275} >
+                  <Typography variant="h6" component="div" align="right">
+                    Директору ОсОО "Реестродержатель Медина" Тентишевой Г.М.
+                  </Typography>
+                  <Typography variant="h6" component="div" align="right">
+                    Акционер
+                  </Typography>
                   <Typography variant="h5" component="div" align="center">
                     Заявление
                   </Typography>
@@ -266,25 +272,25 @@ export default function RegularTables() {
                     Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
                   </Typography> */}
                   <Table>
-                <TableHead>
-                    <TableRow>
+                    <TableHead>
+                      <TableRow>
                         {/* <TableCell>Параметр</TableCell> */}
                         <TableCell>До</TableCell>
                         <TableCell>После</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                   
-                    {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+
+                      {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
                         <TableRow key={key}>
-                            {/* <TableCell>{titles[key]}</TableCell> */}
-                            <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
-                            <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
+                          {/* <TableCell>{titles[key]}</TableCell> */}
+                          <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
+                          <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
                         </TableRow>
-                    ))}
-          
-                </TableBody>
-            </Table>
+                      ))}
+
+                    </TableBody>
+                  </Table>
                 </Box>
               )}
 
