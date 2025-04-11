@@ -24,7 +24,6 @@ import { NavLink } from "react-router-dom";
 
 import styles from "assets/jss/material-dashboard-pro-react/layouts/adminStyle.js";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAuthMe } from "../redux/slices/auth";
 import { loadEmitentFromLocalStorage } from "../redux/actions/emitents";
 var ps;
 
@@ -48,11 +47,17 @@ export default function Dashboard(props) {
   const [logo, setLogo] = React.useState(require("assets/img/logo-white.svg"));
   const [savedEmitent, setSavedEmitent] = useState(null);
   // const dispath = useDispatch()
-  const isAuth = useSelector(state => state.auth?.data);
+  const token = window.localStorage.getItem('token');
+  const isAuth = Boolean(token);
+  
   const EmitentData = useSelector(state => state.emitents.store);
   useEffect(() => {
-    dispatch(fetchAuthMe());
+    const token = localStorage.getItem('token');
+    if (!token) {
+      history.push('/auth/login-page');
+    }
   }, []);
+  
 
 console.log(isAuth,'auth')
   // styles

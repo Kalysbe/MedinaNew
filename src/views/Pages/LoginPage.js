@@ -34,7 +34,9 @@ export default function LoginPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ login: '', password: '' });
-  const isAuth = useSelector(state => state.auth?.data);
+  const { data } = useSelector(state => state.auth);
+
+  
   const [isMounted, setIsMounted] = useState(true);
   const [cardAnimaton, setCardAnimation] = React.useState("cardHidden");
   setTimeout(function () {
@@ -42,11 +44,20 @@ export default function LoginPage() {
   }, 700);
   const classes = useStyles();
 
-  useEffect(() => {
-    dispatch(fetchAuthMe());
-  }, []);
 
-  console.log(isAuth)
+
+ console.log(data)
+ useEffect(() => {
+  dispatch(fetchAuthMe());
+}, []);
+
+  useEffect(() => {
+    if (data && data.id) {
+      console.log('done')
+      history.push('/admin/dashboard');
+    }
+  }, [data, history]);
+  
 
   useEffect(() => {
     return () => {
@@ -73,15 +84,15 @@ export default function LoginPage() {
       const data = await dispatch(fetchAuth({ login, password })) // Используйте unwrap() для получения payload
       // const { token } = data.paylaod
 
-      if (data.paylaod) {
-        console.log(12)
-        setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
+      if (data.payload) {
+        if ('token' in data.payload) {
+          window.localStorage.setItem('token', data.payload.token);
+          
+        } else {
+          setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
+        }
       }
-      if ('token' in data.payload) {
-        window.localStorage.setItem('token', data.payload.token)
-      } else {
-        alert('Не удалось авторизоваться')
-      }
+      
 
     } catch (err) {
 
@@ -90,11 +101,8 @@ export default function LoginPage() {
     }
   };
 
-  if (isAuth) {
-    //   return <Redirect to="/dashboard" />; // Перенаправление на страницу логина
-    history.push(`/admin/dashboard`);
-  }
-
+  
+  
   return (
     <div className={classes.container}>
       <GridContainer justify="center">
