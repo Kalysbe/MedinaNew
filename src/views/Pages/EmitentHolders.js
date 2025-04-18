@@ -7,12 +7,6 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  TablePagination,
-  TableContainer,
-  Paper,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   Box,
   Icon
 } from "@material-ui/core";
@@ -20,7 +14,6 @@ import Assignment from "@material-ui/icons/Assignment";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllHolders, fetchHolders } from "redux/actions/holders";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
-import CustomDropdown from "components/CustomDropdown/CustomDropdown.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Card from "components/Card/Card.js";
@@ -31,7 +24,6 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
-import TextField from '@material-ui/core/TextField';
 import { NavLink } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
 import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
@@ -52,9 +44,6 @@ export default function RegularTables() {
   const [pageIndex, setPageIndex] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [state, setState] = useState({
-    checkedA: true
-  });
 
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
@@ -210,12 +199,7 @@ export default function RegularTables() {
 
               <div style={{ display: 'flex', paddingTop: '14px' }}>
 
-                {/* <FormGroup row>
-                  <FormControlLabel
-                    control={<Checkbox checked={isAllEmitents} onChange={handleCheckboxChange} name="checkedA" color="primary" />}
-                    label="По всем эмитентам"
-                  />
-                </FormGroup> */}
+  
 
                 
                 <CustomInput

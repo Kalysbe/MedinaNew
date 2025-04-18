@@ -45,6 +45,7 @@ import EditEmitent from "views/Pages/EditEmitent.js"
 import ReferenceList from "views/Pages/Reference/ReferenceList.js"
 import DistrictList from "views/Pages/Reference/DistrictList"
 import HolderTypeList from "views/Pages/Reference/HolderTypeList"
+import HolderStatusList from "views/Pages/Reference/HolderStatusList"
 import EmissionTypesList from "views/Pages/Reference/EmissionTypesList"
 //Emitent
 import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
@@ -134,6 +135,13 @@ var dashRoutes = [
     name: "Типы эмиссий",
     icon: DashboardIcon,
     component: EmissionTypesList,
+    layout: "/admin"
+  },
+  {
+    path: "/holder-status-list",
+    name: "Отношения к акциям",
+    icon: DashboardIcon,
+    component: HolderStatusList,
     layout: "/admin"
   },
   //End Reference

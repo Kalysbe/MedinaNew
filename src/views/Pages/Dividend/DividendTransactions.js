@@ -159,7 +159,7 @@ export default function RegularTables() {
     nextPage,
     previousPage,
     setPageSize: setTablePageSize, // Переименовываем для избежания конфликта
-    state: { pageIndex: tablePageIndex, pageSize: tablePageSize }
+    state: {  }
   } = useTable(
     {
       columns,

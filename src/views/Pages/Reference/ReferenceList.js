@@ -44,6 +44,10 @@ export default function RegularTables() {
         {
             title: 'Типы эмиссий',
             link: 'emission-types-list'
+        },
+        {
+            title: 'Отношения к акциям',
+            link: 'holder-status-list'
         }
     ]
 

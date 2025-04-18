@@ -6,12 +6,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Assignment from "@material-ui/icons/Assignment";
 import Icon from "@material-ui/core/Icon";
 
-import Danger from "components/Typography/Danger.js";
-import Warning from "@material-ui/icons/Warning";
-import DateRange from "@material-ui/icons/DateRange";
-import LocalOffer from "@material-ui/icons/LocalOffer";
-import Store from "@material-ui/icons/Store";
-import Update from "@material-ui/icons/Update";
 import Select from "@material-ui/core/Select";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -29,28 +23,18 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
 
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
 
 import Report1 from './Reestr/report1.js'
 import Report2 from './Reestr/report2.js'
 import Report3 from './Reestr/report3.js'
 
-import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
-import { NavLink } from "react-router-dom";
+
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHoldersByEmitentId } from "redux/actions/holders";
 import { fetchEmissionsByEmitentId } from "redux/actions/emissions";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
-
-const headers = [
-  { id: 1, headers: [], rows: [] }
-]
 
 export default function RegularTables() {
   const classes = useStyles();

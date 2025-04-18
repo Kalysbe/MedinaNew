@@ -1,216 +1,218 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, NavLink, useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+// EditEmitent.jsx
+import React, { useEffect, useState } from "react";
+import { useParams, NavLink, useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, Card, Container, Typography, TextField } from '@material-ui/core';
-
+import GridItem from "components/Grid/GridItem.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import Card from "components/Card/Card.js";
+import CardHeader from "components/Card/CardHeader.js";
+import CardBody from "components/Card/CardBody.js";
+import CardIcon from "components/Card/CardIcon.js";
 import Button from "components/CustomButtons/Button.js";
-
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Datetime from "react-datetime";
 import CustomInput from "components/CustomInput/CustomInput.js";
-import Swal from 'sweetalert2';
+import Datetime from "react-datetime";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
+import Swal from "sweetalert2";
+import { useForm, Controller } from "react-hook-form";
 
-import { selectIsAuth } from 'redux/slices/auth';
-import { fetchEmitentById, fetchAddEmitent, fetchUpdateEmitent } from 'redux/actions/emitents';
-
+import {
+  fetchEmitentById,
+  fetchAddEmitent,
+  fetchUpdateEmitent,
+} from "redux/actions/emitents";
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
-import zIndex from '@material-ui/core/styles/zIndex';
 
 const useStyles = makeStyles(styles);
 
-const formConfig = [
-  { key: "full_name", label: "Наименование эмитента", type: "text" },
-  { key: "short_name", label: "Номер гос. регистрации", type: "text" },
-  { key: "gov_name", label: "Орган осуществ-ший регистр", type: "text" },
-  { key: "gov_number", label: "Орган регистрации выпуска ценных бумаг", type: "text" },
-  { key: "legal_address", label: "Адрес", type: "text" },
-  { key: "postal_address", label: "Почтовый адрес", type: "text" },
-  { key: "phone_number", label: "Номер телефона", type: "text" },
-  { key: "email", label: "Электронный адрес", type: "text" },
-  { key: "bank_name", label: "Наименование банка эмитента", type: "text" },
-  { key: "bank_account", label: "Счет в банке", type: "text" },
-  { key: "id_number", label: "Идентификационный номер", type: "text" },
-  { key: "contract_date", label: "Дата заключения договора", type: "date" },
-  { key: "capital", label: "Размер уставного капитала", type: "text" },
-  { key: "accountant", label: "Ф.И.О гл. бухгалтера эмитента", type: "text" },
-  { key: "director_company", label: "Ф.И.О руководителя эмитента", type: "text" }
+/* ------------------------- динамическая конфигурация ------------------------ */
+const fieldsConfig = [
+  { name: "full_name", label: "Наименование эмитента", component: "input", validation: { required: "Обязательное поле" }  },
+  { name: "short_name", label: "Номер гос. регистрации", component: "input" },
+  { name: "gov_name", label: "Орган осуществ-ший регистр", component: "input" },
+  {
+    name: "gov_number",
+    label: "Орган регистрации выпуска ценных бумаг",
+    component: "input",
+  },
+  { name: "legal_address", label: "Адрес", component: "input" },
+  { name: "postal_address", label: "Почтовый адрес", component: "input" },
+  { name: "phone_number", label: "Номер телефона", component: "input" },
+  { name: "email", label: "Электронный адрес", component: "input" },
+  { name: "bank_name", label: "Наименование банка эмитента", component: "input" },
+  { name: "bank_account", label: "Счёт в банке", component: "input" },
+  { name: "id_number", label: "Идентификационный номер", component: "input" },
+  { name: "contract_date", label: "Дата заключения договора", component: "datetime" },
+  { name: "capital", label: "Размер уставного капитала", component: "input" },
+  { name: "accountant", label: "Ф.И.О гл. бухгалтера", component: "input" },
+  { name: "director_company", label: "Ф.И.О руководителя", component: "input" },
 ];
 
-const EditEmitent = () => {
+/* ============================================================================
+   ГЛАВНЫЙ КОМПОНЕНТ
+   ========================================================================== */
+export default function EditEmitent() {
+  const classes = useStyles();
   const dispatch = useDispatch();
-  const { id } = useParams();
   const history = useHistory();
-  const isAuth = useSelector(selectIsAuth);
-  const emitent = useSelector(state => state.emitents.emitent);
+  const { id } = useParams();
   const isEditing = Boolean(id);
 
-  const [formData, setFormData] = useState(
-    formConfig.reduce((acc, { key }) => {
-      acc[key] = '';
-      return acc;
-    }, {})
-  );
-
+  const { emitent } = useSelector((state) => state.emitents);
   const [loading, setLoading] = useState(false);
 
+  /* ---------- React‑Hook‑Form ---------- */
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: fieldsConfig.reduce((acc, { name }) => {
+      if (name === "contract_date") {
+        const today = new Date();
+        acc[name] = `${String(today.getDate()).padStart(2, "0")}-${String(
+          today.getMonth() + 1
+        ).padStart(2, "0")}-${today.getFullYear()}`;
+      } else {
+        acc[name] = "";
+      }
+      return acc;
+    }, {}),
+  });
+
+  /* ------------------------ загрузка данных при редактировании ------------- */
   useEffect(() => {
-    if (isEditing) {
-      dispatch(fetchEmitentById(id));
-    } else {
-      setFormData(
-        formConfig.reduce((acc, { key }) => {
-          acc[key] = '';
-          return acc;
-        }, {})
-      );
+    if (isEditing) dispatch(fetchEmitentById(id));
+  }, [isEditing, id, dispatch]);
+
+  /* ------------ когда данные эмитента пришли — заполняем форму ------------ */
+  useEffect(() => {
+    if (isEditing && emitent?.data) {
+      const { id: _ignore, ...data } = emitent.data;
+      reset({
+        ...data,
+        contract_date: data.contract_date
+          ? new Date(data.contract_date).toISOString().split("T")[0]
+          : "",
+      });
     }
-  }, [dispatch, id, isEditing]);
+  }, [emitent, isEditing, reset]);
 
-  useEffect(() => {
-    if (isEditing && emitent && emitent.data) {
-      const { id, ...emitentData } = emitent.data;
-      setFormData(emitentData);
-    }
-  }, [emitent]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  useEffect(() => {
-    if (isEditing && formData['contract_date' ]) {return}
-    const currentDate = new Date();
-    const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
-    handleChangeDate('contract_date', formattedDate)
-  }, [])
-
-  const handleChangeDate = (name, value) => {
-
-    const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: newValue,
-    }));
-    console.log(newValue, 'date')
-    console.log(formData, 'data')
-  };
-
-  const handleSubmit = async () => {
+  /* --------------------------------- submit ------------------------------- */
+  const onSubmit = async (data) => {
     setLoading(true);
-    let newId = id
     try {
       if (isEditing) {
-        await dispatch(fetchUpdateEmitent({ id, data: formData }));
+        await dispatch(fetchUpdateEmitent({ id, data }));
       } else {
-        const response = await dispatch(fetchAddEmitent(formData));
-        newId = response.payload?.id;
+        await dispatch(fetchAddEmitent(data));
       }
 
-
       Swal.fire({
-        title: 'Успешно!',
-        text: 'Данные успешно отправлены',
-        icon: 'success',
-        confirmButtonText: 'Ок',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          history.push('/admin/emitent-list');
-        }
-      });
-    } catch (error) {
-      console.error('Ошибка при отправке данных:', error);
+        title: "Успешно!",
+        text: "Данные успешно отправлены",
+        icon: "success",
+        confirmButtonText: "Ок",
+      }).then(() => history.push("/admin/emitent-list"));
+    } catch (err) {
       Swal.fire({
-        title: 'Ошибка!',
-        text: 'Произошла ошибка при отправке данных на сервер',
-        icon: 'error',
-        confirmButtonText: 'Ок',
+        title: "Ошибка!",
+        text: err?.message || "Не удалось сохранить данные",
+        icon: "error",
+        confirmButtonText: "Ок",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const classes = useStyles();
-
+  /* =============================== JSX ==================================== */
   return (
+    <Card>
+      <CardHeader color="info" icon>
+        <CardIcon color="info">
+          <AssignmentIndIcon />
+        </CardIcon>
+        <h4 className={classes.cardIconTitle}>
+          {isEditing ? "Корректировка" : "Добавление"} эмитента
+        </h4>
+      </CardHeader>
 
-    <Card style={{ padding: 30, overflow: 'inherit' }}>
-      <Typography variant="h5" color="textPrimary" style={{ marginBottom: 20 }}>
-        {isEditing ? 'Корректировка' : 'Добавление'} эмитента
-      </Typography>
-      <form>
-        <Grid container spacing={2}>
-          {formConfig.map(({ key, label, type }) => (
-            (type == 'text' ? (
-              <Grid item xs={12} md={4} key={key}>
-                <CustomInput
-                  labelText={label}
-                  formControlProps={{
-                    fullWidth: true,
-                  }}
-                  inputProps={{
-                    onChange: event => {
-                      handleChange(event)
-                    },
-                    name: key,
-                    type: type,
-                    value: formData[key]
-                  }}
-                />
-              </Grid>
-            ) : (
-              <Grid item xs={12} md={4} key={key}>
-                <InputLabel className={classes.label}>Дата договора</InputLabel>
-                <br />
-                <FormControl fullWidth  >
-                  <Datetime
-                    value={formData[key]}
-                    onChange={(date) => handleChangeDate(key, date)}
-                    timeFormat={false}
-                    inputProps={{ placeholder: "Дата договора", style: { zIndex: 1000 } }}
-                    dateFormat="DD-MM-YYYY"
-                    closeOnSelect={true}
+      <CardBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <GridContainer>
+          
+{fieldsConfig.map((field) => (
+  <GridItem xs={12} sm={12} md={4} key={field.name}>
+    {field.component === "input" && (
+      <>
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: c }) => (
+            <CustomInput
+              labelText={field.label}
+              formControlProps={{ fullWidth: true, error: !!errors[field.name] }}
+              inputProps={{
+                ...c,           // value, onChange
+                type: "text",
+              }}
+            />
+          )}
+          rules={field.validation}   // если нужно required и т.п.
+        />
+        {errors[field.name] && (
+          <FormHelperText error>{errors[field.name].message}</FormHelperText>
+        )}
+      </>
+    )}
 
-                  />
-                </FormControl>
-              </Grid>
-            ))
+    {field.component === "datetime" && (
+      <>
+        <InputLabel className={classes.label}>{field.label}</InputLabel>
+        <FormControl fullWidth error={!!errors[field.name]}>
+          <Controller
+            name={field.name}
+            control={control}
+            rules={field.validation}
+            render={({ field: c }) => (
+              <Datetime
+                {...c}
+                timeFormat={false}
+                dateFormat="DD-MM-YYYY"
+                closeOnSelect
+                onChange={(d) =>
+                  c.onChange(
+                    d && d.toISOString ? d.toISOString().split("T")[0] : d
+                  )
+                }
+              />
+            )}
+          />
+          {errors[field.name] && (
+            <FormHelperText error>{errors[field.name].message}</FormHelperText>
+          )}
+        </FormControl>
+      </>
+    )}
+  </GridItem>
+))}
 
-          ))}
-        </Grid>
-        <div >
-          {/* <Button
-            color="secondary"
-            component={NavLink}
-            to={`/admin/emitent-list/`}
-            style={{ marginRight: 12 }}
-          >
-            Назад
+          </GridContainer>
+
+          <Button color="info" type="submit">
+            {loading ? "Сохранение..." : "Сохранить"}
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            variant="contained"
-            color="primary"
-          >
-            {isEditing ? 'Сохранить' : 'Добавить'}
-          </Button> */}
-          <Button color="info" onClick={handleSubmit}>Сохранить</Button>
-                    <NavLink to={'/admin/dashboard'}>
-                        <Button >Закрыть</Button>
-                    </NavLink>
-        </div>
-      </form>
+          <NavLink to="/admin/dashboard">
+            <Button>Закрыть</Button>
+          </NavLink>
+        </form>
+      </CardBody>
     </Card>
-
   );
-};
-
-export default EditEmitent;
+}

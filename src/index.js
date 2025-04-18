@@ -22,7 +22,6 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 import  PrivateRoute from "./PrivateRoute";
 
 import AuthLayout from "layouts/Auth.js";
-import RtlLayout from "layouts/RTL.js";
 import AdminLayout from "layouts/Admin.js";
 
 import store from "../src/redux/store";
@@ -35,7 +34,7 @@ ReactDOM.render(
 <Provider store={store}>
   <Router history={hist}>
     <Switch>
-      <Route path="/rtl" component={RtlLayout} />
+  
       <Route path="/auth" component={AuthLayout} />
       <PrivateRoute  path="/admin" component={AdminLayout} />
       <Redirect from="/" to="/admin/dashboard" />

@@ -180,7 +180,7 @@ const CustomTable = forwardRef((props, ref) => {
                 return (
                   <TableRow {...row.getRowProps()} style={rowStyle}>
                     {row.cells.map((cell) => (
-                      <TableCell {...cell.getCellProps()}>
+                      <TableCell style={{padding:'0px'}} {...cell.getCellProps()}>
                         {cell.render("Cell")}
                       </TableCell>
                     ))}

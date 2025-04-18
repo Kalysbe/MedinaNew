@@ -4,34 +4,19 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Card, Box, Typography, Grid, CircularProgress } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 
-// material-ui icons
-import Assignment from "@material-ui/icons/Assignment";
-
 import ReactToPrint from 'react-to-print';
 
 // core components
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
-// import Table from "components/Table/Table.js";
-// import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardIcon from "components/Card/CardIcon.js";
-import CardBody from "components/Card/CardBody.js";
-
 import Button from "components/CustomButtons/Button.js";
 
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
 
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEmitentById } from "redux/actions/emitents";
 import { fetchTransactionPrintById } from "redux/actions/prints";
-import { BorderBottom } from "@material-ui/icons";
 const styles = {
   customCardContentClass: {
     paddingLeft: "0",
@@ -70,14 +55,6 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 
-
-/**
- * Component that displays detailed information about a transaction.
- * Fetches and displays data related to the transaction, including 
- * information about the transferring and receiving holders, the 
- * securities being transferred, and other transaction details. 
- * Provides options for printing the transaction details.
- */
 export default function RegularTables() {
   const { id } = useParams();
   const classes = useStyles();
@@ -92,7 +69,7 @@ export default function RegularTables() {
   useEffect(() => {
     dispatch(fetchEmitentById(Emitent?.id));
     dispatch(fetchTransactionPrintById(id));
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     switch (data.operation?.id) {
