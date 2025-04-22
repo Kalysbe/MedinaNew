@@ -47,6 +47,21 @@ export const fetchUpdateEmissionType = createAsyncThunk("reference/fetchCreateEm
   return response.data;
 })
 
+export const fetchHolderStatusList = createAsyncThunk("reference/fetchHolderStatusList", async () => {
+  const { data } = await axios.get(`/holders/holder-status`);
+  return data;
+})
+
+export const fetchCreateHolderStatus = createAsyncThunk("reference/fetchCreateHolderStatus", async (data) => {
+  const response = await axios.post(`/holders/holder-status`, data);
+  return response.data;
+})
+
+export const fetchUpdateHolderStatus = createAsyncThunk("reference/fetchUpdateHolderStatus", async ({ id, data }) => {
+  const response = await axios.put(`/holders/holder-status/${id}`, data);
+  return response.data;
+})
+
 export const fetchDeleteEmissionType = createAsyncThunk(
   "reference/fetchDeleteEmissionType",
   async (id, { rejectWithValue }) => {

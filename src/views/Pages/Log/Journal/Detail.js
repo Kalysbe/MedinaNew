@@ -253,12 +253,24 @@ export default function RegularTables() {
                     Директору ОсОО "Реестродержатель Медина" Тентишевой Г.М.
                   </Typography>
                   <Typography variant="h6" component="div" align="right">
-                    Акционер
+                    Акционер 
                   </Typography>
                   <Typography variant="h5" component="div" align="center">
                     Заявление
                   </Typography>
 
+                  <Typography variant="h6" component="div" align="left">
+                    Прошу произвести изменения в реестре **
+                  </Typography>
+                  <Typography variant="h6" component="div" align="left">
+                    в связи с изменением данных паспорта, места жительства, смены фамилии, вступлением в наследство
+                  </Typography>
+                  <Box>
+                    <Typography variant="h6" component="span" align="left">Дата рождения </Typography>
+                    <Typography variant="h6" component="span" align="left"> **  </Typography>
+                    <Typography variant="h6" component="span" align="left"> Паспорт № </Typography> 
+                    <Typography variant="h6" component="span" align="left"> ** </Typography>
+                    </Box>
                   {/* <Typography variant="h5" component="div" align="center">
                     {journalDetail?.title}
                   </Typography> */}
@@ -271,26 +283,7 @@ export default function RegularTables() {
                   {/* <Typography variant="body2" color="textSecondary">
                     Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
                   </Typography> */}
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        {/* <TableCell>Параметр</TableCell> */}
-                        <TableCell>До</TableCell>
-                        <TableCell>После</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-
-                      {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
-                        <TableRow key={key}>
-                          {/* <TableCell>{titles[key]}</TableCell> */}
-                          <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
-                          <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
-                        </TableRow>
-                      ))}
-
-                    </TableBody>
-                  </Table>
+                 
                 </Box>
               )}
 

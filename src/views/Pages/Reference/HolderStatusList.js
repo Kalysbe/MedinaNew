@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import { Box, TextField, Modal, Typography, Paper } from "@material-ui/core";
 import Button from "components/CustomButtons/Button.js";
-import { fetchHolderTypeList, fetchUpdateHolderType, fetchCreateHolderType } from "redux/actions/reference";
+import { fetchUpdateHolderStatus, fetchCreateHolderStatus, fetchHolderStatusList } from "redux/actions/reference";
 import Swal from 'sweetalert2';
 import CustomTable from "components/Table/CustomTable";
 import styles from "assets/jss/material-dashboard-pro-react/views/sweetAlertStyle.js";
@@ -27,21 +27,23 @@ const useStyles = makeStyles((theme) => ({
 export default function RegionManager() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const DistrictList = useSelector((state) => state.reference?.holderTypeList || []);
+  const HolderStatusList = useSelector((state) => state.reference?.holderStatusList || []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editDistrictId, setEditDistrictId] = useState(null);
   const [regionData, setRegionData] = useState({ name: "" });
-  const [localDistrictList, setLocalDistrictList] = useState(DistrictList);
+  const [localHolderStatusList, setLocalHolderStatusList] = useState(HolderStatusList);
 
   useEffect(() => {
-    dispatch(fetchHolderTypeList());
+    dispatch(fetchHolderStatusList())
   }, [dispatch]);
 
+
+
   useEffect(() => {
-    setLocalDistrictList(DistrictList);
-  }, [DistrictList]);
+    setLocalHolderStatusList(HolderStatusList);
+  }, [HolderStatusList]);
 
   const tableHeaders = [
     { Header: "Наименование", accessor: "name", sortType: "basic" },
@@ -82,15 +84,15 @@ export default function RegionManager() {
     try {
       let response;
       if (editMode && editDistrictId) {
-        response = await dispatch(fetchUpdateHolderType({ id: editDistrictId, data: regionData }));
-        setLocalDistrictList((prevList) =>
+        response = await dispatch(fetchUpdateHolderStatus({ id: editDistrictId, data: regionData }));
+        setLocalHolderStatusList((prevList) =>
           prevList.map((district) =>
             district.id === editDistrictId ? { ...district, ...regionData } : district
           )
         );
       } else {
-        response = await dispatch(fetchCreateHolderType(regionData));
-        setLocalDistrictList((prevList) => [...prevList, { ...regionData, id: response.id }]);
+        response = await dispatch(fetchCreateHolderStatus(regionData));
+        setLocalHolderStatusList((prevList) => [...prevList, { ...regionData, id: response.id }]);
       }
 
       if (response.error) {
@@ -136,7 +138,7 @@ export default function RegionManager() {
           Добавить
         </Button>
       </Box>
-      <CustomTable tableName="Категории акционеров" tableHead={tableHeaders} tableData={localDistrictList} searchKey="name" />
+      <CustomTable tableName="Категории акционеров" tableHead={tableHeaders} tableData={localHolderStatusList} searchKey="name" />
 
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <Paper className={classes.modalContainer}>

@@ -139,8 +139,9 @@ const CustomTable = forwardRef((props, ref) => {
               {headerGroups.map((headerGroup) => (
                 <TableRow {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
-                    <TableCell
+                    <TableCell 
                       {...column.getHeaderProps(column.getSortByToggleProps())}
+                      style={{padding:'0px'}}
                     >
                       {column.render("Header")}
                       <TableSortLabel

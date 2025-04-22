@@ -154,6 +154,7 @@ export default function RegularForms() {
       optionLabelKey: "title",
       grid: { xs: 12, sm: 12, md: 6 },
       validation: { required: "Входящий документ обязателен" },
+      extraLabelKey: "provider_name",
     },
     {
       name: "contract_date",
@@ -311,25 +312,37 @@ export default function RegularForms() {
                       rules={field.validation}
                       render={({ field: controllerField }) => (
                         <Select
-                          {...controllerField}
-                          MenuProps={{ className: classes.selectMenu }}
-                          classes={{ select: classes.select }}
-                          inputProps={{ id: field.name }}
-                        >
-                          {field.options &&
-                            field.options.map(opt => (
-                              <MenuItem
-                                key={opt[field.optionValueKey || "id"]}
-                                value={opt[field.optionValueKey || "id"]}
-                                classes={{
-                                  root: classes.selectMenuItem,
-                                  selected: classes.selectMenuItemSelected,
-                                }}
-                              >
-                                {opt[field.optionLabelKey || "name"] || opt.label || opt.title}
-                              </MenuItem>
-                            ))}
-                        </Select>
+                        {...controllerField}
+                        MenuProps={{ className: classes.selectMenu }}
+                        classes={{ select: classes.select }}
+                        inputProps={{ id: field.name }}
+                      >
+                        {field.options?.map((opt) => {
+                          const mainLabel = opt[field.optionLabelKey || "name"];
+                          const extraLabel = field.extraLabelKey
+                            ? opt[field.extraLabelKey]
+                            : null;
+
+                          // Если extraLabelKey указано, собираем строку с дополнительным полем
+                          // Иначе выводим только основное
+                          const displayText = extraLabel
+                            ? `${mainLabel} — ${extraLabel}`
+                            : mainLabel;
+
+                          return (
+                            <MenuItem
+                              key={opt[field.optionValueKey || "id"]}
+                              value={opt[field.optionValueKey || "id"]}
+                              classes={{
+                                root: classes.selectMenuItem,
+                                selected: classes.selectMenuItemSelected,
+                              }}
+                            >
+                              {displayText}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
                       )}
                     />
                     {errors[field.name] && (
