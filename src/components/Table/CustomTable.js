@@ -134,6 +134,7 @@ const CustomTable = forwardRef((props, ref) => {
       <CardBody>
         {/* Важно: div ref={ref} -- печатаем только это */}
         <div ref={ref}>
+        <h4 className={classes.cardIconTitle}>{tableName}</h4>
           <Table {...getTableProps()}>
             <TableHead>
               {headerGroups.map((headerGroup) => (

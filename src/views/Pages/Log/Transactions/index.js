@@ -54,11 +54,11 @@ export default function RegularTables() {
     let pairCounter = 0; // счётчик пар
 
     return items.flatMap((item) => {
-      if (!item.security || typeof item.security.quantity !== "number") {
+      if (!item || typeof item.quantity !== "number") {
         return [];
       }
 
-      const quantity = item.security.quantity;
+      const quantity = item.quantity;
       const fromName = item.holder_from
         ? item.holder_from.name
         : item.emitent?.full_name || "";
@@ -160,6 +160,8 @@ export default function RegularTables() {
     setCurrentHeaders(tableHeaders);
   };
 
+  console.log(transformed)
+
   return (
     <GridContainer>
       <GridItem xs={12}>
@@ -175,7 +177,7 @@ export default function RegularTables() {
             onAfterPrint={onAfterPrint}
           />
         </div>
-
+          
         {/* ВАЖНО: ref={printRef} и передаём currentHeaders вместо tableHeaders */}
         <CustomTable
           ref={printRef}

@@ -74,6 +74,7 @@ export default function RegularTables() {
               return window.formatNumber(value);
             },
           },
+          { Header: "Тип", accessor: "type", sortType: "basic" },
       ];
 
     return (
