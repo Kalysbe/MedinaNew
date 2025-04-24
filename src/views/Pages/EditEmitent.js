@@ -16,6 +16,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
+import moment from "moment";
 import Swal from "sweetalert2";
 import { useForm, Controller } from "react-hook-form";
 
@@ -96,9 +97,11 @@ export default function EditEmitent() {
       const { id: _ignore, ...data } = emitent.data;
       reset({
         ...data,
-        contract_date: data.contract_date
-          ? new Date(data.contract_date).toISOString().split("T")[0]
+        contract_date:
+        data.contract_date && moment(data.contract_date, "DD-MM-YYYY").isValid()
+          ? moment(data.contract_date, "DD-MM-YYYY").format("YYYY-MM-DD")
           : "",
+      
       });
     }
   }, [emitent, isEditing, reset]);
