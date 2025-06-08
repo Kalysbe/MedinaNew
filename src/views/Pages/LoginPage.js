@@ -36,7 +36,7 @@ export default function LoginPage() {
   const [error, setError] = useState({ login: '', password: '' });
   const { data } = useSelector(state => state.auth);
 
-  
+
   const [isMounted, setIsMounted] = useState(true);
   const [cardAnimaton, setCardAnimation] = React.useState("cardHidden");
   setTimeout(function () {
@@ -44,20 +44,16 @@ export default function LoginPage() {
   }, 700);
   const classes = useStyles();
 
-
-
- console.log(data)
- useEffect(() => {
-  dispatch(fetchAuthMe());
-}, []);
+  useEffect(() => {
+    dispatch(fetchAuthMe());
+  }, []);
 
   useEffect(() => {
     if (data && data.id) {
-      console.log('done')
       history.push('/admin/dashboard');
     }
   }, [data, history]);
-  
+
 
   useEffect(() => {
     return () => {
@@ -86,23 +82,25 @@ export default function LoginPage() {
 
       if (data.payload) {
         if ('token' in data.payload) {
+          console.log("done")
           window.localStorage.setItem('token', data.payload.token);
-          
+
         } else {
+          console.log("else")
           setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
         }
       }
-      
+
 
     } catch (err) {
-
+      console.log("error")
       setError({ login: 'Неверный логин или пароль', password: 'Неверный логин или пароль' });
 
     }
   };
 
-  
-  
+
+
   return (
     <div className={classes.container}>
       <GridContainer justify="center">
@@ -148,9 +146,10 @@ export default function LoginPage() {
                         <Email />
                       </InputAdornment>
                     ),
-                    // helperText: error.login,
-                    error: !!error.login
+
                   }}
+                  error={!!error.login}
+                  helperText={error.login}
                 />
                 <CustomInput
                   labelText="Пароль"
@@ -168,9 +167,10 @@ export default function LoginPage() {
                         <Icon>lock_outline</Icon>
                       </InputAdornment>
                     ),
-                    // helperText: error.password,
-                    error: !!error.password
+
                   }}
+                  error={!!error.password}
+                  helperText={error.password}
                 />
               </CardBody>
               <CardFooter>

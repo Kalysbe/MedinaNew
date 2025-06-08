@@ -118,7 +118,7 @@ export default function EditEmitent() {
 
       Swal.fire({
         title: "Успешно!",
-        text: "Данные успешно отправлены",
+        text: "Данные успешно отправлены!",
         icon: "success",
         confirmButtonText: "Ок",
       }).then(() => history.push("/admin/emitent-list"));
@@ -205,7 +205,6 @@ export default function EditEmitent() {
     )}
   </GridItem>
 ))}
-
           </GridContainer>
 
           <Button color="info" type="submit">

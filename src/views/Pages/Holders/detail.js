@@ -98,21 +98,27 @@ export default function RegularTables() {
   console.log(holderEmitents)
 
   let totalCountSimple = 0;
+  let totalCountSimpleSum = 0;
   let totalCountPreferred = 0;
+  let totalCountPreferredSum = 0;
+
   
   if (extractData?.emission?.length) {
     extractData.emission.forEach((item) => {
       if (item.type === 'Простая') {
         totalCountSimple += item.total_shares || 0;
+        totalCountSimpleSum += item.total_shares * item.nominal || 0;
       } else if (item.type === 'Привилегированная') {
         totalCountPreferred += item.total_shares || 0;
+        totalCountPreferredSum += item.total_shares * item.nominal || 0;
       }
     });
   }
   
-  const totalNominal = extractData?.emission?.reduce((acc, item) => acc + (item.nominal || 0), 0);
-  const totalAmount = extractData?.emission?.reduce((acc, item) => acc + (item.count || 0) * (item.nominal || 0), 0);
-  const totalBlockedCount = extractData?.emission?.reduce((acc, item) => acc + (item.blocked_count || 0), 0);
+  const totalSharePercent = extractData?.emission?.reduce((acc, item) => acc + (item.share_percent || 0), 0);
+  const totalCountFree = extractData?.emission?.reduce((acc, item) => acc + (item.total_shares  - item.pledged_shares - item.blocked_shares || 0), 0);
+  const totalCountFreeSum = extractData?.emission?.reduce((acc, item) => acc + (item.total_shares  - item.pledged_shares - item.blocked_shares || 0) * (item.nominal || 0), 0);
+  const totalBlockedCount = extractData?.emission?.reduce((acc, item) => acc + (item.blocked_shares || 0), 0);
 
   console.log(extractData,'datas')
 
@@ -400,32 +406,41 @@ export default function RegularTables() {
                     <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(item.total_shares * item.nominal)}</td>
                     <td style={{ border: '1px solid #333', padding: '2px' }}>{item.pledged_shares}</td>
                     <td style={{ border: '1px solid #333', padding: '2px' }}>{item.accepted_in_pledge}</td>
-                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.blocked_count}</td>
+                    <td style={{ border: '1px solid #333', padding: '2px' }}>{item.blocked_shares}</td>
                   </tr>
                 ))}
                 <tr>
                   <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={2}><strong>Итого простые:</strong></td>
-                  <td style={{ border: '1px solid #333', padding: '2px' }}>{totalCountSimple}</td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(totalCountSimple)}</td>
                   <td style={{ border: '1px solid #333', padding: '2px' }}></td>
-                  <td style={{ border: '1px solid #333', padding: '2px' }}></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(totalCountSimpleSum)}</td>
                   <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={3}></td>
                 </tr>
                 <tr>
                   <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={2}><strong>Итого привилегированные:</strong></td>
-                  <td style={{ border: '1px solid #333', padding: '2px' }}>{totalCountPreferred}</td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(totalCountPreferred)}</td>
                   <td style={{ border: '1px solid #333', padding: '2px' }}></td>
-                  <td style={{ border: '1px solid #333', padding: '2px' }}></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }}>{window.formatNumber(totalCountPreferredSum)}</td>
                   <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={3}></td>
+                </tr>
+                  <tr>
+                  <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={4}><strong>% от общего количества выпущенных акций</strong></td>
+                  <td style={{ border: '1px solid #333', padding: '2px' }} colSpan={5}>{totalSharePercent}</td>
+  
+           
                 </tr>
               </tbody>
             </table>
 
             {/* Дополнительная информация об акциях */}
             <div style={{ marginBottom: '1em' }}>
-              {/* <p style={{ margin: '3px 0' }}><strong>% от общего количества выпущенных акций:</strong> 0.016726</p> */}
-              {/* <p style={{ margin: '3px 0' }}><strong>Все на {today} (дата отчёта)</strong></p> */}
+        
+              <p style={{ margin: '3px 0' }}><strong>Все на {today}</strong></p>
               <p style={{ margin: '3px 0' }}><strong>Всего акций:</strong> {totalCountSimple + totalCountPreferred} </p>
-              {/* <p style={{ margin: '3px 0' }}><strong>Из них свободных акций:</strong> 22 </p> */}
+               <p style={{ margin: '3px 0' }}><strong>Стоимость:</strong> {totalCountSimpleSum + totalCountPreferredSum} </p>
+              <p style={{ margin: '3px 0' }}><strong>Из них свободных акций:</strong> </p>
+              <p style={{ margin: '3px 0' }}><strong>Акций:</strong> {totalCountFree} </p>
+              <p style={{ margin: '3px 0' }}><strong>Cтоимость:</strong> {totalCountFreeSum} </p>
             </div>
 
             {/* Информация о держателе реестра */}
