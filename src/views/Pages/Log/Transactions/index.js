@@ -155,17 +155,31 @@ export default function RegularTables() {
     return Promise.resolve();
   };
 
+
   // После печати: возвращаем исходные
   const onAfterPrint = () => {
     setCurrentHeaders(tableHeaders);
   };
 
-  console.log(transformed)
+  const handleExportClick = () => {
+    if (printRef.current?.exportToExcel) {
+      printRef.current.exportToExcel(); // вызываем метод из дочернего компонента
+    }
+  };
+
+
 
   return (
     <GridContainer>
       <GridItem xs={12}>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+              style={{ display: "flex", gap: "1rem",height:'40px' }}
+                variant="contained"
+                color="success"
+                size="small"
+                onClick={handleExportClick}
+              >Excel</Button>
           <ReactToPrint
             trigger={() => (
               <Button variant="contained" color="warning" size="small">
@@ -180,11 +194,16 @@ export default function RegularTables() {
           {/* <div  ref={printRef}>1</div> */}
         {/* ВАЖНО: ref={printRef} и передаём currentHeaders вместо tableHeaders */}
         <div className="print-only">
-        <TransactionsReport  ref={printRef} />
+        <TransactionsReport  
+          ref={printRef}   
+          tableHead={currentHeaders}  
+          tableData={transformed}
+          // exportToExcel={exportToExcel}
+          />
         </div>
 
         <CustomTable
-          ref={printRef}
+          // ref={printRef}
           tableName="Транзакции"
           tableHead={currentHeaders}  
           tableData={transformed}

@@ -133,13 +133,7 @@ const CustomTable = forwardRef((props, ref) => {
 
         {/* Фильтры (не попадают в печать, т.к. ref будет на самой таблице) */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <Button
-              style={{ display: "flex", gap: "1rem",height:'40px' }}
-                variant="contained"
-                color="success"
-                size="small"
-                onClick={exportToExcel}
-              >Excel</Button>
+     
          
        
           <CustomInput
@@ -211,7 +205,7 @@ const CustomTable = forwardRef((props, ref) => {
 
                 // pairIndex для этой строки
             const { pairIndex } = row.original;
-          
+         
             // Если нет pairIndex, это не пара — оставим как есть
             // Если есть, и striping включен, чередуем
             let rowStyle = {};
