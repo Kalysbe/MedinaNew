@@ -356,8 +356,7 @@ export default function RegularTables() {
 
           </Box>
 
-          <div ref={componentRef} 
-          className={classes.printOnly}
+          <div ref={componentRef}  className={classes.printOnly}
           
           style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
 

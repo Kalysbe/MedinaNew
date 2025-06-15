@@ -23,6 +23,14 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
 
+import Menu from "@material-ui/core/Menu";
+import FilterListIcon from "@material-ui/icons/FilterList";
+import TextField from "@material-ui/core/TextField";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import Divider from "@material-ui/core/Divider";
 
 import Report1 from './Reestr/report1.js'
 import Report2 from './Reestr/report2.js'
@@ -53,8 +61,14 @@ export default function RegularTables() {
   const Holders = useSelector(state => state.holders?.holders);
   const Emissions = useSelector(state => state.emissions?.emissions);
 
-  
-  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [filterState, setFilterState] = useState({
+    reportType: '',
+    dateFrom: '',
+    dateTo: '',
+    status: '',
+    taxType: ''
+  });
 
   useEffect(() => {
     dispatch(fetchEmissionsByEmitentId(Emitent?.id));
@@ -93,6 +107,36 @@ export default function RegularTables() {
     setSelectedEmission(event.target.value);
   };
 
+  const handleFilterClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleFilterChange = (field, value) => {
+    setFilterState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleResetFilter = () => {
+    setFilterState({
+      reportType: '',
+      dateFrom: '',
+      dateTo: '',
+      status: '',
+      taxType: ''
+    });
+  };
+
+  const handleApplyFilter = () => {
+    // Здесь будет логика применения фильтров
+    console.log('Applied filters:', filterState);
+    handleFilterClose();
+  };
 
   const ReportViewer = ({ reportType, data }) => {
     switch (reportType) {
@@ -164,7 +208,6 @@ export default function RegularTables() {
                 color="warning"
                 size="small"
               >Печать</Button>
-
             }
             content={() => componentRef.current}
           />
@@ -177,59 +220,124 @@ export default function RegularTables() {
               </CardIcon>
               <h4 className={classes.cardIconTitle}>{report.label}</h4>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%' }}>
-              <FormControl
-                // fullWidth
-                style={{ width: '150px' }}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%', alignItems: 'center' }}>
+              <Button
+                style={{ marginLeft: '10px' }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={handleFilterClick}
+                startIcon={<FilterListIcon />}
               >
-                <InputLabel
-                  htmlFor="simple-select"
-                >
-                  Тип реестр
-                </InputLabel>
-                <Select
-                  MenuProps={{
-                    className: classes.selectMenu
-                  }}
-                  classes={{
-                    select: classes.select
-                  }}
-                  name='operation_id'
-                  value={report}
-                  onChange={handleChange}
-                >
-                  <MenuItem
-                    classes={{
-                      root: classes.selectMenuItem,
-                      selected: classes.selectMenuItemSelected
-                    }}
-
-                    value={{ type: 1, label: 'Реестр акционеров' }}>
-                    Реестр акционеров
-                  </MenuItem>
-
-                  <MenuItem
-                    classes={{
-                      root: classes.selectMenuItem,
-                      selected: classes.selectMenuItemSelected
-                    }}
-
-                    value={{ type: 2, label: 'Реестр владельцев именных ЦБ' }}>
-                    Реестр владельцев именных ЦБ
-                  </MenuItem>
-
-                  <MenuItem
-                    classes={{
-                      root: classes.selectMenuItem,
-                      selected: classes.selectMenuItemSelected
-                    }}
-
-                    value={{ type: 3, label: 'Реестр владельцев именных по номерам ЦБ' }}>
-                    Реестр владельцев именных по номерам ЦБ
-                  </MenuItem>
-
-                </Select>
-              </FormControl>
+                Фильтр
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleFilterClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                PaperProps={{
+                  style: { minWidth: 400, borderRadius: 12, padding: 0, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }
+                }}
+              >
+                <Paper style={{ padding: 24, minWidth: 400, boxShadow: 'none' }}>
+                  <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 16 }}>Параметры фильтрации</div>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Тип реестра</InputLabel>
+                        <Select
+                          value={report}
+                          onChange={handleChange}
+                          label="Тип реестра"
+                        >
+                          <MenuItem value={{ type: 1, label: 'Реестр акционеров' }}>Реестр акционеров</MenuItem>
+                          <MenuItem value={{ type: 2, label: 'Реестр владельцев именных ЦБ' }}>Реестр владельцев именных ЦБ</MenuItem>
+                          <MenuItem value={{ type: 3, label: 'Реестр владельцев именных по номерам ЦБ' }}>Реестр владельцев именных по номерам ЦБ</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        label="Дата налогового периода с"
+                        type="date"
+                        fullWidth
+                        size="small"
+                        value={filterState.dateFrom}
+                        onChange={e => handleFilterChange('dateFrom', e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        label="Дата налогового периода по"
+                        type="date"
+                        fullWidth
+                        size="small"
+                        value={filterState.dateTo}
+                        onChange={e => handleFilterChange('dateTo', e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Статус налоговой отчетности</InputLabel>
+                        <Select
+                          value={filterState.status}
+                          onChange={e => handleFilterChange('status', e.target.value)}
+                          label="Статус налоговой отчетности"
+                        >
+                          <MenuItem value="">Не выбран</MenuItem>
+                          <MenuItem value="accepted">Принят</MenuItem>
+                          <MenuItem value="rejected">Отклонен</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Тип налоговой отчетности</InputLabel>
+                        <Select
+                          value={filterState.taxType}
+                          onChange={e => handleFilterChange('taxType', e.target.value)}
+                          label="Тип налоговой отчетности"
+                        >
+                          <MenuItem value="">Не выбран</MenuItem>
+                          <MenuItem value="primary">Первоначальный</MenuItem>
+                          <MenuItem value="correction">Корректирующий</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+                      <Button
+                        variant="outlined"
+                        color="default"
+                        size="small"
+                        onClick={handleResetFilter}
+                        style={{ minWidth: 100 }}
+                      >
+                        Сбросить
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={handleApplyFilter}
+                        style={{ minWidth: 100 }}
+                      >
+                        Найти
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              </Menu>
               {report.type === 3 && (
                 <FormControl
                   style={{ width: '150px', marginLeft: '10px' }}
@@ -260,13 +368,9 @@ export default function RegularTables() {
                         {item.reg_number}
                       </MenuItem>
                     ))}
-
-
                   </Select>
                 </FormControl>
               )}
-
-
             </div>
           </CardHeader>
           <CardBody >

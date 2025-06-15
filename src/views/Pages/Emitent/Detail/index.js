@@ -4,8 +4,10 @@ import { makeStyles } from "@material-ui/core/styles";
 
 // material-ui icons
 import Assignment from "@material-ui/icons/Assignment";
+import PrintIcon from "@material-ui/icons/Print";
+import EditIcon from "@material-ui/icons/Edit";
 
-import { Typography } from '@material-ui/core';
+import { Typography, Paper, Box } from '@material-ui/core';
 
 // core components
 import GridContainer from "components/Grid/GridContainer.js";
@@ -39,7 +41,138 @@ const styles = {
         ...cardTitle,
         marginTop: "15px",
         marginBottom: "0px"
-    }
+    },
+    actionButtons: {
+        display: 'flex',
+        gap: '12px',
+        marginBottom: '24px'
+    },
+    pageHeader: {
+        marginBottom: '16px',
+        padding: '16px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        '@media print': {
+            marginBottom: '8px',
+            padding: '8px',
+            boxShadow: 'none',
+            backgroundColor: 'transparent'
+        }
+    },
+    infoTable: {
+        marginBottom: '24px',
+        '& .MuiTableCell-root': {
+            padding: '8px 12px',
+            fontSize: '14px',
+            borderBottom: '1px solid #e0e0e0'
+        },
+        '@media print': {
+            marginBottom: '12px',
+            '& .MuiTableCell-root': {
+                padding: '2px 4px',
+                fontSize: '9pt'
+            }
+        }
+    },
+    emissionsTable: {
+        marginTop: '24px',
+        '& .MuiTableCell-root': {
+            padding: '8px 12px',
+            fontSize: '14px'
+        },
+        '& .MuiTableHead-root .MuiTableCell-root': {
+            backgroundColor: '#f8f9fa',
+            fontWeight: 600,
+            color: '#333'
+        },
+        '@media print': {
+            marginTop: '12px',
+            '& .MuiTableCell-root': {
+                padding: '2px 4px',
+                fontSize: '9pt'
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+                backgroundColor: 'transparent'
+            }
+        }
+    },
+    totalRow: {
+        backgroundColor: '#f8f9fa',
+        '& .MuiTableCell-root': {
+            fontWeight: 600,
+            color: '#333'
+        }
+    },
+    printInfo: {
+        marginTop: '24px',
+        padding: '16px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        '& div': {
+            marginBottom: '6px',
+            fontSize: '14px'
+        },
+        '@media print': {
+            marginTop: '12px',
+            padding: '8px',
+            backgroundColor: 'transparent',
+            '& div': {
+                marginBottom: '2px',
+                fontSize: '9pt'
+            }
+        }
+    },
+    printWrapper: {
+        '@media print': {
+            margin: '10px',
+            padding: '10px',
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px',
+            backgroundColor: '#fff',
+            fontSize: '10pt',
+            '& .MuiTypography-h4': {
+                fontSize: '14pt',
+                marginBottom: '8px'
+            },
+            '& .MuiTypography-h6': {
+                fontSize: '12pt',
+                marginTop: '16px',
+                marginBottom: '8px'
+            },
+            '& .MuiTableCell-root': {
+                padding: '4px 8px',
+                fontSize: '9pt'
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+                padding: '4px 8px',
+                fontSize: '9pt'
+            }
+        }
+    },
+    printOnly: {
+        display: 'none',
+        '@media print': {
+            display: 'block'
+        }
+    },
+    tableHeadStyle: {
+        fontWeight: 'bold',
+    },
+    table: {
+        borderCollapse: "collapse", 
+        width: "100%",
+      },
+      tableCell: {
+        padding: "4px 8px", 
+        fontSize: "0.9rem", 
+      },
+      tableHeaderCell: {
+        padding: "6px 8px",
+        fontWeight: "bold",
+        backgroundColor: "#f4f4f4", 
+        verticalAlign: 'top'
+      },
 };
 
 
@@ -70,9 +203,10 @@ const printStyles = {
     printWrapper: {
         '@media print': {
             margin: '20px',
-            padding: '10px',
-            border: '1px solid black',
-            borderRadius: '5px'
+            padding: '20px',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            backgroundColor: '#fff'
         }
     },
     printOnly: {
@@ -144,24 +278,28 @@ export default function RegularTables() {
     return (
         <GridContainer>
             <GridItem xs={12}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div className={classes.actionButtons}>
                     <NavLink to={`/admin/emitent/edit/${Emitent?.id}`}>
                         <Button
-                            variant="contained"
                             color="warning"
-                            size="small"
-                        >Корректировка</Button>
+                            size="sm"
+                            startIcon={<EditIcon />}
+                        >
+                            Корректировка
+                        </Button>
                     </NavLink>
                     <ReactToPrint
                         trigger={() =>
                             <Button
-                                variant="contained"
-                                color="warning"
-                                size="small"
-                            >Печать</Button>
-
+                                color="info"
+                                size="sm"
+                                startIcon={<PrintIcon />}
+                            >
+                                Печать
+                            </Button>
                         }
                         content={() => componentRef.current}
+                        pageStyle="@page { size: A4; margin: 10mm; }"
                     />
                 </div>
                 <Card>
@@ -173,128 +311,87 @@ export default function RegularTables() {
                     </CardHeader>
                     {Emitent && (
                         <CardBody>
+                            <div className={classes.printWrapper} ref={componentRef}>
+                                <Box className={classes.pageHeader}>
+                                    <Typography variant="h4" style={{ marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
+                                        Карточка эмитента
+                                    </Typography>
+                                </Box>
 
-
-                            <div className={classes.printWrapper} ref={componentRef} style={{ fontFamily: 'Arial, Helvetica, sans-serif ' }}>
-                                <Typography variant="h5" style={{ marginBottom: '16px', fontWeight: 'bold', color: '#333' }}>
-
-                                    Карточка эмитента
-
-                                </Typography>
-
-                                <Table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: "fixed" }}>
+                                <Table className={classes.infoTable} size="small">
                                     <TableBody>
                                         {formData.map((item, key) => (
                                             <TableRow key={key}>
-                                                <TableCell
-                                                    style={{
-                                                        color: '#555',
-                                                        borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px',
-                                                        fontSize: '13px',
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                >
+                                                <TableCell style={{ width: '40%', color: '#666' }}>
                                                     {item.name}
                                                 </TableCell>
-                                                <TableCell
-                                                    style={{
-                                                        fontWeight: 'bold',
-                                                        color: '#000',
-                                                        borderBottom: '1px solid #e0e0e0',
-                                                        padding: '4px',
-                                                        fontSize: '13px',
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                >
+                                                <TableCell style={{ width: '60%', fontWeight: 500 }}>
                                                     {Emitent[item.key]}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                                <Typography variant="subtitle2" style={{ marginTop: 14 }}>
-                                    <b>Список эмиссий акция</b>
+
+                                <Typography variant="h6" style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 'bold' }}>
+                                    Список эмиссий акций
                                 </Typography>
-                                <Table className={classes.table} style={{ marginTop: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+
+                                <Table className={classes.emissionsTable} size="small">
                                     <TableHead>
-                                        <TableRow style={{ backgroundColor: '#f5f5f5' }}>
-                                            <TableCell className={classes.tableHeaderCell}>№</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Дата выпуска</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Рег номер</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Категория(тип) ценных бумаг</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Номинал акций</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Начальное кол-во акций</TableCell>
-                                            <TableCell className={classes.tableHeaderCell}>Фактическое количество</TableCell>
+                                        <TableRow>
+                                            <TableCell>№</TableCell>
+                                            <TableCell>Дата выпуска</TableCell>
+                                            <TableCell>Рег номер</TableCell>
+                                            <TableCell>Категория(тип) ценных бумаг</TableCell>
+                                            <TableCell>Номинал акций</TableCell>
+                                            <TableCell>Начальное кол-во акций</TableCell>
+                                            <TableCell>Фактическое количество</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {Emissions.map((item, index) => (
                                             <TableRow key={index} hover>
-                                                <TableCell className={classes.tableCell}>
-                                                    {index + 1}
-                                                    {/* № */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {window.formatDate(item.release_date)}
-                                                    {/* Дата выпуска */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {item.reg_number}
-                                                    {/* Рег номер */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {item.type}
-                                                    {/* Категория(тип) ценных бумаг */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {window.formatNumber(item.nominal)}
-                                                    {/* Начальный номинал акций */}
-                                                </TableCell>
-                                                <TableCell className={classes.tableCell}>
-                                                    {window.formatNumber(item.start_count)}
-                                                    {/* Начальное кол-во акций */}
-                                                </TableCell>
-                                             
-                                          
-                                                <TableCell className={classes.tableCell}>
-                                                    {/* Фактическое количество */}
-                                                    {item.count}
-                                                </TableCell>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{window.formatDate(item.release_date)}</TableCell>
+                                                <TableCell>{item.reg_number}</TableCell>
+                                                <TableCell>{item.type}</TableCell>
+                                                <TableCell>{window.formatNumber(item.nominal)}</TableCell>
+                                                <TableCell>{window.formatNumber(item.start_count)}</TableCell>
+                                                <TableCell>{item.count}</TableCell>
                                             </TableRow>
                                         ))}
-                                        <TableRow>
-                                            <TableCell colSpan={5} style={{ fontWeight: 'bold', borderBottom: 'none' }}>
-                                                Итого:
-                                            </TableCell>
-                                            <TableCell style={{ borderBottom: 'none' }}>{startTotal}</TableCell>
-                                            <TableCell style={{ borderBottom: 'none' }}>{currentTotal}</TableCell>
+                                        <TableRow className={classes.totalRow}>
+                                            <TableCell colSpan={5}>Итого:</TableCell>
+                                            <TableCell>{startTotal}</TableCell>
+                                            <TableCell>{currentTotal}</TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                                <hr className={classes.printOnly} />
-                                <div className={classes.printOnly} style={{ marginTop: '14px' }}>
-                                    <div>
-                                        <span>Держатель реестра:</span>
-                                        <b> ОсОО "Реестродержатель Медина"</b>
-                                    </div>
-                                    <div>
-                                        <span>Орган государственной регистрации:</span>
-                                        <b> Чуй-Бишкекское управление юстиции</b>
-                                    </div>
-                                    <div>
-                                        <span>Регистрационный номер:</span>
-                                        <b> 133580-3301-000 от 09.12.2013 год</b>
-                                    </div>
-                                    <div>
-                                        <span>Лицензия:</span>
-                                        <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
-                                    </div>
-                                    <div>
-                                        <span>Юридический адрес:</span>
-                                        <b> 720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
-                                    </div>
 
+                                <div className={classes.printOnly}>
+                                    <Box className={classes.printInfo}>
+                                        <div>
+                                            <span>Держатель реестра: </span>
+                                            <b>ОсОО "Реестродержатель Медина"</b>
+                                        </div>
+                                        <div>
+                                            <span>Орган государственной регистрации: </span>
+                                            <b>Чуй-Бишкекское управление юстиции</b>
+                                        </div>
+                                        <div>
+                                            <span>Регистрационный номер: </span>
+                                            <b>133580-3301-000 от 09.12.2013 год</b>
+                                        </div>
+                                        <div>
+                                            <span>Лицензия: </span>
+                                            <b>№143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
+                                        </div>
+                                        <div>
+                                            <span>Юридический адрес: </span>
+                                            <b>720001 пр. Манаса 40, каб 324, тел 90-06-43, 31-17-65, 90-06-42</b>
+                                        </div>
+                                    </Box>
                                 </div>
                             </div>
                         </CardBody>

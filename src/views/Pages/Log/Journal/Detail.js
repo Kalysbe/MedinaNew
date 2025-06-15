@@ -102,6 +102,7 @@ export default function RegularTables() {
     dispatch(fetchJournalById(id));
   }, []);
 
+  console.log(journalDetail)
 
   return (
     <GridContainer>

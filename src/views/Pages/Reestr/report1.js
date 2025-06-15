@@ -6,8 +6,10 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+
 import { Button } from "@material-ui/core";
 import * as XLSX from "xlsx";
+import CustomTable from "components/Table/CustomTable";
 
 const styles = {
   printOnly: {
@@ -26,11 +28,12 @@ export default function Report1(props) {
 
     const totals = data.reduce(
       (acc, item) => {
-        acc.ordinary += Number(item.ordinary) || 0;
-        acc.ordinary_nominal += item.ordinary_nominal || 0;
+        acc.quantity += Number(item.quantity) || 0;
+        acc.nominal += Number(item.nominal) || 0;
+        acc.percentage += Number(item.percentage) || 0;
         return acc;
       },
-      { ordinary: 0, ordinary_nominal: 0 }
+      { quantity: 0, nominal: 0, percentage: 0 }
     );
 
     const exportToExcel = () => {
@@ -40,12 +43,12 @@ export default function Report1(props) {
           index + 1,
           item.id,
           item.name,
-          item.ordinary,
-          item.ordinary_nominal,
+          item.quantity,
+          item.nominal,
           item.percentage + " %",
           item.district?.name
         ]),
-        ["Итого", "", "", totals.ordinary, totals.ordinary_nominal, "", ""]
+        ["Итого", "", "", totals.quantity, totals.nominal, "", ""]
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -62,6 +65,8 @@ export default function Report1(props) {
       Скачать Excel
     </Button>
     {data && (
+
+      
       <Table>
         <TableHead style={{ display: 'table-header-group' }}>
           <TableRow>
@@ -98,15 +103,15 @@ export default function Report1(props) {
               <TableCell>
                 {item.country} 
               </TableCell>
-            </TableRow>
+            </TableRow> 
           ))}
           <TableRow>
             <TableCell colSpan={3} style={{ fontWeight: "bold" }}>
               Итого
             </TableCell>
-            <TableCell>{window.formatNumber(totals.ordinary)}</TableCell>
-            <TableCell>{window.formatNumber(totals.ordinary_nominal)}</TableCell>
-            <TableCell></TableCell>
+            <TableCell>{window.formatNumber(totals.quantity)}</TableCell>
+            <TableCell>{window.formatNumber(totals.nominal)}</TableCell>
+            <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableBody>

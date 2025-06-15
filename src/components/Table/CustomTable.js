@@ -1,4 +1,4 @@
-import React, { useState, useMemo, forwardRef } from "react";
+import React, { useState, useMemo, useRef, forwardRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Table,
@@ -16,16 +16,26 @@ import { BiSortAlt2, BiSortDown, BiSortUp } from "react-icons/bi";
 
 // Ваши компоненты
 import CustomInput from "components/CustomInput/CustomInput.js";
+import ReactToPrint from 'react-to-print';
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 import Button from "components/CustomButtons/Button.js";
+import * as XLSX from "xlsx";
 import styles from "assets/jss/material-dashboard-pro-react/views/dashboardStyle.js";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles(theme => ({
+  noPrint: {
+    '@media print': {
+      display: 'none !important',
+    },
+  },
+  ...styles,
+}));
 
 const CustomTable = forwardRef((props, ref) => {
+  const componentRef = useRef();
   const classes = useStyles();
   const {
     tableName,
@@ -62,6 +72,31 @@ const CustomTable = forwardRef((props, ref) => {
   const columns = useMemo(() => tableHead, [tableHead]);
   const data = useMemo(() => filteredData, [filteredData]);
 
+  const exportToExcel = () => {
+    const table = document.querySelector('table');
+    if (!table) return;
+
+    // Собираем строки, исключая ячейки с классом noPrint
+    const rows = Array.from(table.rows).map(row =>
+      Array.from(row.cells)
+        .filter(cell => !cell.classList.contains('noPrint'))
+        .map(cell => cell.innerText)
+    );
+
+    // Добавим пустую строку между заголовком и данными для читаемости
+    const wsData = [rows[0], []].concat(rows.slice(1).map(r => r.length ? r : [""]));
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Добавим автоширину столбцов
+    const colWidths = wsData[0].map(() => ({ wch: 20 }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "table_export.xlsx");
+  };
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -97,7 +132,16 @@ const CustomTable = forwardRef((props, ref) => {
         </div>
 
         {/* Фильтры (не попадают в печать, т.к. ref будет на самой таблице) */}
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <Button
+              style={{ display: "flex", gap: "1rem",height:'40px' }}
+                variant="contained"
+                color="success"
+                size="small"
+                onClick={exportToExcel}
+              >Excel</Button>
+         
+       
           <CustomInput
             labelText="Поиск"
             formControlProps={{ fullWidth: false }}
@@ -133,7 +177,7 @@ const CustomTable = forwardRef((props, ref) => {
 
       <CardBody>
         {/* Важно: div ref={ref} -- печатаем только это */}
-        <div ref={ref}>
+       
         <h4 className={classes.cardIconTitle}>{tableName}</h4>
           <Table {...getTableProps()}>
             <TableHead>
@@ -142,7 +186,8 @@ const CustomTable = forwardRef((props, ref) => {
                   {headerGroup.headers.map((column) => (
                     <TableCell 
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      style={{padding:'0px'}}
+                      style={{padding:'0px'}} 
+                      className={typeof column.accessor === 'string' && column.accessor === 'actions' ? classes.noPrint : ''}
                     >
                       {column.render("Header")}
                       <TableSortLabel
@@ -166,7 +211,7 @@ const CustomTable = forwardRef((props, ref) => {
 
                 // pairIndex для этой строки
             const { pairIndex } = row.original;
-            console.log(pairIndex, 'para')
+          
             // Если нет pairIndex, это не пара — оставим как есть
             // Если есть, и striping включен, чередуем
             let rowStyle = {};
@@ -182,7 +227,11 @@ const CustomTable = forwardRef((props, ref) => {
                 return (
                   <TableRow {...row.getRowProps()} style={rowStyle}>
                     {row.cells.map((cell) => (
-                      <TableCell style={{padding:'0px'}} {...cell.getCellProps()}>
+                      <TableCell 
+                        style={{padding:'0px'}} 
+                        {...cell.getCellProps()} 
+                        className={typeof cell.column.accessor === 'string' && cell.column.accessor === 'actions' ? classes.noPrint : ''}
+                      >
                         {cell.render("Cell")}
                       </TableCell>
                     ))}
@@ -191,7 +240,7 @@ const CustomTable = forwardRef((props, ref) => {
               })}
             </TableBody>
           </Table>
-        </div>
+       
 
         <TablePagination
           component="div"

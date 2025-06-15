@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef,forwardRef , useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -9,7 +9,7 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTransactions } from "redux/actions/transactions";
 import CustomTable from "components/Table/CustomTable";
-
+import TransactionsReport from "views/Reports/Transactions";
 const styles = {
   customCardContentClass: {
     paddingLeft: "0",
@@ -177,8 +177,12 @@ export default function RegularTables() {
             onAfterPrint={onAfterPrint}
           />
         </div>
-          
+          {/* <div  ref={printRef}>1</div> */}
         {/* ВАЖНО: ref={printRef} и передаём currentHeaders вместо tableHeaders */}
+        <div className="print-only">
+        <TransactionsReport  ref={printRef} />
+        </div>
+
         <CustomTable
           ref={printRef}
           tableName="Транзакции"

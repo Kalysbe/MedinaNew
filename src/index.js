@@ -27,6 +27,7 @@ import AdminLayout from "layouts/Admin.js";
 import store from "../src/redux/store";
 
 import "assets/scss/material-dashboard-pro-react.scss?v=1.8.0";
+import "./global.css";
 import './utils'; 
 const hist = createBrowserHistory();
 
