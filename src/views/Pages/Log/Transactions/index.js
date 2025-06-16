@@ -186,7 +186,7 @@ export default function RegularTables() {
                 Печать
               </Button>
             )}
-            content={() => printRef.current}
+            content={() => printRef.current?.getContent()}
             onBeforeGetContent={onBeforeGetContent}
             onAfterPrint={onAfterPrint}
           />
