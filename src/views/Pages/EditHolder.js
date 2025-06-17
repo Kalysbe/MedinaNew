@@ -21,9 +21,12 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 
+import DocumentSelectorModal from "views/Pages/Log/IncomingDocuments/DocumentModal.js";
+
+
 
 import { fetchHolderById, fetchAddHolder, fetchUpdateHolder } from 'redux/actions/holders'
-import { fetchDistrictList, fetchHolderTypeList } from "redux/actions/reference";
+import { fetchDistrictList, fetchHolderTypeList, fetchHolderStatusList } from "redux/actions/reference";
 import { fetchDocuments } from "redux/actions/documents";
 
 
@@ -41,6 +44,7 @@ export default function RegularForms() {
     const HolderData = useSelector(state => state.holders.holder.data)
     const DistrictList = useSelector((state) => state.reference?.districtList || []);
     const HolderTypeList = useSelector((state) => state.reference?.holderTypeList || []);
+    const HolderStatusList = useSelector((state) => state.reference?.holderStatusList || []);
     const DocumentList = useSelector((state) => state.documents?.documentList || []);
     const holderId = id
     const isEditing = Boolean(holderId);
@@ -62,6 +66,7 @@ export default function RegularForms() {
     useEffect(() => {
         dispatch(fetchDistrictList());
         dispatch(fetchHolderTypeList());
+        dispatch(fetchHolderStatusList());
         dispatch(fetchDocuments(Emitent?.id));
         if (holderId) {
             dispatch(fetchHolderById(holderId));
@@ -69,6 +74,19 @@ export default function RegularForms() {
 
 
     }, [dispatch]);
+
+    // Вверх компонента, рядом с другими useState
+    const [openDocModal, setOpenDocModal] = useState(false);
+
+    // Обработка выбора документа из модального окна
+const handleDocumentSelect = (doc) => {
+  setFormData((prev) => ({
+    ...prev,
+    document_id: doc.id,
+  }));
+  setOpenDocModal(false);
+};
+
 
     useEffect(() => {
         setFormData(HolderData)
@@ -84,15 +102,15 @@ export default function RegularForms() {
             } else {
                 response = await dispatch(fetchAddHolder({ emitent_id: Emitent?.id, ...formData }));
             }
-    
+
             // Проверка на наличие ошибки
             if (response.error) {
                 // Обновленная проверка на наличие payload и message
-                console.log(response,'errror')
+                console.log(response, 'errror')
                 const errorMessage = response.payload?.message || response.error.message || 'Неизвестная ошибка';
                 throw new Error(errorMessage);
             }
-    
+
             Swal.fire({
                 title: 'Успешно!',
                 text: 'Данные успешно отправлены',
@@ -105,7 +123,7 @@ export default function RegularForms() {
             });
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
-    
+
             Swal.fire({
                 title: 'Ошибка!',
                 text: error.message || 'Произошла ошибка при отправке данных на сервер',
@@ -116,7 +134,7 @@ export default function RegularForms() {
             // Здесь можно добавить код, который будет выполнен в любом случае
         }
     };
-    
+
 
     const handleChange = (e) => {
         const { name, value, type } = e.target;
@@ -127,7 +145,7 @@ export default function RegularForms() {
         }));
     };
 
-  
+
 
     const handleChangeDate = (name, value) => {
         const newValue = value instanceof Date ? value.toISOString().split('T')[0] : value;
@@ -137,7 +155,7 @@ export default function RegularForms() {
         }));
     };
 
- 
+
 
     return (
 
@@ -321,6 +339,39 @@ export default function RegularForms() {
                             <InputLabel
                                 htmlFor="simple-select"
                                 className={classes.selectLabel}>
+                                Отношение к акциям
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    className: classes.selectMenu
+                                }}
+                                classes={{
+                                    select: classes.select
+                                }}
+                                name='holder_status'
+                                value={formData['holder_status']}
+                                onChange={handleChange}
+                            >
+                                {(HolderStatusList).map(opt => (
+                                    <MenuItem key={opt.id}
+                                        classes={{
+                                            root: classes.selectMenuItem,
+                                            selected: classes.selectMenuItemSelected
+                                        }}
+                                        value={opt.id}>
+                                        {opt.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </GridItem>
+                    <GridItem xs={6} sm={6} md={4}>
+                        <FormControl
+                            fullWidth
+                            className={classes.selectFormControl}>
+                            <InputLabel
+                                htmlFor="simple-select"
+                                className={classes.selectLabel}>
                                 Регион
                             </InputLabel>
                             <Select
@@ -330,6 +381,7 @@ export default function RegularForms() {
                                 classes={{
                                     select: classes.select
                                 }}
+                                
                                 name='district_id'
                                 value={formData['district_id']}
                                 onChange={handleChange}
@@ -349,46 +401,43 @@ export default function RegularForms() {
                     </GridItem>
 
                     <GridItem xs={6} sm={6} md={4}>
-                        <FormControl
-                            fullWidth
-                            className={classes.selectFormControl}>
-                            <InputLabel
-                                htmlFor="simple-select"
-                                className={classes.selectLabel}>
-                                Входящий документ
-                            </InputLabel>
+                        <FormControl fullWidth className={classes.selectFormControl}>
+                            <InputLabel className={classes.selectLabel}>Входящий документ</InputLabel>
                             <Select
-                                MenuProps={{
-                                    className: classes.selectMenu
+                                value={formData.document_id || ""}
+                                onClick={() => setOpenDocModal(true)}
+                                readOnly
+                                
+                                renderValue={() => {
+                                    const selected = DocumentList.find(doc => doc.id === formData.document_id);
+                                    return selected ? selected.title : "Выбрать документ";
                                 }}
-                                classes={{
-                                    select: classes.select
-                                }}
-                                name='document_id'
-                                value={formData['document_id']}
-                                onChange={handleChange}
                             >
-                                {(DocumentList).map(opt => (
-                                    <MenuItem key={opt.id}
-                                        classes={{
-                                            root: classes.selectMenuItem,
-                                            selected: classes.selectMenuItemSelected
-                                        }}
-                                        value={opt.id}>
-                                        {opt.title}
-                                    </MenuItem>
-                                ))}
+                                <MenuItem disabled value="">
+                                    Выбрать документ
+                                </MenuItem>
                             </Select>
                         </FormControl>
                     </GridItem>
 
+
                 </GridContainer>
-              
+
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
                 {/* <NavLink to={`/admin/holder/${id}`}>
                     <Button >Закрыть</Button>
                 </NavLink> */}
             </CardBody>
+
+            <DocumentSelectorModal
+                open={openDocModal}
+                onClose={() => setOpenDocModal(false)}
+                onSelect={handleDocumentSelect}
+                documents={DocumentList}
+                emitentId={Emitent?.id}
+            />
+
+
         </Card>
     );
 }
