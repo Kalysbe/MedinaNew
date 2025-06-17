@@ -49,6 +49,13 @@ export default function RegularForms() {
     const holderId = id
     const isEditing = Boolean(holderId);
 
+    const [localDocs, setLocalDocs] = useState(DocumentList);
+
+    useEffect(() => {
+        setLocalDocs(DocumentList);
+      }, [DocumentList]);
+      
+
     const [formData, setFormData] = useState({
         name: "",
         actual_address: "",
@@ -79,14 +86,21 @@ export default function RegularForms() {
     const [openDocModal, setOpenDocModal] = useState(false);
 
     // Обработка выбора документа из модального окна
-const handleDocumentSelect = (doc) => {
-  setFormData((prev) => ({
-    ...prev,
-    document_id: doc.id,
-  }));
-  setOpenDocModal(false);
-};
-
+    const handleDocumentSelect = (doc) => {
+        setFormData((prev) => ({
+          ...prev,
+          document_id: doc.id,
+        }));
+      
+        // если документа ещё нет в списке, добавим его
+        setLocalDocs((prevDocs) => {
+          const exists = prevDocs.some((d) => d.id === doc.id);
+          return exists ? prevDocs : [doc, ...prevDocs];
+        });
+      
+        setOpenDocModal(false);
+      };
+      
 
     useEffect(() => {
         setFormData(HolderData)
@@ -409,7 +423,8 @@ const handleDocumentSelect = (doc) => {
                                 readOnly
                                 
                                 renderValue={() => {
-                                    const selected = DocumentList.find(doc => doc.id === formData.document_id);
+                                    const selected = localDocs.find(doc => doc.id === formData.document_id);
+
                                     return selected ? selected.title : "Выбрать документ";
                                 }}
                             >

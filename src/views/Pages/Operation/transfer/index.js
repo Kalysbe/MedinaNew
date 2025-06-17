@@ -28,6 +28,8 @@ import { fetchDocuments } from "redux/actions/documents";
 import { transferTypes } from "constants/operations.js";
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
 
+import DocumentSelectorModal from "views/Pages/Log/IncomingDocuments/DocumentModal.js";
+
 const useStyles = makeStyles(styles);
 
 export default function RegularForms() {
@@ -41,11 +43,19 @@ export default function RegularForms() {
   const { operationTypes } = useSelector((state) => state.transactions);
   const { emissions } = useSelector((state) => state.emissions);
   const { documentList } = useSelector((state) => state.documents);
+  const DocumentList = useSelector((state) => state.documents?.documentList || []);
 
   // Локальные состояния для вычисляемых значений
   const [maxCount, setMaxCount] = useState(null);
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [localDocs, setLocalDocs] = useState(DocumentList);
+
+  const [openDocModal, setOpenDocModal] = useState(false);
+
+  useEffect(() => {
+    setLocalDocs(DocumentList);
+  }, [DocumentList]);
 
   // Карта опций для селектов
   const optionsMap = {
@@ -138,7 +148,7 @@ export default function RegularForms() {
       component: "input",
       type: "string",
       grid: { xs: 12, sm: 12, md: 6 },
-    //   validation: {},
+      //   validation: {},
     },
     {
       name: "is_family",
@@ -159,7 +169,7 @@ export default function RegularForms() {
     {
       name: "document_id",
       label: "Входящий документ",
-      component: "select",
+      component: "selectModal",
       options: optionsMap.documents,
       optionValueKey: "id",
       optionLabelKey: "title",
@@ -239,10 +249,21 @@ export default function RegularForms() {
   // Пересчитываем сумму сделки при изменении количества
   useEffect(() => {
     if (price && watchedQuantity) {
-        const newAmount = parseFloat((watchedQuantity * price).toFixed(2));
-        setValue("amount", newAmount);
-      }
+      const newAmount = parseFloat((watchedQuantity * price).toFixed(2));
+      setValue("amount", newAmount);
+    }
   }, [watchedQuantity, price, setValue]);
+
+  const handleDocumentSelect = (doc) => {
+    setValue("document_id", doc.id);
+
+    setLocalDocs((prevDocs) => {
+      const exists = prevDocs.some((d) => d.id === doc.id);
+      return exists ? prevDocs : [doc, ...prevDocs];
+    });
+
+    setOpenDocModal(false);
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -318,6 +339,32 @@ export default function RegularForms() {
                     )}
                   </>
                 )}
+
+                {field.component === "selectModal" && field.name === "document_id" && (
+                  <FormControl fullWidth className={classes.selectFormControl}>
+                    <InputLabel className={classes.selectLabel}>Входящий документ</InputLabel>
+                    <Select
+                      value={watch("document_id") || ""}
+                      onClick={() => setOpenDocModal(true)}
+                      readOnly
+                      renderValue={() => {
+                        const selected = localDocs.find(doc => doc.id === watch("document_id"));
+                        return selected ? selected.title : "Выбрать документ";
+                      }}
+                    >
+                      <MenuItem disabled value="">
+                        Выбрать документ
+                      </MenuItem>
+                    </Select>
+
+                    {errors[field.name] && (
+                      <FormHelperText error>
+                        {errors[field.name].message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+
                 {field.component === "select" && (
                   <FormControl fullWidth className={classes.selectFormControl} error={Boolean(errors[field.name])}>
                     <InputLabel htmlFor={field.name} className={classes.selectLabel}>
@@ -439,6 +486,14 @@ export default function RegularForms() {
           </NavLink>
         </form>
       </CardBody>
+
+      <DocumentSelectorModal
+        open={openDocModal}
+        onClose={() => setOpenDocModal(false)}
+        onSelect={handleDocumentSelect}
+        documents={DocumentList}
+        emitentId={Emitent?.id}
+      />
     </Card>
   );
 }

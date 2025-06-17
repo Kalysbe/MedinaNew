@@ -12,11 +12,15 @@ import {
   TextField,
   Grid,
   InputLabel,
-  Snackbar
+  Snackbar,
+  Typography,
+  Divider
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { useDispatch } from "react-redux";
 import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import moment from "moment";
 import { fetchCreateDocument } from "redux/actions/documents";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   dialogPaper: {
     zIndex: 2000,
+    maxHeight: '90vh'
   },
   alert: {
     background: '#f44336',
@@ -52,6 +57,20 @@ const useStyles = makeStyles((theme) => ({
   },
   error: {
     background: '#f44336'
+  },
+  docItem: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    padding: theme.spacing(1, 0),
+  },
+  docTitle: {
+    fontWeight: 600,
+  },
+  docDetails: {
+    fontSize: '0.85rem',
+    color: theme.palette.text.secondary,
+  },
+  datePicker: {
+    zIndex: 3000,
   }
 }));
 
@@ -71,8 +90,8 @@ export default function DocumentSelectorModal({
     title: "",
     provider_name: "",
     signer_name: "",
-    receipt_date: new Date().toISOString(),
-    sending_date: new Date().toISOString(),
+    receipt_date: moment().format("DD-MM-YYYY"),
+    sending_date: moment().format("DD-MM-YYYY"),
     sending_address: "",
     reponse_number: "",
   });
@@ -92,8 +111,10 @@ export default function DocumentSelectorModal({
   };
 
   const handleDateChange = (name, value) => {
-    const newValue = value instanceof Date ? value.toISOString() : value;
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    const formatted = moment(value).format("DD-MM-YYYY");
+    if (moment(formatted, "DD-MM-YYYY", true).isValid()) {
+      setFormData((prev) => ({ ...prev, [name]: formatted }));
+    }
   };
 
   const handleCreate = async () => {
@@ -101,13 +122,14 @@ export default function DocumentSelectorModal({
     const response = await dispatch(fetchCreateDocument(newDoc));
 
     if (!response.error && response.payload) {
-      setLocalDocs((prev) => [response.payload, ...prev]);
+      const createdDoc = response.payload;
+      setLocalDocs((prev) => [createdDoc, ...prev]);
       setFormData({
         title: "",
         provider_name: "",
         signer_name: "",
-        receipt_date: new Date().toISOString(),
-        sending_date: new Date().toISOString(),
+        receipt_date: moment().format("DD-MM-YYYY"),
+        sending_date: moment().format("DD-MM-YYYY"),
         sending_address: "",
         reponse_number: "",
       });
@@ -115,7 +137,7 @@ export default function DocumentSelectorModal({
       setSearch("");
       setTimeout(() => {
         setShowAddForm(false);
-        onSelect(response.payload); // автоматически выбрать добавленный документ
+        onSelect(createdDoc);
       }, 100);
     } else {
       const errorMessage = response?.payload?.message || response?.error?.message || 'Произошла ошибка';
@@ -133,7 +155,7 @@ export default function DocumentSelectorModal({
         open={open}
         onClose={onClose}
         fullWidth
-        maxWidth="sm"
+        maxWidth="md"
         classes={{ paper: classes.dialogPaper }}
       >
         <div className={classes.headerRow}>
@@ -163,8 +185,15 @@ export default function DocumentSelectorModal({
               />
               <List>
                 {filteredDocuments.map((doc) => (
-                  <ListItem button key={doc.id} onClick={() => onSelect(doc)}>
-                    <ListItemText primary={doc.title} />
+                  <ListItem button key={doc.id} onClick={() => onSelect(doc)} className={classes.docItem}>
+                    <ListItemText
+                      primary={<Typography className={classes.docTitle}>{doc.title}</Typography>}
+                      secondary={
+                        <Typography className={classes.docDetails}>
+                          Отправитель: {doc.provider_name} | Подписал: {doc.signer_name} | № ответа: {doc.reponse_number} | Получено: {doc.receipt_date} | Отправлено: {doc.sending_date}
+                        </Typography>
+                      }
+                    />
                   </ListItem>
                 ))}
                 {filteredDocuments.length === 0 && (
@@ -175,8 +204,8 @@ export default function DocumentSelectorModal({
               </List>
             </>
           ) : (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
+            <Grid container spacing={2} className={classes.datePicker} style={{ marginTop: 8 }}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="Название документа"
@@ -186,7 +215,7 @@ export default function DocumentSelectorModal({
                   className={classes.formField}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="ФИО отправителя"
@@ -196,7 +225,7 @@ export default function DocumentSelectorModal({
                   className={classes.formField}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="ФИО подписавшего"
@@ -206,21 +235,35 @@ export default function DocumentSelectorModal({
                   className={classes.formField}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <InputLabel>Дата получения</InputLabel>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Номер ответа"
+                  name="reponse_number"
+                  value={formData.reponse_number}
+                  onChange={handleFieldChange}
+                  className={classes.formField}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel shrink>Дата получения</InputLabel>
                 <Datetime
+                  inputProps={{ placeholder: "ДД-MM-ГГГГ" }}
                   timeFormat={false}
                   dateFormat="DD-MM-YYYY"
-                  value={formData.receipt_date}
+                  closeOnSelect
+                  value={moment(formData.receipt_date, "DD-MM-YYYY")}
                   onChange={(val) => handleDateChange("receipt_date", val)}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <InputLabel>Дата отправки</InputLabel>
+              <Grid item xs={12} sm={6}>
+                <InputLabel shrink>Дата отправки</InputLabel>
                 <Datetime
+                  inputProps={{ placeholder: "ДД-MM-ГГГГ" }}
                   timeFormat={false}
                   dateFormat="DD-MM-YYYY"
-                  value={formData.sending_date}
+                  closeOnSelect
+                  value={moment(formData.sending_date, "DD-MM-YYYY")}
                   onChange={(val) => handleDateChange("sending_date", val)}
                 />
               </Grid>
@@ -230,16 +273,6 @@ export default function DocumentSelectorModal({
                   label="Почтовый адрес отправки"
                   name="sending_address"
                   value={formData.sending_address}
-                  onChange={handleFieldChange}
-                  className={classes.formField}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Номер ответа"
-                  name="reponse_number"
-                  value={formData.reponse_number}
                   onChange={handleFieldChange}
                   className={classes.formField}
                 />
