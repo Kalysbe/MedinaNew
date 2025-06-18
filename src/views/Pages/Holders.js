@@ -54,12 +54,15 @@ export default function RegularTables() {
   const [totalPrivileged, setTotalPrivileged] = useState(0)
 
 
-  const [report, setReport] = useState({ type: 1, label: 'Реестр акционеров' });
+const [report, setReport] = useState(1); // только тип
+
   const [selectedEmission, setSelectedEmission] = useState(0)
 
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
   const Emissions = useSelector(state => state.emissions?.emissions);
+
+  
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [filterState, setFilterState] = useState({
@@ -75,33 +78,36 @@ export default function RegularTables() {
   }, []);
 
   useEffect(() => {
-    if (report.type === 3 && !selectedEmission) {
+    if (report === 3 && !selectedEmission) {
+
       // return
     }
-    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report.type, emid: selectedEmission }));
-  }, [report.type, selectedEmission]);
+    dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report, emid: selectedEmission }));
+  }, [report, selectedEmission]);
 
   useEffect(() => {
     const holdersCount = Holders?.items.length;
     const calculateSums = (data) => {
       return data.reduce(
         (acc, item) => {
-          acc.ordinary = (acc.ordinary || 0) + (item.ordinary ? parseFloat(item.ordinary) : 0);
+          acc.common_quantity = (acc.common_quantity || 0) + (item.common_quantity ? parseFloat(item.common_quantity) : 0);
+          acc.preferred_quantity = (acc.preferred_quantity || 0) + (item.preferred_quantity ? parseFloat(item.preferred_quantity) : 0);
           return acc;
         },
-        { ordinary: 0, privileged: 0 }
+        { common_quantity: 0, preferred_quantity: 0 }
       );
     };
 
     const newSums = calculateSums(Holders?.items);
     setTotalHolders(holdersCount);
-    setTotalOrdinary(newSums.ordinary);
+    setTotalOrdinary(newSums.common_quantity);
+    setTotalPrivileged(newSums.preferred_quantity);
   }, [Holders]);
-  
-  const handleChange = (event) => {
-    const selectedReport = event.target.value;
-    setReport(selectedReport);
-  };
+
+const handleChange = (event) => {
+  setReport(event.target.value);
+};
+
 
   const handleChangeEmission = (event) => {
     setSelectedEmission(event.target.value);
@@ -138,14 +144,31 @@ export default function RegularTables() {
     handleFilterClose();
   };
 
-  const ReportViewer = ({ reportType, data }) => {
+
+  const handleExportClick = () => {
+    if (componentRef.current?.exportToExcel) {
+      componentRef.current.exportToExcel(); // вызываем метод из дочернего компонента
+    }
+  };
+
+  const reportLabel = {
+  1: 'Реестр акционеров',
+  2: 'Реестр владельцев именных ЦБ',
+  3: 'Реестр владельцев именных по номерам ЦБ'
+}[report];
+
+
+  const ReportViewer = ({ reportType, data, printRef }) => {
+
+    
+
     switch (reportType) {
       case 1:
-        return <Report1 data={data} emitent={Emitent?.name} />;
+        return <Report1 ref={printRef} data={data} emitent={Emitent?.name} />;
       case 2:
-        return <Report2 data={data} emitent={Emitent?.name} />;
+        return <Report2 ref={printRef} data={data} emitent={Emitent?.name} />;
       case 3:
-        return <Report3 data={data} emitent={Emitent?.name} />;
+        return <Report3 ref={printRef} data={data} emitent={Emitent?.name} />;
       default:
         return <div>Invalid report type</div>;
     }
@@ -201,6 +224,12 @@ export default function RegularTables() {
     <GridContainer>
       <GridItem xs={12}>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            onClick={handleExportClick}
+          >Excel</Button>
           <ReactToPrint
             trigger={() =>
               <Button
@@ -209,7 +238,9 @@ export default function RegularTables() {
                 size="small"
               >Печать</Button>
             }
-            content={() => componentRef.current}
+            content={() => componentRef.current?.getContent()}
+
+
           />
         </div>
         <Card>
@@ -218,7 +249,8 @@ export default function RegularTables() {
               <CardIcon color="info">
                 <Assignment />
               </CardIcon>
-              <h4 className={classes.cardIconTitle}>{report.label}</h4>
+            <h4 className={classes.cardIconTitle}>{reportLabel}</h4>
+
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%', alignItems: 'center' }}>
               <Button
@@ -259,15 +291,16 @@ export default function RegularTables() {
                           onChange={handleChange}
                           label="Тип реестра"
                         >
-                          <MenuItem value={{ type: 1, label: 'Реестр акционеров' }}>Реестр акционеров</MenuItem>
-                          <MenuItem value={{ type: 2, label: 'Реестр владельцев именных ЦБ' }}>Реестр владельцев именных ЦБ</MenuItem>
-                          <MenuItem value={{ type: 3, label: 'Реестр владельцев именных по номерам ЦБ' }}>Реестр владельцев именных по номерам ЦБ</MenuItem>
+                          <MenuItem value={1}>Реестр акционеров</MenuItem>
+                          <MenuItem value={2}>Реестр владельцев именных ЦБ</MenuItem>
+                          <MenuItem value={3}>Реестр владельцев именных по номерам ЦБ</MenuItem>
                         </Select>
+
                       </FormControl>
                     </Grid>
                     <Grid item xs={6}>
                       <TextField
-                        label="Дата налогового периода с"
+                        label="Дата периода с"
                         type="date"
                         fullWidth
                         size="small"
@@ -278,7 +311,7 @@ export default function RegularTables() {
                     </Grid>
                     <Grid item xs={6}>
                       <TextField
-                        label="Дата налогового периода по"
+                        label="Дата периода по"
                         type="date"
                         fullWidth
                         size="small"
@@ -287,34 +320,8 @@ export default function RegularTables() {
                         InputLabelProps={{ shrink: true }}
                       />
                     </Grid>
-                    <Grid item xs={6}>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Статус налоговой отчетности</InputLabel>
-                        <Select
-                          value={filterState.status}
-                          onChange={e => handleFilterChange('status', e.target.value)}
-                          label="Статус налоговой отчетности"
-                        >
-                          <MenuItem value="">Не выбран</MenuItem>
-                          <MenuItem value="accepted">Принят</MenuItem>
-                          <MenuItem value="rejected">Отклонен</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Тип налоговой отчетности</InputLabel>
-                        <Select
-                          value={filterState.taxType}
-                          onChange={e => handleFilterChange('taxType', e.target.value)}
-                          label="Тип налоговой отчетности"
-                        >
-                          <MenuItem value="">Не выбран</MenuItem>
-                          <MenuItem value="primary">Первоначальный</MenuItem>
-                          <MenuItem value="correction">Корректирующий</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
+                   
+                   
                     <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
                       <Button
                         variant="outlined"
@@ -338,7 +345,7 @@ export default function RegularTables() {
                   </Grid>
                 </Paper>
               </Menu>
-              {report.type === 3 && (
+              {report === 3 && (
                 <FormControl
                   style={{ width: '150px', marginLeft: '10px' }}
                 >
@@ -374,9 +381,9 @@ export default function RegularTables() {
             </div>
           </CardHeader>
           <CardBody >
-            <div ref={componentRef} style={{ padding: '20px' }}>
-              <ReportViewer reportType={report.type} data={Holders.items} />
-            </div>
+            {/* <div ref={componentRef} style={{ padding: '20px' }}> */}
+           <ReportViewer reportType={report} data={Holders.items} printRef={componentRef} />
+            {/* </div> */}
           </CardBody>
         </Card>
       </GridItem>

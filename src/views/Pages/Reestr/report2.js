@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useImperativeHandle, forwardRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { NavLink } from "react-router-dom";
 import { Typography, Button } from '@material-ui/core';
@@ -43,54 +43,56 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function Report1(props) {
-  const { data, emitent } = props;
+const Report2 = forwardRef(({ data, emitent }, ref) => {
+
   const classes = useStyles();
 
   const totals = data.reduce(
     (acc, item) => {
-      acc.ordinary += Number(item.ordinary) || 0;
-      acc.ordinary_nominal += item.ordinary_nominal || 0;
+      acc.common_quantity += Number(item.common_quantity) || 0;
+      acc.common_nominal += Number(item.common_nominal) || 0;
+      acc.preferred_quantity += Number(item.preferred_quantity) || 0;
+      acc.preferred_nominal += Number(item.preferred_nominal) || 0;
+            acc.percentage += Number(item.percentage) || 0;
       return acc;
     },
-    { ordinary: 0, ordinary_nominal: 0 }
+    { common_quantity: 0, common_nominal: 0, preferred_quantity: 0,preferred_nominal: 0, percentage:0 }
   );
 
+  const printContentRef = useRef();
+
   const exportToExcel = () => {
-    const wsData = [
-      ["№", "Счет", "Ф.И.О", "Простых", "Номинал простых", "Привелиг", "Номинал Привелиг", "% от кол-во", "Паспорт", "Адрес проживания", "Регион"],
-      ...data.map((item, index) => [
-        index + 1,
-        item.id,
-        item.name,
-        item.ordinary,
-        item.ordinary_nominal,
-        item.privileged,
-        item.privileged_nominal,
-        item.percentage + " %",
-        item.passport,
-        item.actual_address,
-        item.district.name
-      ]),
-      ["Итого", "", "", totals.ordinary, totals.ordinary_nominal, totals.privileged, totals.privileged_nominal, "", "", "", ""]
-    ];
+    const table = printContentRef.current?.querySelector("table");
+    if (!table) return;
+
+    const rows = Array.from(table.rows).map(row =>
+      Array.from(row.cells)
+        .filter(cell => !cell.classList.contains("noPrint"))
+        .map(cell => cell.innerText)
+    );
+
+    const wsData = [rows[0], []].concat(rows.slice(1).map(r => (r.length ? r : [""])));
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = wsData[0].map(() => ({ wch: 20 }));
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Отчет");
+    XLSX.utils.book_append_sheet(wb, ws, "Отчёт");
     XLSX.writeFile(wb, "report.xlsx");
   };
 
+useImperativeHandle(ref, () => ({
+    exportToExcel,
+    getContent: () => printContentRef.current,
+  }));
+
   return (
-    <>
-      <h3 style={{color: '#000'}} className={classes.printOnly}>{emitent}</h3>
+<div ref={printContentRef}>
+      <h5 style={{color: '#000'}} className={classes.printOnly}>{emitent}</h5>
       <Typography variant="h5" component="div"><span style={{color: '#000'}}>Реестр владельцев именных ценных бумаг</span></Typography>
       <h4 style={{color: '#000'}}>Зарегистрированных на 31/12/2023</h4>
       <h5 style={{color: '#000'}}>Простые именные все категории</h5>
       <h5 style={{color: '#000'}}>Лист: 1</h5>
-      <Button variant="contained" color="primary" onClick={exportToExcel} style={{ marginBottom: "10px" }}>
-        Скачать Excel
-      </Button>
       {data && (
         <Table className={classes.table}>
           <TableHead style={{ display: 'table-header-group' }}>
@@ -124,9 +126,21 @@ export default function Report1(props) {
                 <TableCell className={classes.tableCell}>{item.country}</TableCell>
               </TableRow>
             ))}
+              <TableRow>
+              <TableCell colSpan={3} style={{ fontWeight: "bold" }}>Итого</TableCell>
+              <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell>
+                  <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       )}
-    </>
+    </div>
   );
-}
+});
+
+export default Report2
+

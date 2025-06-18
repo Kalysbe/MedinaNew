@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useImperativeHandle, forwardRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { NavLink } from "react-router-dom";
 import Table from "@material-ui/core/Table";
@@ -20,47 +20,51 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function Report1(props) {
-  const { data, emitent } = props;
+const Report3 = forwardRef(({ data, emitent }, ref) => {
   const classes = useStyles();
 
   const totals = data.reduce(
     (acc, item) => {
-      acc.ordinary += Number(item.ordinary) || 0;
-      acc.ordinary_nominal += item.ordinary_nominal || 0;
+      acc.common_quantity += Number(item.common_quantity) || 0;
+      acc.common_nominal += Number(item.common_nominal) || 0;
+      acc.preferred_quantity += Number(item.preferred_quantity) || 0;
+      acc.preffered_nominal += Number(item.preffered_nominal) || 0;
+      acc.percentage += Number(item.percentage) || 0;
       return acc;
     },
-    { ordinary: 0, ordinary_nominal: 0 }
+    { common_quantity: 0, common_nominal: 0, preferred_quantity: 0,preffered_nominal: 0, percentage:0 }
   );
+  const printContentRef = useRef();
 
   const exportToExcel = () => {
-    const wsData = [
-      ["№", "Счет", "Наименование", "Номер эмиссии", "Простых", "Номинал простых", "% от кол-во"],
-      ...data.map((item, index) => [
-        index + 1,
-        item.id,
-        item.name,
-        item.reg_number,
-        item.ordinary,
-        item.ordinary_nominal,
-        item.percentage + " %"
-      ]),
-      ["Итого", "", "", "", totals.ordinary, totals.ordinary_nominal, ""]
-    ];
+    const table = printContentRef.current?.querySelector("table");
+    if (!table) return;
+
+    const rows = Array.from(table.rows).map(row =>
+      Array.from(row.cells)
+        .filter(cell => !cell.classList.contains("noPrint"))
+        .map(cell => cell.innerText)
+    );
+
+    const wsData = [rows[0], []].concat(rows.slice(1).map(r => (r.length ? r : [""])));
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = wsData[0].map(() => ({ wch: 20 }));
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Отчет");
+    XLSX.utils.book_append_sheet(wb, ws, "Отчёт");
     XLSX.writeFile(wb, "report.xlsx");
   };
 
+useImperativeHandle(ref, () => ({
+    exportToExcel,
+    getContent: () => printContentRef.current,
+  }));
+
   return (
-    <>
+<div ref={printContentRef}>
       <h3 className={classes.printOnly}>{emitent}</h3>
       <h3 className={classes.printOnly}>Реестр владельцев именных ценных бумаг по номерам выпуска акций</h3>
-      <Button variant="contained" color="primary" onClick={exportToExcel} style={{ marginBottom: "10px" }}>
-        Скачать Excel
-      </Button>
       {data && (
         <Table>
           <TableHead style={{ display: 'table-header-group' }}>
@@ -71,6 +75,8 @@ export default function Report1(props) {
               <TableCell>Номер эмиссии</TableCell>
               <TableCell>Простых</TableCell>
               <TableCell>Номинал простых</TableCell>
+              <TableCell>Привелиг</TableCell>
+              <TableCell>Номинал Привелиг</TableCell>
               <TableCell>% от кол-во</TableCell>
             </TableRow>
           </TableHead>
@@ -80,23 +86,29 @@ export default function Report1(props) {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>
-                  <NavLink to={`holder/${item.id}`}>{item.name}</NavLink>
+                  <NavLink to={`holder/${item.id}`}>{item.full_name}</NavLink>
                 </TableCell>
-                <TableCell>{item.reg_number}</TableCell>
-                <TableCell>{window.formatNumber(item.ordinary)}</TableCell>
-                <TableCell>{window.formatNumber(item.ordinary_nominal)}</TableCell>
+                <TableCell>{item.emission}</TableCell>
+                <TableCell>{window.formatNumber(item.common_quantity)}</TableCell>
+                <TableCell>{window.formatNumber(item.common_nominal)}</TableCell>
+                <TableCell>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                <TableCell>{window.formatNumber(item.preffered_nominal)}</TableCell>
                 <TableCell>{item.percentage} %</TableCell>
               </TableRow>
             ))}
             <TableRow>
               <TableCell colSpan={4} style={{ fontWeight: "bold" }}>Итого</TableCell>
-              <TableCell>{window.formatNumber(totals.ordinary)}</TableCell>
-              <TableCell>{window.formatNumber(totals.ordinary_nominal)}</TableCell>
-              <TableCell></TableCell>
+              <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell>
+               <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       )}
-    </>
+    </div>
   );
-}
+});
+
+export default Report3
