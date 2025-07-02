@@ -45,10 +45,7 @@ export default function RegularForms() {
         title: "",
         provider_name: "",
         signer_name: "",
-        receipt_date: "",
-        sending_date: "",
-        sending_address: "",
-        reponse_number: ""
+        receipt_date: ""
     })
 
     useEffect(() => {
@@ -128,13 +125,7 @@ export default function RegularForms() {
         handleChangeDate('receipt_date', formattedDate);
       }, [])
 
-      useEffect(() => {
-        if (formData['sending_date' ]) {return}
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString();
-        handleChangeDate('sending_date', formattedDate);
-      }, [])
-
+   
     return (
         <Card>
             <CardHeader color="info" icon>
@@ -181,22 +172,7 @@ export default function RegularForms() {
                             }}
                         />
                     </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Почтовый адрес отправки'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'sending_address',
-                                type: 'text',
-                                value: formData['sending_address']
-                            }}
-                        />
-                    </GridItem>
+           
                     <GridItem xs={6} sm={6} md={4}>
                         <InputLabel className={classes.label}>Дата получение документа</InputLabel>
                         <br />
@@ -212,37 +188,8 @@ export default function RegularForms() {
                             />
                         </FormControl>
                     </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <InputLabel className={classes.label}>Дата отправки ответа</InputLabel>
-                        <br />
-                        <FormControl fullWidth>
-                            <Datetime
-                                defaultValue={new Date()}
-                                value={formData['sending_date']}
-                                onChange={(date) => handleChangeDate('sending_date', date)}
-                                timeFormat={false}
-                                inputProps={{ placeholder: "Дата отправки ответа" }}
-                                dateFormat="DD-MM-YYYY"
-                                closeOnSelect={true}
-                            />
-                        </FormControl>
-                    </GridItem>
-                    <GridItem xs={6} sm={6} md={4}>
-                        <CustomInput
-                            labelText='Исходящий номер ответа'
-                            formControlProps={{
-                                fullWidth: true,
-                            }}
-                            inputProps={{
-                                onChange: event => {
-                                    handleChange(event)
-                                },
-                                name: 'reponse_number',
-                                type: 'text',
-                                value: formData['reponse_number']
-                            }}
-                        />
-                    </GridItem>
+           
+            
 
                     <GridItem xs={6} sm={6} md={4}>
                         <CustomInput
@@ -264,7 +211,7 @@ export default function RegularForms() {
 
 
                 <Button color="info" onClick={onSubmit}>Сохранить</Button>
-                <NavLink to={`/admin/holder/incoming-documents}`}>
+                <NavLink to={`/admin/incoming-documents`}>
                     <Button >Закрыть</Button>
                 </NavLink>
             </CardBody>

@@ -28,6 +28,11 @@ export const fetchEmissionById = createAsyncThunk("emitents/fetchEmissionById", 
   return data;
 })
 
+export const fetchSecuritiesByHolderIdEmitentId = createAsyncThunk("emitents/fetchSecuritiesByHolderIdEmitentId", async ({hid,eid}) => {
+  const { data } = await axios.get(`/holders/${hid}/emitent/${eid}/emissions`); 
+  return data;
+})
+
 
 export const fetchEmissionCancellation = createAsyncThunk(
   "emissions/fetchEmissionCancellation",

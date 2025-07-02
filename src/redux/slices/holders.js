@@ -1,16 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import {fetchAllHolders, 
+import {
+  fetchAllHolders,
   fetchHolders,
-   fetchHolderById, 
+  fetchHolderById,
   fetchAddHolder,
-  fetchUpdateHolder, 
+  fetchUpdateHolder,
   fetchHoldersByEmitentId,
-   fetchHolderOperation, 
-   fetchEmitentHolderDocuments,
-    fetchEmitentHolderDocumentById,
-    fetchHolderEmitents
-   } from '../actions/holders'
+  fetchHolderOperation,
+  fetchEmitentHolderDocuments,
+  fetchEmitentHolderDocumentById,
+  fetchHolderEmitents
+} from '../actions/holders'
 
 const initialState = {
   holders: {
@@ -31,20 +32,20 @@ const holdersSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    
+
     builder
-    .addCase(fetchAllHolders.pending, (state) => {
-      state.holders.items = [];
-      state.holders.status = "loading";
-    })
-    .addCase(fetchAllHolders.fulfilled, (state, action) => {
-      state.holders.items = action.payload;
-      state.holders.status = "loaded";
-    })
-    .addCase(fetchAllHolders.rejected, (state) => {
-      state.holders.items = [];
-      state.holders.status = "error";
-    });
+      .addCase(fetchAllHolders.pending, (state) => {
+        state.holders.items = [];
+        state.holders.status = "loading";
+      })
+      .addCase(fetchAllHolders.fulfilled, (state, action) => {
+        state.holders.items = action.payload;
+        state.holders.status = "loaded";
+      })
+      .addCase(fetchAllHolders.rejected, (state) => {
+        state.holders.items = [];
+        state.holders.status = "error";
+      });
 
     builder
       .addCase(fetchHolders.pending, (state) => {
@@ -72,7 +73,7 @@ const holdersSlice = createSlice({
         state.holder.data = {};
         state.holder.status = "error";
       });
-      builder
+    builder
       .addCase(fetchAddHolder.pending, (state) => {
         state.status = "loading";
       })
@@ -84,7 +85,7 @@ const holdersSlice = createSlice({
         state.status = "error";
       });
 
-      builder
+    builder
       .addCase(fetchUpdateHolder.pending, (state) => {
         state.status = "loading";
       })
@@ -96,7 +97,7 @@ const holdersSlice = createSlice({
         state.status = "error";
       });
 
-      builder
+    builder
       .addCase(fetchHolderOperation.pending, (state) => {
         state.holder.status = "loading";
       })
@@ -109,7 +110,7 @@ const holdersSlice = createSlice({
         state.holder.status = "error";
       });
 
-      builder
+    builder
       .addCase(fetchHoldersByEmitentId.pending, (state) => {
         state.holders.items = [];
         state.holders.status = "loading";
@@ -123,9 +124,9 @@ const holdersSlice = createSlice({
         state.holders.status = "error";
       });
 
-      //Входящие документа 
+    //Входящие документа 
 
-      builder
+    builder
       .addCase(fetchEmitentHolderDocuments.pending, (state) => {
         state.incomingDocuments = [];
       })
@@ -136,7 +137,7 @@ const holdersSlice = createSlice({
         state.incomingDocuments = [];
       });
 
-      builder
+    builder
       .addCase(fetchEmitentHolderDocumentById.pending, (state) => {
         state.incomingDocument = [];
       })
@@ -147,7 +148,7 @@ const holdersSlice = createSlice({
         state.incomingDocument = [];
       });
 
-      builder
+    builder
       .addCase(fetchHolderEmitents.pending, (state) => {
         state.emitents = [];
       })

@@ -21,8 +21,8 @@ import MailOutline from "@material-ui/icons/MailOutline";
 import Swal from "sweetalert2";
 import { useForm, Controller } from "react-hook-form";
 
-import { fetchAllHolders } from "redux/actions/holders";
-import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
+import { fetchAllHolders, fetchHolders } from "redux/actions/holders";
+import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId, fetchSecuritiesByHolderIdEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 import { fetchDocuments } from "redux/actions/documents";
 import { transferTypes } from "constants/operations.js";
@@ -59,7 +59,7 @@ export default function RegularForms() {
 
   // Карта опций для селектов
   const optionsMap = {
-    holders: holders?.items || [],
+    holders:  [...new Map((holders?.items || []).map(item => [item.id, item])).values()],
     stocks: emissions?.items || [],
     typeOperations: operationTypes || [],
     documents: documentList || [],
@@ -217,8 +217,10 @@ export default function RegularForms() {
 
   // Загрузка базовых данных при монтировании
   useEffect(() => {
-    dispatch(fetchAllHolders());
+  
+    dispatch(fetchHolders(Emitent?.id));
     dispatch(fetchOperationTypes());
+    
     dispatch(fetchDocuments(Emitent?.id));
   }, [dispatch, Emitent]);
 
@@ -227,7 +229,8 @@ export default function RegularForms() {
     if (watchedOperationId === 1) {
       dispatch(fetchEmissionsByEmitentId(Emitent?.id));
     } else if (watchedHolderFromId) {
-      dispatch(fetchSecuritiesByEmitentId(watchedHolderFromId));
+      // dispatch(fetchSecuritiesByEmitentId(watchedHolderFromId));
+      dispatch(fetchSecuritiesByHolderIdEmitentId({hid:watchedHolderFromId, eid:Emitent?.id}));
     }
   }, [watchedOperationId, watchedHolderFromId, dispatch, Emitent]);
 

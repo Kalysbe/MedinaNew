@@ -90,10 +90,7 @@ export default function DocumentSelectorModal({
     title: "",
     provider_name: "",
     signer_name: "",
-    receipt_date: moment().format("DD-MM-YYYY"),
-    sending_date: moment().format("DD-MM-YYYY"),
-    sending_address: "",
-    reponse_number: "",
+    receipt_date: moment().format("DD-MM-YYYY")
   });
   const [localDocs, setLocalDocs] = useState(documents);
 
@@ -128,10 +125,7 @@ export default function DocumentSelectorModal({
         title: "",
         provider_name: "",
         signer_name: "",
-        receipt_date: moment().format("DD-MM-YYYY"),
-        sending_date: moment().format("DD-MM-YYYY"),
-        sending_address: "",
-        reponse_number: "",
+        receipt_date: moment().format("DD-MM-YYYY")
       });
       setSnackbar({ open: true, message: 'Документ добавлен', severity: 'success' });
       setSearch("");
@@ -190,7 +184,7 @@ export default function DocumentSelectorModal({
                       primary={<Typography className={classes.docTitle}>{doc.title}</Typography>}
                       secondary={
                         <Typography className={classes.docDetails}>
-                          Отправитель: {doc.provider_name} | Подписал: {doc.signer_name} | № ответа: {doc.reponse_number} | Получено: {doc.receipt_date} | Отправлено: {doc.sending_date}
+                          Отправитель: {doc.provider_name} | Подписал: {doc.signer_name}  | Получено: {doc.receipt_date} 
                         </Typography>
                       }
                     />
@@ -235,16 +229,7 @@ export default function DocumentSelectorModal({
                   className={classes.formField}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Номер ответа"
-                  name="reponse_number"
-                  value={formData.reponse_number}
-                  onChange={handleFieldChange}
-                  className={classes.formField}
-                />
-              </Grid>
+         
               <Grid item xs={12} sm={6}>
                 <InputLabel shrink>Дата получения</InputLabel>
                 <Datetime
@@ -254,27 +239,6 @@ export default function DocumentSelectorModal({
                   closeOnSelect
                   value={moment(formData.receipt_date, "DD-MM-YYYY")}
                   onChange={(val) => handleDateChange("receipt_date", val)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <InputLabel shrink>Дата отправки</InputLabel>
-                <Datetime
-                  inputProps={{ placeholder: "ДД-MM-ГГГГ" }}
-                  timeFormat={false}
-                  dateFormat="DD-MM-YYYY"
-                  closeOnSelect
-                  value={moment(formData.sending_date, "DD-MM-YYYY")}
-                  onChange={(val) => handleDateChange("sending_date", val)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Почтовый адрес отправки"
-                  name="sending_address"
-                  value={formData.sending_address}
-                  onChange={handleFieldChange}
-                  className={classes.formField}
                 />
               </Grid>
             </Grid>
