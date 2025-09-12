@@ -42,7 +42,7 @@ export default function RegularTables() {
   const [isAllEmitents, setIsAllEmitents] = useState(true);
 
   const [pageIndex, setPageIndex] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(1000);
 
 
   const Emitent = useSelector(state => state.emitents?.store);

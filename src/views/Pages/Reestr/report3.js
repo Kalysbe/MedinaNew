@@ -75,8 +75,8 @@ useImperativeHandle(ref, () => ({
               <TableCell>Номер эмиссии</TableCell>
               <TableCell>Простых</TableCell>
               <TableCell>Номинал простых</TableCell>
-              <TableCell>Привелиг</TableCell>
-              <TableCell>Номинал Привелиг</TableCell>
+              {/* <TableCell>Привелиг</TableCell>
+              <TableCell>Номинал Привелиг</TableCell> */}
               <TableCell>% от кол-во</TableCell>
             </TableRow>
           </TableHead>
@@ -91,8 +91,8 @@ useImperativeHandle(ref, () => ({
                 <TableCell>{item.emission}</TableCell>
                 <TableCell>{window.formatNumber(item.common_quantity)}</TableCell>
                 <TableCell>{window.formatNumber(item.common_nominal)}</TableCell>
-                <TableCell>{window.formatNumber(item.preferred_quantity)}</TableCell>
-                <TableCell>{window.formatNumber(item.preffered_nominal)}</TableCell>
+                {/* <TableCell>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                <TableCell>{window.formatNumber(item.preffered_nominal)}</TableCell> */}
                 <TableCell>{item.percentage} %</TableCell>
               </TableRow>
             ))}
@@ -100,8 +100,8 @@ useImperativeHandle(ref, () => ({
               <TableCell colSpan={4} style={{ fontWeight: "bold" }}>Итого</TableCell>
               <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
               <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
-              <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
-              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell>
+              {/* <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell> */}
                <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
             </TableRow>
           </TableBody>

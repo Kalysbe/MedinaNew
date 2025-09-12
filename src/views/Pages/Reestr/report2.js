@@ -102,8 +102,8 @@ useImperativeHandle(ref, () => ({
               <TableCell className={classes.tableHeaderCell}>Ф.И.О</TableCell>
               <TableCell className={classes.tableHeaderCell}>Простых</TableCell>
               <TableCell className={classes.tableHeaderCell}>Номинал простых</TableCell>
-              <TableCell className={classes.tableHeaderCell}>Привелиг</TableCell>
-              <TableCell className={classes.tableHeaderCell}>Номинал Привелиг</TableCell>
+              {/* <TableCell className={classes.tableHeaderCell}>Привелиг</TableCell>
+              <TableCell className={classes.tableHeaderCell}>Номинал Привелиг</TableCell> */}
               <TableCell className={classes.tableHeaderCell}>% от кол-во</TableCell>
               <TableCell className={classes.tableHeaderCell}>Паспорт</TableCell>
               <TableCell className={classes.tableHeaderCell}>Адрес проживания</TableCell>
@@ -118,8 +118,8 @@ useImperativeHandle(ref, () => ({
                 <TableCell className={classes.tableCell}><NavLink to={`holder/${item.id}`}>{item.full_name}</NavLink></TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(item.common_quantity)}</TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(item.common_nominal)}</TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_quantity)}</TableCell>
-                <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_nominal)}</TableCell>
+                {/* <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_nominal)}</TableCell> */}
                 <TableCell className={classes.tableCell}>{item.percentage}%</TableCell>
                 <TableCell className={classes.tableCell}>{item.passport}</TableCell>
                 <TableCell className={classes.tableCell}>{item.address}</TableCell>
@@ -130,8 +130,8 @@ useImperativeHandle(ref, () => ({
               <TableCell colSpan={3} style={{ fontWeight: "bold" }}>Итого</TableCell>
               <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
               <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
-              <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
-              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell>
+              {/* <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell> */}
                   <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
               <TableCell></TableCell>
             </TableRow>

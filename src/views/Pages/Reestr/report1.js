@@ -22,7 +22,7 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-const  Report1 = forwardRef(({ data, emitent }, ref) => {
+const Report1 = forwardRef(({ data, emitent }, ref) => {
   // const { data, emitent } = props;
   const classes = useStyles();
 
@@ -35,7 +35,7 @@ const  Report1 = forwardRef(({ data, emitent }, ref) => {
       acc.percentage += Number(item.percentage) || 0;
       return acc;
     },
-    { common_quantity: 0, common_nominal: 0, preferred_quantity: 0,preferred_nominal: 0, percentage: 0 }
+    { common_quantity: 0, common_nominal: 0, preferred_quantity: 0, preferred_nominal: 0, percentage: 0 }
   );
 
   const printContentRef = useRef();
@@ -60,76 +60,76 @@ const  Report1 = forwardRef(({ data, emitent }, ref) => {
     XLSX.writeFile(wb, "report.xlsx");
   };
 
-useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     exportToExcel,
     getContent: () => printContentRef.current,
   }));
 
-return (
-  <div ref={printContentRef}>
-    <h5 className={classes.printOnly}> <b>{emitent}</b></h5>
-    <h4 className={classes.printOnly}><b>Реестр акционеров</b> </h4>
-    {data && (
+  return (
+    <div ref={printContentRef}>
+      <h5 className={classes.printOnly}> <b>{emitent}</b></h5>
+      <h4 className={classes.printOnly}><b>Реестр акционеров</b> </h4>
+      {data && (
 
 
-      <Table>
-        <TableHead style={{ display: 'table-header-group' }}>
-          <TableRow>
-            <TableCell>№</TableCell>
-            <TableCell>Счет</TableCell>
-            <TableCell>Наименование</TableCell>
-            <TableCell>Простых</TableCell>
-            <TableCell>Номинал простых</TableCell>
-                     <TableCell>Привелиг</TableCell>
+        <Table>
+          <TableHead style={{ display: 'table-header-group' }}>
+            <TableRow>
+              <TableCell>№</TableCell>
+              <TableCell>Счет</TableCell>
+              <TableCell>Наименование</TableCell>
+              <TableCell>Простых</TableCell>
+              {/* <TableCell>Номинал простых</TableCell>
+              <TableCell>Привелиг</TableCell> */}
               <TableCell>Номинал Привелиг</TableCell>
-            <TableCell>% от кол-во</TableCell>
-            <TableCell>Регион</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((item, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                {index + 1}
-              </TableCell>
-              <TableCell>
-                {item.id}
-              </TableCell>
-              <TableCell>
-                <NavLink to={`holder/${item.holder_id}`}>{item.full_name}</NavLink>
-              </TableCell>
-              <TableCell>
-                {window.formatNumber(item.common_quantity)}
-              </TableCell>
-              <TableCell>
-                {window.formatNumber(item.common_nominal)}
-              </TableCell>
-               <TableCell>{window.formatNumber(item.preferred_quantity)}</TableCell>
-                <TableCell>{window.formatNumber(item.preferred_nominal)}</TableCell>
-              <TableCell>
-                {item.percentage} %
-              </TableCell>
-              <TableCell>
-                {item.country}
-              </TableCell>
+              <TableCell>% от кол-во</TableCell>
+              <TableCell>Регион</TableCell>
             </TableRow>
-          ))}
-          <TableRow>
-            <TableCell colSpan={3} style={{ fontWeight: "bold" }}>
-              Итого
-            </TableCell>
-            <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
-            <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
-            <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
-            <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell>
-            <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    )}
-  </div>
-);
+          </TableHead>
+          <TableBody>
+            {data.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  {index + 1}
+                </TableCell>
+                <TableCell>
+                  {item.id}
+                </TableCell>
+                <TableCell>
+                  <NavLink to={`holder/${item.holder_id}`}>{item.full_name}</NavLink>
+                </TableCell>
+                <TableCell>
+                  {window.formatNumber(item.common_quantity)}
+                </TableCell>
+                <TableCell>
+                  {window.formatNumber(item.common_nominal)}
+                </TableCell>
+                {/* <TableCell>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                <TableCell>{window.formatNumber(item.preferred_nominal)}</TableCell> */}
+                <TableCell>
+                  {item.percentage} %
+                </TableCell>
+                <TableCell>
+                  {item.country}
+                </TableCell>
+              </TableRow>
+            ))}
+            <TableRow>
+              <TableCell colSpan={3} style={{ fontWeight: "bold" }}>
+                Итого
+              </TableCell>
+              <TableCell>{window.formatNumber(totals.common_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.common_nominal)}</TableCell>
+              {/* <TableCell>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+              <TableCell>{window.formatNumber(totals.preferred_nominal)}</TableCell> */}
+              <TableCell>{window.formatNumber(totals.percentage)} %</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
 });
 
 export default Report1
