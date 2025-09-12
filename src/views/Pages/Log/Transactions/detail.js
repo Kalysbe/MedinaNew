@@ -1,298 +1,308 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import { Card, Box, Typography, Grid, CircularProgress } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
+import {
+  Card,
+  Box,
+  Typography,
+  Grid,
+  CircularProgress,
+  Divider,
+  Paper
+} from "@material-ui/core";
+import { useParams, NavLink } from "react-router-dom";
+import ReactToPrint from "react-to-print";
 
-import ReactToPrint from 'react-to-print';
-
-// core components
+// core components (из шаблона)
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Button from "components/CustomButtons/Button.js";
-
-
 import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
-import { NavLink } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+
+import { useDispatch, useSelector } from "react-redux";
 import { fetchEmitentById } from "redux/actions/emitents";
 import { fetchTransactionPrintById } from "redux/actions/prints";
-const styles = {
-  customCardContentClass: {
-    paddingLeft: "0",
-    paddingRight: "0"
-  },
+
+const useStyles = makeStyles((theme) => ({
   cardIconTitle: {
     ...cardTitle,
-    marginTop: "15px",
-    marginBottom: "0px"
+    marginTop: 15,
+    marginBottom: 0
+  },
+  actionsBar: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 12,
+    padding: theme.spacing(1),
+  },
+  contentRoot: {
+    padding: theme.spacing(2),
+  },
+  panel: {
+    borderRadius: 8,
+    padding: theme.spacing(2),
+    background: theme.palette.background.paper,
+  },
+  label: {
+    color: theme.palette.text.secondary,
+    fontSize: 13,
+    marginRight: theme.spacing(1),
+  },
+  value: {
+    fontWeight: 500,
+  },
+  sectionTitle: {
+    margin: `${theme.spacing(2)}px 0 ${theme.spacing(1)}px`,
+    fontWeight: 600,
+  },
+  keyValueRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    marginBottom: 6,
   },
   printWrapper: {
-    '@media print': {
-      margin: '20px',
-      padding: '10px',
-      border: '1px solid black',
-      borderRadius: '5px'
-    }
+    // Экранный вид
+    borderRadius: 8,
+    border: `1px solid ${theme.palette.divider}`,
+    padding: theme.spacing(3),
+    background: theme.palette.background.default,
+    // Печать
+    "@media print": {
+      margin: 20,
+      padding: 16,
+      border: "1px solid #000",
+      borderRadius: 6,
+      background: "#fff",
+    },
   },
   printOnly: {
-    display: 'none',
-    '@media print': {
-      display: 'block'
-    }
+    display: "none",
+    "@media print": {
+      display: "block",
+    },
   },
-  signatureContainer: {
-    marginTop: '20px',
-    paddingTop: '10px',
+  screenOnly: {
+    "@media print": {
+      display: "none",
+    },
+  },
+  signatures: {
+    display: "flex",
+    justifyContent: "space-around",
+    marginTop: 36,
   },
   signatureLine: {
-    borderTop: '1px solid #000',
-    marginTop: '100px'
+    borderTop: "1px solid #000",
+    paddingTop: 6,
+    minWidth: 220,
+    textAlign: "center",
+  },
+  headerBlock: {
+    textAlign: "center",
+    marginBottom: theme.spacing(2),
+  },
+  subtle: {
+    color: theme.palette.text.secondary,
+  },
+  divider: {
+    margin: `${theme.spacing(2)}px 0`,
+  },
+  paperRow: {
+    padding: theme.spacing(1.5),
+    borderRadius: 8,
+  },
+}));
 
-  }
+const InfoRow = ({ label, children }) => {
+  const classes = useStyles();
+  return (
+    <div className={classes.keyValueRow}>
+      <span className={classes.label}>{label}:</span>
+      <span className={classes.value}>{children || "—"}</span>
+    </div>
+  );
 };
 
-const useStyles = makeStyles(styles);
+const SectionCard = ({ title, children }) => {
+  const classes = useStyles();
+  return (
+    <Paper elevation={0} className={classes.paperRow}>
+      <Typography variant="subtitle1" className={classes.sectionTitle}>
+        {title}
+      </Typography>
+      {children}
+    </Paper>
+  );
+};
 
+// Карта названий операций
+const OPERATION_TITLES = {
+  1: "Первоначальный ввод",
+  3: "Передаточное распоряжение",
+  31: "Передаточное распоряжение",
+};
 
 export default function RegularTables() {
-  const { id } = useParams();
   const classes = useStyles();
   const componentRef = useRef();
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const Emitent = useSelector(state => state.emitents.store);
-  const EmitentData = useSelector(state => state.emitents.emitent.data);
-  const { data, status } = useSelector(state => state.prints.prints.transactionPrint);
 
-  const [transactionTitle, setTransactionTitle] = useState("Детали транзакции");
+  const EmitentStore = useSelector((s) => s.emitents.store);
+  const EmitentData = useSelector((s) => s.emitents.emitent.data);
+  const transactionState = useSelector((s) => s.prints.prints.transactionPrint);
+
+  const data = transactionState?.data || {};
+  const status = transactionState?.status || "idle";
+
+  const transactionTitle = useMemo(() => {
+    const opId = data?.operation?.id;
+    return OPERATION_TITLES[opId] || "Передаточное распоряжение";
+  }, [data?.operation?.id]);
 
   useEffect(() => {
-    dispatch(fetchEmitentById(Emitent?.id));
-    dispatch(fetchTransactionPrintById(id));
-  }, [dispatch]);
+    if (EmitentStore?.id) dispatch(fetchEmitentById(EmitentStore.id));
+  }, [dispatch, EmitentStore?.id]);
 
   useEffect(() => {
-    switch (data.operation?.id) {
-      case 1:
-        setTransactionTitle("Первоначальный ввод")
-        break;
-      case 31:
-        setTransactionTitle("Передаточное распоряжение")
-        break;
-      case 3:
-        alert('Перебор');
-        break;
-      default:
-        setTransactionTitle("Детали транзакции")
-    }
-  }, [data.operation?.id]);
+    if (id) dispatch(fetchTransactionPrintById(id));
+  }, [dispatch, id]);
+
+  const isLoading = status === "loading" || (id && !data?.operation);
+
+  const fmtNumber = (n) =>
+    typeof n === "number"
+      ? new Intl.NumberFormat("ru-RU").format(n)
+      : (n || "—");
 
   return (
     <GridContainer>
       <GridItem xs={12}>
-        <Box display="flex" justifyContent="flex-end">
-          <NavLink to="/admin/transactions">
-            <Button size="small">
-              Закрыть</Button>
+        <Box className={classes.actionsBar}>
+          <NavLink to="/admin/transactions" className={classes.screenOnly}>
+            <Button size="sm">Закрыть</Button>
           </NavLink>
           <ReactToPrint
-            trigger={() =>
-              <Button
-                // variant="contained"
-                color="warning"
-                size="small"
-              >Печать</Button>
-
-            }
+            trigger={() => (
+              <Button color="warning" size="sm">Печать</Button>
+            )}
             content={() => componentRef.current}
           />
-
         </Box>
-        <Card>
-          <Box py={3}>
-            {/* <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>
-          <Box
-            mx={2}
-            mt={-3}
-            py={1}
-            px={6}
-            bgcolor="info.main"
-            borderRadius="borderRadius"
-            boxShadow={3}
-          >
-            <Typography variant="h5" color="textPrimary">
-              Детали транзакции
-            </Typography>
-          </Box>
-        </Box> */}
-            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
-              <Typography align="center" variant="h3" mr={2}></Typography>
 
-              {status === "loading" && id ? (
-                <Box py="30px" display="flex" justifyContent="center">
-                  <CircularProgress color="primary" size={80} /> {status}
-                </Box>
-              ) : (
-                <Box minWidth={275} >
-                  <Typography variant="h5" component="div" align="center">
-                    {transactionTitle}
-                  </Typography>
+        <Card className={classes.contentRoot}>
+          <Box ref={componentRef} className={classes.printWrapper}>
+            <div className={classes.headerBlock}>
+              <Typography variant="h5" gutterBottom>
+                {transactionTitle}
+              </Typography>
+              <Typography variant="subtitle1" className={classes.subtle}>
+                {EmitentData?.full_name || "Эмитент — загружается"}
+              </Typography>
+            </div>
 
-                  <Typography variant="h5" component="div" align="center">
-                    {EmitentData?.full_name}
-                  </Typography>
-
-                  <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid item xs={12}>
-
-                      {data.holder_from && (
-                        <>
-                          <Typography variant="h6" component="div">
-                            Лицо передающее ценные бумаги
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: <b> {data.holder_from.name}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: <b> {data.holder_from.id}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Документ:  Серия: <b>{data.holder_from?.passport_type}</b> Номер: <b>{data.holder_from?.passport_number}</b> Выдан: <b>{data.holder_from?.passport_agency}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Адрес: <b>{data.holder_from.actual_address}</b>
-                          </Typography>
-
-                          <Typography variant="body2" color="textSecondary">
-                            Телефон, факс: <b> {data.holder_from.phone_number}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            ИНН: <b> {data.holder_from.inn}</b>
-                          </Typography>
-                        </>
-                      )}
+            {isLoading ? (
+              <Box py={6} display="flex" flexDirection="column" alignItems="center">
+                <CircularProgress size={64} />
+                <Box mt={2} className={classes.subtle}>Загрузка…</Box>
+              </Box>
+            ) : (
+              <>
+                <Grid container spacing={2}>
+                  {data.holder_from && (
+                    <Grid item xs={12} md={6}>
+                      <SectionCard title="Лицо передающее ценные бумаги">
+                        <InfoRow label="Ф.И.О">{data.holder_from.name}</InfoRow>
+                        <InfoRow label="Лицевой счёт">{data.holder_from.id}</InfoRow>
+                        <InfoRow label="Документ">
+                          Серия: <b>{data.holder_from?.passport_type || "—"}</b>{" "}
+                          Номер: <b>{data.holder_from?.passport_number || "—"}</b>{" "}
+                          Выдан: <b>{data.holder_from?.passport_agency || "—"}</b>
+                        </InfoRow>
+                        <InfoRow label="Адрес">{data.holder_from.actual_address}</InfoRow>
+                        <InfoRow label="Телефон, факс">{data.holder_from.phone_number}</InfoRow>
+                        <InfoRow label="ИНН">{data.holder_from.inn}</InfoRow>
+                      </SectionCard>
                     </Grid>
+                  )}
 
-                    <Grid item xs={12}>
-                      {data.holder_to && (
-                        <>
-                          <Typography variant="h6" component="div">
-                            Лицо принимающего ценные бумаги
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Ф.И.О: <b> {data.holder_to.name}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Лицевой счет: <b> {data.holder_to.id}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Документ:  Серия: <b>{data.holder_to?.passport_type}</b> Номер: <b>{data.holder_to?.passport_number}</b> Выдан: <b>{data.holder_to?.passport_agency}</b>
-                          </Typography>
+                  {data.holder_to && (
+                    <Grid item xs={12} md={6}>
+                      <SectionCard title="Лицо принимающее ценные бумаги">
+                        <InfoRow label="Ф.И.О">{data.holder_to.name}</InfoRow>
+                        <InfoRow label="Лицевой счёт">{data.holder_to.id}</InfoRow>
+                        <InfoRow label="Документ">
+                          Серия: <b>{data.holder_to?.passport_type || "—"}</b>{" "}
+                          Номер: <b>{data.holder_to?.passport_number || "—"}</b>{" "}
+                          Выдан: <b>{data.holder_to?.passport_agency || "—"}</b>
+                        </InfoRow>
+                        <InfoRow label="Адрес">{data.holder_to.actual_address}</InfoRow>
+                        <InfoRow label="Телефон, факс">{data.holder_to.phone_number}</InfoRow>
+                        <InfoRow label="ИНН">{data.holder_to.inn}</InfoRow>
+                      </SectionCard>
+                    </Grid>
+                  )}
+                </Grid>
 
-                          <Typography variant="body2" color="textSecondary">
-                            Адрес: <b>{data.holder_to.actual_address}</b>
-                          </Typography>
+                <Divider className={classes.divider} />
 
-                          <Typography variant="body2" color="textSecondary">
-                            Телефон, факс: <b> {data.holder_to.phone_number}</b>
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            ИНН: <b> {data.holder_to.inn}</b>
-                          </Typography>
-                        </>
-                      )}
+                <SectionCard title="Передаваемые ценные бумаги">
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                      <InfoRow label="Эмитент">{EmitentData?.full_name}</InfoRow>
+                      <InfoRow label="Эмиссия">{data.emission?.reg_number}</InfoRow>
+                      <InfoRow label="Операция">{data.operation?.name}</InfoRow>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <InfoRow label="Количество">{fmtNumber(data.quantity)}</InfoRow>
+                      <InfoRow label="Сумма сделки">{fmtNumber(data.amount)}</InfoRow>
+                      <InfoRow label="Дата сделки">{window.formatDate?.(data.contract_date)}</InfoRow>
                     </Grid>
                   </Grid>
+                  {data.document_id && (
+                    <Box marginTop={1}>
+                      <NavLink to={`/admin/incoming-document/edit/${data.document_id}`}>
+                        Входящий документ: {data.document_id}
+                      </NavLink>
+                    </Box>
+                  )}
+                </SectionCard>
 
-                  <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-                    Передаваемые ценные бумаги
+                {/* Блок для печати (подписи, реквизиты) */}
+                <div className={classes.printOnly}>
+                  <div className={classes.signatures}>
+                    <Typography className={classes.signatureLine}>Подпись передающего</Typography>
+                    <Typography className={classes.signatureLine}>Подпись принимающего</Typography>
+                  </div>
+
+                  <Divider className={classes.divider} />
+
+                  <Box>
+                    <InfoRow label="Держатель реестра"><b>ОсОО "Реестродержатель Медина"</b></InfoRow>
+                    <InfoRow label="Орган государственной регистрации"><b>Чуй-Бишкекское управление юстиции</b></InfoRow>
+                    <InfoRow label="Регистрационный номер"><b>133580-3301-000 от 09.12.2013 год</b></InfoRow>
+                    <InfoRow label="Лицензия"><b>№143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b></InfoRow>
+                    <InfoRow label="Юридический адрес"><b>720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</b></InfoRow>
+                  </Box>
+
+                  <Typography className={classes.signatureLine} style={{ width: "70%", marginTop: 18 }}>
+                    ФИО и подпись регистратора
                   </Typography>
 
-                  <Typography variant="body2" color="textSecondary">
-                    Эмитент:  <b> {EmitentData?.full_name} </b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Эмиссия:  <b> {data.emission?.reg_number}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Операция: <b> {data.operation?.name} </b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Количество: <b> {data.quantity}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Сумма сделки: <b> {data.amount}</b>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Дата сделки:
-                    <b> {window.formatDate(data.contract_date)} </b>
-                  </Typography>
-                  {/* <Typography variant="body2" color="textSecondary">
-                    Основание перехода права собственности: <b> Договор дарения </b>
-                  </Typography> */}
-                  {/* <Typography variant="body2" color="textSecondary">
-                    <b> Передаваемые ценные бумаги не обременены обязательствами </b>
-                  </Typography> */}
-
-                  <Typography variant="body2" color="textSecondary">
-                
-                    <NavLink to={`/admin/incoming-document/edit/${data.document_id}`}>Входящий документ: {data.document_id} </NavLink>
-                  </Typography>
-                </Box>
-              )}
-
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
-
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
+                  <Box display="flex" justifyContent="space-between" marginTop={2}>
+                    <Typography>
+                      Номер операции: <b>{id}</b>
+                    </Typography>
+                    <Typography>
+                      Дата операции: <b>{window.formatDate?.(data?.contract_date)}</b>
+                    </Typography>
+                  </Box>
                 </div>
-              </div>
-
-              <hr className={classes.printOnly} />
-              <div className={classes.printOnly} style={{ marginTop: '14px' }}>
-                <div>
-                  <span>Держатель реестра:</span>
-                  <b> ОсОО "Реестродержатель Медина"</b>
-                </div>
-                <div>
-                  <span>Орган государственной регистрации:</span>
-                  <b> Чуй-Бишкекское управление юстиции</b>
-                </div>
-                <div>
-                  <span>Регистрационный номер:</span>
-                  <b> 133580-3301-000 от 09.12.2013 год</b>
-                </div>
-                <div>
-                  <span>Лицензия:</span>
-                  <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
-                </div>
-                <div>
-                  <span>Юридический адрес:</span>
-                  <b>720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</b>
-                </div>
-
-              </div>
-
-
-
-              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
-
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                  <Typography>Номер операции: <b>{id}</b></Typography>
-                  <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
-                </div>
-              </div>
-            </Box>
-
-
+              </>
+            )}
           </Box>
         </Card>
       </GridItem>
-
-
     </GridContainer>
   );
 }

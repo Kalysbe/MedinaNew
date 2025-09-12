@@ -40,6 +40,7 @@ export default function RegularForms() {
   // Получаем данные из Redux
   const Emitent = useSelector((state) => state.emitents.store);
   const holders = useSelector((state) => state.holders.holders);
+  const allHolders = useSelector((state) => state.holders.allholders);
   const { operationTypes } = useSelector((state) => state.transactions);
   const { emissions } = useSelector((state) => state.emissions);
   const { documentList } = useSelector((state) => state.documents);
@@ -60,6 +61,7 @@ export default function RegularForms() {
   // Карта опций для селектов
   const optionsMap = {
     holders:  [...new Map((holders?.items || []).map(item => [item.id, item])).values()],
+    allholders: [...new Map((allHolders?.items || []).map(item => [item.id, item])).values()],
     stocks: emissions?.items || [],
     typeOperations: operationTypes || [],
     documents: documentList || [],
@@ -91,7 +93,7 @@ export default function RegularForms() {
       name: "holder_to_id",
       label: "Кто принимает",
       component: "selectSearch",
-      options: optionsMap.holders,
+      options: optionsMap.allholders,
       optionValueKey: "id",
       optionLabelKey: "name",
       grid: { xs: 12, sm: 12, md: 6 },
@@ -217,7 +219,7 @@ export default function RegularForms() {
 
   // Загрузка базовых данных при монтировании
   useEffect(() => {
-  
+    dispatch(fetchAllHolders());
     dispatch(fetchHolders(Emitent?.id));
     dispatch(fetchOperationTypes());
     
@@ -241,10 +243,10 @@ export default function RegularForms() {
     );
     if (newEmissionValue && newEmissionValue.reg_number) {
       setValue("emission", newEmissionValue.reg_number);
-      const qty = watchedOperationId === 11 ? newEmissionValue.blocked_count : newEmissionValue.count;
+      const qty = watchedOperationId === 11 ? newEmissionValue.blocked_count : newEmissionValue.total_shares;
       setValue("quantity", qty);
       setValue("amount", qty * newEmissionValue.nominal);
-      setMaxCount(watchedOperationId === 11 ? newEmissionValue.blocked_count : newEmissionValue.count);
+      setMaxCount(watchedOperationId === 11 ? newEmissionValue.blocked_count : newEmissionValue.total_shares);
       setPrice(newEmissionValue.nominal);
     }
   }, [watchedEmissionId, emissions, watchedOperationId, setValue]);

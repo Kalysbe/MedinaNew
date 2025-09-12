@@ -28,7 +28,6 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 
 import { fetchEmitents, fetchAnalytics } from "redux/actions/emitents";
-import { fetchAllHolders } from "redux/actions/holders";
 import { fetchEmissions } from "redux/actions/emissions";
 
 import {
@@ -46,14 +45,13 @@ export default function Dashboard() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const Emitent = useSelector(state => state.emitents.emitents);
-  const Holders = useSelector(state => state.holders.holders);
+ 
   const Emissions = useSelector(state => state.emissions.emissions);
   const {emissionCount,emitentCount,holderCount,totalVolumePrice} = useSelector(state => state.emitents.analysis)
 
   useEffect(() => {
     dispatch(fetchAnalytics())
     dispatch(fetchEmitents());
-    dispatch(fetchAllHolders());
     dispatch(fetchEmissions());
   }, []);
 

@@ -30,13 +30,13 @@ import { fetchEmissionsByEmitentId } from "redux/actions/emissions";
 
 const styles = {
     customCardContentClass: {
-        paddingLeft: "0",
-        paddingRight: "0"
+        // paddingLeft: "0",
+        // paddingRight: "0"
     },
     cardIconTitle: {
         ...cardTitle,
-        marginTop: "15px",
-        marginBottom: "0px"
+        // marginTop: "15px",
+        // marginBottom: "0px"
     }
 };
 

@@ -180,7 +180,7 @@ const CustomTable = forwardRef((props, ref) => {
                   {headerGroup.headers.map((column) => (
                     <TableCell 
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      style={{padding:'0px'}} 
+                      // style={{padding:'0px'}} 
                       className={typeof column.accessor === 'string' && column.accessor === 'actions' ? classes.noPrint : ''}
                     >
                       {column.render("Header")}
@@ -222,7 +222,7 @@ const CustomTable = forwardRef((props, ref) => {
                   <TableRow {...row.getRowProps()} style={rowStyle}>
                     {row.cells.map((cell) => (
                       <TableCell 
-                        style={{padding:'0px'}} 
+                        // style={{padding:'0px'}} 
                         {...cell.getCellProps()} 
                         className={typeof cell.column.accessor === 'string' && cell.column.accessor === 'actions' ? classes.noPrint : ''}
                       >

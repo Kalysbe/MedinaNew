@@ -46,11 +46,12 @@ export default function RegularTables() {
 
 
   const Emitent = useSelector(state => state.emitents?.store);
-  const Holders = useSelector(state => state.holders?.holders);
+  
+  const Holders = useSelector(state => isAllEmitents ? state.holders?.allholders : state.holders?.holders);
 
   useEffect(() => {
     if (isAllEmitents) {
-      dispatch(fetchAllHolders(Emitent?.id));
+      dispatch(fetchAllHolders());
     } else {
       dispatch(fetchHolders(Emitent?.id));
     }

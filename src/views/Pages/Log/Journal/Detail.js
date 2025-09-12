@@ -1,343 +1,344 @@
-import React, { useEffect, useRef } from "react";
-// @material-ui/core components
+import React, { useEffect, useRef, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Card, Box, Typography, Grid, CircularProgress } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
+import {
+  Card,
+  Box,
+  Typography,
+  Grid,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Divider,
+  Paper,
+} from "@material-ui/core";
+import { useParams } from "react-router-dom";
+import ReactToPrint from "react-to-print";
 
-// material-ui icons
-import Assignment from "@material-ui/icons/Assignment";
-
-import ReactToPrint from 'react-to-print';
-
-// core components
+// core components (из шаблона)
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
-// import Table from "components/Table/Table.js";
-// import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardIcon from "components/Card/CardIcon.js";
-import CardBody from "components/Card/CardBody.js";
-
 import Button from "components/CustomButtons/Button.js";
 
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-
-import { cardTitle } from "assets/jss/material-dashboard-pro-react.js";
-import { NavLink } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import { fetchEmitentById } from "redux/actions/emitents";
 import { fetchJournalById } from "redux/actions/journal";
-import { fetchEmitentHolderDocumentById } from "redux/actions/holders";
-import { BorderBottom } from "@material-ui/icons";
-const styles = {
-  customCardContentClass: {
-    paddingLeft: "0",
-    paddingRight: "0"
-  },
-  cardIconTitle: {
-    ...cardTitle,
-    marginTop: "15px",
-    marginBottom: "0px"
-  },
-  printWrapper: {
-    '@media print': {
-      margin: '20px',
-      padding: '10px',
-      border: '1px solid black',
-      borderRadius: '5px'
-    }
-  },
-  printOnly: {
-    display: 'none',
-    '@media print': {
-      display: 'block'
-    }
-  },
-  signatureContainer: {
-    marginTop: '20px',
-    paddingTop: '10px',
-  },
-  signatureLine: {
-    borderTop: '1px solid #000',
-    marginTop: '100px'
-
-  }
-};
-
-const useStyles = makeStyles(styles);
-
 
 const titles = {
   id: "ID",
-  holder_type: "Тип держателя",
+  holder_type: "Тип держателя (ID)",
+  type: "Тип держателя",
   district_id: "ID района",
-  name: "Имя",
+  district: "Район/город",
+  name: "Ф.И.О.",
   actual_address: "Фактический адрес",
   legal_address: "Юридический адрес",
   email: "Электронная почта",
-  phone_number: "Номер телефона",
+  status: "Отношение к акциям",
+  holder_status: "Отношение к акциям (ID)",
+  phone_number: "Телефон",
   passport_type: "Тип паспорта",
   passport_number: "Номер паспорта",
-  passport_agency: "Орган паспорта",
+  passport_agency: "Кем выдан",
   inn: "ИНН",
-  document_id: "Входящий документ"
+  document_id: "Входящий документ",
 };
 
-export default function RegularTables() {
-  const { id } = useParams();
+/** Унифицированный вывод значений.
+ * - null/undefined/"" -> "—"
+ * - Object -> v.name (если есть), иначе v.title / v.label / v.full_name / v.id, иначе JSON
+ * - Array -> элементы по тем же правилам, через ", "
+ */
+const display = (v) => {
+  if (v === null || v === undefined || v === "") return "—";
+
+  const objToText = (o) => {
+    if (o === null || o === undefined) return "—";
+    if (typeof o !== "object") return String(o);
+    const candidate =
+      ("name" in o && o.name) ??
+      ("title" in o && o.title) ??
+      ("label" in o && o.label) ??
+      ("full_name" in o && o.full_name) ??
+      ("id" in o ? o.id : undefined);
+    return candidate !== undefined && candidate !== null && candidate !== ""
+      ? String(candidate)
+      : JSON.stringify(o);
+  };
+
+  if (Array.isArray(v)) return v.map(objToText).join(", ");
+  if (typeof v === "object") return objToText(v);
+  return String(v);
+};
+
+const useStyles = makeStyles((theme) => ({
+  actionsBar: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 12,
+    padding: theme.spacing(1),
+  },
+  printWrapper: {
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: 8,
+    background: theme.palette.background.default,
+    padding: theme.spacing(3),
+    "@media print": {
+      margin: 20,
+      padding: 16,
+      border: "1px solid #000",
+      background: "#fff",
+      borderRadius: 6,
+    },
+  },
+  printOnly: {
+    display: "none",
+    "@media print": { display: "block" },
+  },
+  screenOnly: {
+    "@media print": { display: "none" },
+  },
+  changed: {
+    background: "rgba(255, 193, 7, 0.18)",
+  },
+  headerBlock: {
+    textAlign: "center",
+    marginBottom: theme.spacing(2),
+  },
+  section: { marginTop: theme.spacing(2) },
+  paper: { padding: theme.spacing(2), borderRadius: 8 },
+  signatureLine: {
+    borderTop: "1px solid #000",
+    paddingTop: 6,
+    minWidth: 220,
+    textAlign: "center",
+  },
+}));
+
+export default function JournalDetailPrint() {
   const classes = useStyles();
-  const componentRef = useRef();
+  const detailsRef = useRef();
+  const statementRef = useRef();
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const Emitent = useSelector(state => state.emitents.store);
-  const EmitentData = useSelector(state => state.emitents.emitent.data);
-  const { data, status } = useSelector(state => state.prints.prints.transactionPrint);
-  const { journalDetail } = useSelector(state => state.journal);
+
+  const Emitent = useSelector((s) => s.emitents.store);
+  const EmitentData = useSelector((s) => s.emitents.emitent.data);
+  const journalDetail = useSelector((s) => s.journal?.journalDetail);
 
   useEffect(() => {
-    dispatch(fetchEmitentById(Emitent?.id));
-    dispatch(fetchJournalById(id));
-  }, []);
+    if (Emitent?.id) dispatch(fetchEmitentById(Emitent.id));
+  }, [dispatch, Emitent?.id]);
 
-  console.log(journalDetail)
+  useEffect(() => {
+    if (id) dispatch(fetchJournalById(id));
+  }, [dispatch, id]);
+
+  const oldVal = journalDetail?.old_value || {};
+  const newVal = journalDetail?.new_value || {};
+
+  // Ключи: сначала действительно изменённые (после нормализации через display), затем одинаковые
+  const keys = useMemo(() => {
+    const k = Array.from(new Set([...(Object.keys(oldVal || {})), ...(Object.keys(newVal || {}))]));
+    const changed = k.filter((key) => display(oldVal[key]) !== display(newVal[key]));
+    const same = k.filter((key) => display(oldVal[key]) === display(newVal[key]));
+    return [...changed, ...same];
+  }, [oldVal, newVal]);
+
+  const changedReasons = useMemo(() => {
+    const reasons = [];
+    const diff = (k) => display(oldVal[k]) !== display(newVal[k]);
+    if (diff("actual_address") || diff("legal_address")) reasons.push("изменением адреса");
+    if (diff("passport_number") || diff("passport_type") || diff("passport_agency"))
+      reasons.push("изменением паспортных данных");
+    if (diff("name")) reasons.push("сменой Ф.И.О.");
+    if (diff("inn")) reasons.push("изменением ИНН");
+    return reasons.length ? reasons.join(", ") : "необходимостью актуализации анкетных данных";
+  }, [oldVal, newVal]);
+
+  const applicantName = newVal.name || oldVal.name || "_______________";
+  const applicantAddress = newVal.actual_address || oldVal.actual_address || "_______________";
+  const passportType = display(newVal.passport_type ?? oldVal.passport_type);
+  const passportNumber = display(newVal.passport_number ?? oldVal.passport_number);
+  const passportAgency = display(newVal.passport_agency ?? oldVal.passport_agency);
+  const phone = display(newVal.phone_number ?? oldVal.phone_number);
+  const inn = display(newVal.inn ?? oldVal.inn);
+
+  const createdDate = journalDetail?.createdAt ? new Date(journalDetail.createdAt) : new Date();
+  const fmtDate = (d) =>
+    new Intl.DateTimeFormat("ru-RU", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+
+  const isLoading = !journalDetail && !!id;
 
   return (
     <GridContainer>
+      {/* Блок 1: Детали изменений */}
       <GridItem xs={12}>
-        <Box display="flex" justifyContent="flex-end">
-
+        <Box className={classes.actionsBar}>
           <ReactToPrint
-            trigger={() =>
-              <Button
-                // variant="contained"
-                color="warning"
-                size="small"
-              >Печать</Button>
-
-            }
-            content={() => componentRef.current}
+            trigger={() => (
+              <Button className={classes.screenOnly} color="warning" size="sm">
+                Печать таблицы изменений
+              </Button>
+            )}
+            content={() => detailsRef.current}
           />
-
         </Box>
         <Card>
-          <Box py={3}>
+          <Box p={3} ref={detailsRef} className={classes.printWrapper}>
+            <div className={classes.headerBlock}>
+              <Typography variant="h6">Просмотр изменённых анкетных данных</Typography>
+              <Typography variant="subtitle2" color="textSecondary">
+                {EmitentData?.full_name || "Эмитент — загружается"}
+              </Typography>
+            </div>
 
-            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
-              <Typography align="center" variant="h3" mr={2}></Typography>
+            {isLoading ? (
+              <Box py={6} display="flex" flexDirection="column" alignItems="center">
+                <CircularProgress size={64} />
+                <Box mt={2} color="textSecondary.main">Загрузка…</Box>
+              </Box>
+            ) : (
+              <Paper elevation={0} className={classes.paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Параметр</TableCell>
+                      <TableCell>До</TableCell>
+                      <TableCell>После</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {keys.map((key) => {
+                      const before = display(oldVal[key]);
+                      const after = display(newVal[key]);
+                      const isChanged = before !== after;
+                      return (
+                        <TableRow key={key} className={isChanged ? classes.changed : undefined}>
+                          <TableCell>{titles[key] || key}</TableCell>
+                          <TableCell>{before}</TableCell>
+                          <TableCell>{after}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
 
-              {!journalDetail && id ? (
-                <Box py="30px" display="flex" justifyContent="center">
-                  <CircularProgress color="primary" size={80} /> {status}
+                <Divider style={{ marginTop: 16, marginBottom: 8 }} />
+                <Typography variant="caption" color="textSecondary">
+                  Запись: {display(journalDetail?.title)} • Тип изменения: {display(journalDetail?.change_type)} • Дата: {fmtDate(createdDate)}
+                </Typography>
+              </Paper>
+            )}
+          </Box>
+        </Card>
+      </GridItem>
+
+      {/* Блок 2: Заявление */}
+      <GridItem xs={12}>
+        <Box className={classes.actionsBar}>
+          <ReactToPrint
+            trigger={() => (
+              <Button className={classes.screenOnly} color="warning" size="sm">
+                Печать заявления
+              </Button>
+            )}
+            content={() => statementRef.current}
+          />
+        </Box>
+        <Card>
+          <Box p={3} ref={statementRef} className={classes.printWrapper}>
+            {isLoading ? (
+              <Box py={6} display="flex" flexDirection="column" alignItems="center">
+                <CircularProgress size={64} />
+                <Box mt={2} color="textSecondary.main">Загрузка…</Box>
+              </Box>
+            ) : (
+              <>
+                <Box textAlign="right">
+                  <Typography variant="subtitle1">
+                    Директору ОсОО "Реестродержатель Медина" Тентишевой Г.М.
+                  </Typography>
+                  <Typography variant="subtitle1">
+                    от акционера: <b>{applicantName}</b>
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Адрес: {display(applicantAddress)} • Тел.: {phone} • ИНН: {inn}
+                  </Typography>
                 </Box>
-              ) : (
-                <Box minWidth={275} >
-                  <Typography variant="h5" component="div" align="center">
-                    Просмотр измененных анкетных данных
+
+                <Box textAlign="center" className={classes.section}>
+                  <Typography variant="h6">Заявление</Typography>
+                </Box>
+
+                <Box className={classes.section}>
+                  <Typography variant="body1" paragraph>
+                    Прошу внести изменения в реестр акционеров <b>{EmitentData?.full_name || "[Эмитент]"}</b> в связи с {changedReasons}. Изменения прошу
+                    произвести на основании прилагаемых документов.
                   </Typography>
 
-                  {/* <Typography variant="h5" component="div" align="center">
-                    {journalDetail?.title}
-                  </Typography> */}
+                  <Typography variant="body1" paragraph>
+                    Актуальные данные заявителя:
+                  </Typography>
 
-                  {/* <Typography variant="h5" component="div" align="center">
-                   Лицевой счет: {incomingDocument?.holder_id}
-                  </Typography> */}
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="body2">Ф.И.О.: <b>{applicantName}</b></Typography>
+                      <Typography variant="body2">Адрес: <b>{display(applicantAddress)}</b></Typography>
+                      <Typography variant="body2">Телефон: <b>{phone}</b></Typography>
+                      <Typography variant="body2">ИНН: <b>{inn}</b></Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="body2">Паспорт: <b>{passportType} № {passportNumber}</b></Typography>
+                      <Typography variant="body2">Кем выдан: <b>{passportAgency}</b></Typography>
+                    </Grid>
+                  </Grid>
 
+                  <Divider className={classes.section} />
 
-                  {/* <Typography variant="body2" color="textSecondary">
-                    Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
-                  </Typography> */}
-                  <Table>
+                  <Typography variant="body2" color="textSecondary">
+                    Перечень изменённых полей:
+                  </Typography>
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
-                        {/* <TableCell>Параметр</TableCell> */}
-                        <TableCell>До</TableCell>
-                        <TableCell>После</TableCell>
+                        <TableCell>Параметр</TableCell>
+                        <TableCell>Было</TableCell>
+                        <TableCell>Стало</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-
-                      {journalDetail.old_value && Object.keys(journalDetail?.old_value).map((key) => (
-                        <TableRow key={key}>
-                          {/* <TableCell>{titles[key]}</TableCell> */}
-                          <TableCell>{journalDetail?.old_value[key] !== null ? journalDetail?.old_value[key] : "—"}</TableCell>
-                          <TableCell>{journalDetail?.new_value[key] !== null ? journalDetail?.new_value[key] : "—"}</TableCell>
-                        </TableRow>
-                      ))}
-
+                      {keys
+                        .filter((k) => display(oldVal[k]) !== display(newVal[k]))
+                        .map((k) => (
+                          <TableRow key={k}>
+                            <TableCell>{titles[k] || k}</TableCell>
+                            <TableCell>{display(oldVal[k])}</TableCell>
+                            <TableCell>{display(newVal[k])}</TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
+
+                  <Box display="flex" justifyContent="space-between" className={classes.section}>
+                    <Typography>Дата: <b>{fmtDate(createdDate)}</b></Typography>
+                    <Typography>Подпись заявителя: ____________________</Typography>
+                  </Box>
                 </Box>
-              )}
 
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
-
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
+                <div className={classes.printOnly}>
+                  <Divider className={classes.section} />
+                  <Typography variant="caption">
+                    Держатель реестра: ОсОО "Реестродержатель Медина". Юр. адрес: 720001 г. Бишкек, пр. Чуй 164а, каб. 202, тел. 90-06-43, 31-17-65, 90-06-42.
+                  </Typography>
                 </div>
-              </div>
-
-              <hr className={classes.printOnly} />
-              <div className={classes.printOnly} style={{ marginTop: '14px' }}>
-                <div>
-                  <span>Держатель реестра:</span>
-                  <b> ОсОО "Реестродержатель Медина"</b>
-                </div>
-                <div>
-                  <span>Орган государственной регистрации:</span>
-                  <b> Чуй-Бишкекское управление юстиции</b>
-                </div>
-                <div>
-                  <span>Регистрационный номер:</span>
-                  <b> 133580-3301-000 от 09.12.2013 год</b>
-                </div>
-                <div>
-                  <span>Лицензия:</span>
-                  <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
-                </div>
-                <div>
-                  <span>Юридический адрес:</span>
-                  <b>720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</b>
-                </div>
-
-              </div>
-
-
-
-              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
-
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                  <Typography>Номер операции: <b>{id}</b></Typography>
-                  <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
-                </div>
-              </div>
-            </Box>
-
-
+              </>
+            )}
           </Box>
         </Card>
       </GridItem>
-      <GridItem xs={12}>
-        <Box display="flex" justifyContent="flex-end">
-
-          <ReactToPrint
-            trigger={() =>
-              <Button
-                // variant="contained"
-                color="warning"
-                size="small"
-              >Печать</Button>
-
-            }
-            content={() => componentRef.current}
-          />
-
-        </Box>
-        <Card>
-          <Box py={3}>
-
-            <Box px={3} mt={2} ref={componentRef} className={classes.printWrapper}>
-              <Typography align="center" variant="h3" mr={2}></Typography>
-
-              {!journalDetail && id ? (
-                <Box py="30px" display="flex" justifyContent="center">
-                  <CircularProgress color="primary" size={80} /> {status}
-                </Box>
-              ) : (
-                <Box minWidth={275} >
-                  <Typography variant="h6" component="div" align="right">
-                    Директору ОсОО "Реестродержатель Медина" Тентишевой Г.М.
-                  </Typography>
-                  <Typography variant="h6" component="div" align="right">
-                    Акционер 
-                  </Typography>
-                  <Typography variant="h5" component="div" align="center">
-                    Заявление
-                  </Typography>
-
-                  <Typography variant="h6" component="div" align="left">
-                    Прошу произвести изменения в реестре **
-                  </Typography>
-                  <Typography variant="h6" component="div" align="left">
-                    в связи с изменением данных паспорта, места жительства, смены фамилии, вступлением в наследство
-                  </Typography>
-                  <Box>
-                    <Typography variant="h6" component="span" align="left">Дата рождения </Typography>
-                    <Typography variant="h6" component="span" align="left"> **  </Typography>
-                    <Typography variant="h6" component="span" align="left"> Паспорт № </Typography> 
-                    <Typography variant="h6" component="span" align="left"> ** </Typography>
-                    </Box>
-                  {/* <Typography variant="h5" component="div" align="center">
-                    {journalDetail?.title}
-                  </Typography> */}
-
-                  {/* <Typography variant="h5" component="div" align="center">
-                   Лицевой счет: {incomingDocument?.holder_id}
-                  </Typography> */}
-
-
-                  {/* <Typography variant="body2" color="textSecondary">
-                    Эмитент:  <b> {incomingDocumentData?.before['actual_address']} </b>
-                  </Typography> */}
-                 
-                </Box>
-              )}
-
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '36px' }} >
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись передающего</Typography>
-
-                  <Typography style={{ borderTop: '1px solid #000' }}>Подпись принимающего</Typography>
-                </div>
-              </div>
-
-              <hr className={classes.printOnly} />
-              <div className={classes.printOnly} style={{ marginTop: '14px' }}>
-                <div>
-                  <span>Держатель реестра:</span>
-                  <b> ОсОО "Реестродержатель Медина"</b>
-                </div>
-                <div>
-                  <span>Орган государственной регистрации:</span>
-                  <b> Чуй-Бишкекское управление юстиции</b>
-                </div>
-                <div>
-                  <span>Регистрационный номер:</span>
-                  <b> 133580-3301-000 от 09.12.2013 год</b>
-                </div>
-                <div>
-                  <span>Лицензия:</span>
-                  <b> №143 от 20.12.2013 г, Гос. служба регулир. и надзора за фин. рынком КР</b>
-                </div>
-                <div>
-                  <span>Юридический адрес:</span>
-                  <b> 720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</b>
-                </div>
-
-              </div>
-
-
-
-              <Typography className={classes.printOnly} style={{ borderTop: '1px solid #000', marginTop: '18px', width: '70%' }}>ФИО и подпись регистратора</Typography>
-
-              <div className={classes.printOnly}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }} >
-                  <Typography>Номер операции: <b>{id}</b></Typography>
-                  <Typography>Дата операции: <b>{window.formatDate(data?.contract_date)}</b></Typography>
-                </div>
-              </div>
-            </Box>
-
-
-          </Box>
-        </Card>
-      </GridItem>
-
     </GridContainer>
   );
 }

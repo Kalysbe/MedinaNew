@@ -43,7 +43,7 @@ export default function RegularForms() {
 
   // Получаем данные из Redux
   const Emitent = useSelector((state) => state.emitents.store);
-  const holders = useSelector((state) => state.holders.holders);
+  const holders = useSelector((state) => state.holders.allholders);
   const { operationTypes } = useSelector((state) => state.transactions);
   const { emissions } = useSelector((state) => state.emissions);
   const { documentList } = useSelector((state) => state.documents);

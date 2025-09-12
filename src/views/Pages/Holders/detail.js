@@ -211,7 +211,7 @@ export default function RegularTables() {
                     <span>Документ: Серия: <b>{holder?.passport_type}</b> Номер: <b>{holder?.passport_number}</b> Выдан: <b>{holder?.passport_agency}</b></span>
                   </div>
     <div>
-                    <span>Отношение к акциям: <b>{holder?.holder_status}</b></span>
+                    <span>Отношение к акциям: <b>{holder?.status?.name}</b></span>
                   </div>
                 </div>
                 </div>

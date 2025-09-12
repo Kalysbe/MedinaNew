@@ -133,7 +133,7 @@ export default function RegularTables() {
       disableSortBy: true,
       Cell: ({ row }) => (
         <NavLink to={`/admin/transaction/${row.original.id}`}>
-          <Button variant="outlined" color="info">
+          <Button variant="outlined" style={{padding:"5px 15px", margin: 0}} color="info">
             Открыть
           </Button>
         </NavLink>

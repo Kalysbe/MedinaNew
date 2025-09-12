@@ -14,6 +14,10 @@ import {
 } from '../actions/holders'
 
 const initialState = {
+  allholders: {
+    items: [],
+    status: "loading"
+  },
   holders: {
     items: [],
     status: "loading"
@@ -35,16 +39,16 @@ const holdersSlice = createSlice({
 
     builder
       .addCase(fetchAllHolders.pending, (state) => {
-        state.holders.items = [];
-        state.holders.status = "loading";
+        state.allholders.items = [];
+        state.allholders.status = "loading";
       })
       .addCase(fetchAllHolders.fulfilled, (state, action) => {
-        state.holders.items = action.payload;
-        state.holders.status = "loaded";
+        state.allholders.items = action.payload;
+        state.allholders.status = "loaded";
       })
       .addCase(fetchAllHolders.rejected, (state) => {
-        state.holders.items = [];
-        state.holders.status = "error";
+        state.allholders.items = [];
+        state.allholders.status = "error";
       });
 
     builder

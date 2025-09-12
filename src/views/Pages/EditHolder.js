@@ -66,6 +66,7 @@ export default function RegularForms() {
         passport_agency: "",
         inn: "",
         holder_type: "",
+        holder_status: "",
         district_id: "",
         document_id: ""
     })
@@ -105,6 +106,13 @@ export default function RegularForms() {
     useEffect(() => {
         setFormData(HolderData)
     }, [HolderData])
+
+    const findDistrictId = (districtName) => {
+        const district = DistrictList.find((d) => d.name === districtName);
+        return district ? district.id : null;
+    };
+
+
 
 
 
@@ -276,7 +284,7 @@ export default function RegularForms() {
                                     handleChange(event)
                                 },
                                 name: 'passport_number',
-                                type: 'number',
+                                type: 'text',
                                 value: formData['passport_number']
                             }}
                         />
@@ -308,7 +316,7 @@ export default function RegularForms() {
                                     handleChange(event)
                                 },
                                 name: 'phone_number',
-                                type: 'number',
+                                type: 'text',
                                 value: formData['phone_number']
                             }}
                         />
