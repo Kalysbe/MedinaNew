@@ -1,4 +1,5 @@
 import React , {useEffect , useState} from "react";
+import { NavLink } from "react-router-dom";
 
 import { useDispatch, useSelector  } from 'react-redux';
 // react plugin for creating charts
@@ -57,6 +58,7 @@ export default function Dashboard() {
 
   return (
     <div>
+      {/* KPI cards */}
       <GridContainer>
         <GridItem xs={12} sm={6} md={6} lg={3}>
           <Card>
@@ -70,14 +72,9 @@ export default function Dashboard() {
               </h3>
             </CardHeader>
             <CardFooter stats>
-              {/* <div className={classes.stats}>
-                <Danger>
-                  <Warning />
-                </Danger>
-                <a href="#pablo" onClick={e => e.preventDefault()}>
-                  Get more space
-                </a>
-              </div> */}
+              <div className={classes.stats}>
+                Всего зарегистрированных эмитентов
+              </div>
             </CardFooter>
           </Card>
         </GridItem>
@@ -91,10 +88,7 @@ export default function Dashboard() {
               <h3 className={classes.cardTitle}>{holderCount}</h3>
             </CardHeader>
             <CardFooter stats>
-              {/* <div className={classes.stats}>
-                <DateRange />
-                Last 24 Hours
-              </div> */}
+              <div className={classes.stats}>Количество держателей акций</div>
             </CardFooter>
           </Card>
         </GridItem>
@@ -104,14 +98,11 @@ export default function Dashboard() {
               <CardIcon color="danger">
                 <Icon>info_outline</Icon>
               </CardIcon>
-              <p className={classes.cardCategory}>Кол-во бумаг</p>
+              <p className={classes.cardCategory}>Количество бумаг</p>
               <h3 className={classes.cardTitle}>{emissionCount}</h3>
             </CardHeader>
             <CardFooter stats>
-              {/* <div className={classes.stats}>
-                <LocalOffer />
-                Tracked from Github
-              </div> */}
+              <div className={classes.stats}>Активные выпуски ценных бумаг</div>
             </CardFooter>
           </Card>
         </GridItem>
@@ -121,17 +112,43 @@ export default function Dashboard() {
               <CardIcon color="info">
                 <i className="fab fa-twitter" />
               </CardIcon>
-              <p className={classes.cardCategory}>Обьем бумаг <small>(Сом)</small></p>
+              <p className={classes.cardCategory}>Объем бумаг <small>(сом)</small></p>
               <h3 className={classes.cardTitle}>{window.formatNumber(totalVolumePrice)}  </h3>
             </CardHeader>
             <CardFooter stats>
-              {/* <div className={classes.stats}>
-              <Danger>
-                  <Warning />
-                </Danger>
-               Номинальная стоимость
-              </div> */}
+              <div className={classes.stats}>Суммарный номинальный объем</div>
             </CardFooter>
+          </Card>
+        </GridItem>
+      </GridContainer>
+      {/* Quick Actions */}
+      <GridContainer>
+        <GridItem xs={12} sm={12} md={12}>
+          <Card>
+            <CardBody>
+              <GridContainer>
+                <GridItem xs={12} sm={6} md={3}>
+                  <NavLink to="/admin/emitent-list">
+                    <Button color="rose" fullWidth>Выбрать эмитента</Button>
+                  </NavLink>
+                </GridItem>
+                <GridItem xs={12} sm={6} md={3}>
+                  <NavLink to="/admin/operation-transfer">
+                    <Button color="info" fullWidth>Новая операция</Button>
+                  </NavLink>
+                </GridItem>
+                <GridItem xs={12} sm={6} md={3}>
+                  <NavLink to="/admin/dividends">
+                    <Button color="success" fullWidth>Расчет дивидендов</Button>
+                  </NavLink>
+                </GridItem>
+                <GridItem xs={12} sm={6} md={3}>
+                  <NavLink to="/admin/journals">
+                    <Button color="warning" fullWidth>Журнал изменений</Button>
+                  </NavLink>
+                </GridItem>
+              </GridContainer>
+            </CardBody>
           </Card>
         </GridItem>
       </GridContainer>
@@ -209,18 +226,17 @@ export default function Dashboard() {
               />
             </CardHeader>
             <CardBody>
-
               <h4 className={classes.cardTitle}>Эмитенты</h4>
               <p className={classes.cardCategory}>
                 <span className={classes.successText}>
-                  <ArrowUpward className={classes.upArrowCardCategory} /> 55%
+                  <ArrowUpward className={classes.upArrowCardCategory} /> 12%
                 </span>{" "}
-                increase in today sales.
+                рост за последний месяц
               </p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
-                <AccessTime /> updated 4 minutes ago
+                <AccessTime /> обновлено 4 минуты назад
               </div>
             </CardFooter>
           </Card>
@@ -241,7 +257,7 @@ export default function Dashboard() {
               <div className={classes.cardHoverUnder}>
                 <Tooltip
                   id="tooltip-top"
-                  title="Refresh"
+                  title="Обновить"
                   placement="bottom"
                   classes={{ tooltip: classes.tooltip }}
                 >
@@ -251,7 +267,7 @@ export default function Dashboard() {
                 </Tooltip>
                 <Tooltip
                   id="tooltip-top"
-                  title="Change Date"
+                  title="Изменить период"
                   placement="bottom"
                   classes={{ tooltip: classes.tooltip }}
                 >
@@ -261,11 +277,11 @@ export default function Dashboard() {
                 </Tooltip>
               </div>
               <h4 className={classes.cardTitle}>Акционеры</h4>
-              <p className={classes.cardCategory}>Last Campaign Performance</p>
+              <p className={classes.cardCategory}>Динамика за период</p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
-                <AccessTime /> campaign sent 2 days ago
+                <AccessTime /> обновлено 2 дня назад
               </div>
             </CardFooter>
           </Card>
@@ -285,7 +301,7 @@ export default function Dashboard() {
               <div className={classes.cardHoverUnder}>
                 <Tooltip
                   id="tooltip-top"
-                  title="Refresh"
+                  title="Обновить"
                   placement="bottom"
                   classes={{ tooltip: classes.tooltip }}
                 >
@@ -295,7 +311,7 @@ export default function Dashboard() {
                 </Tooltip>
                 <Tooltip
                   id="tooltip-top"
-                  title="Change Date"
+                  title="Изменить период"
                   placement="bottom"
                   classes={{ tooltip: classes.tooltip }}
                 >
@@ -305,13 +321,27 @@ export default function Dashboard() {
                 </Tooltip>
               </div>
               <h4 className={classes.cardTitle}>Ценные бумаги</h4>
-              <p className={classes.cardCategory}>Last Campaign Performance</p>
+              <p className={classes.cardCategory}>Выпуски по месяцам</p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
-                <AccessTime /> campaign sent 2 days ago
+                <AccessTime /> обновлено 2 дня назад
               </div>
             </CardFooter>
+          </Card>
+        </GridItem>
+      </GridContainer>
+      {/* Recent activity placeholder (can be wired to real data later) */}
+      <GridContainer>
+        <GridItem xs={12} sm={12} md={12}>
+          <Card>
+            <CardHeader color="primary">
+              <h4 className={classes.cardTitle}>Недавние активности</h4>
+              <p className={classes.cardCategory}>Последние операции и изменения</p>
+            </CardHeader>
+            <CardBody>
+              <div className={classes.stats}>Нет данных для отображения</div>
+            </CardBody>
           </Card>
         </GridItem>
       </GridContainer>

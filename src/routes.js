@@ -1,33 +1,4 @@
-import Buttons from "views/Components/Buttons.js";
-import Calendar from "views/Calendar/Calendar.js";
-import Charts from "views/Charts/Charts.js";
-import Dashboard from "views/Dashboard/Dashboard.js";
-import ErrorPage from "views/Pages/ErrorPage.js";
-import ExtendedForms from "views/Forms/ExtendedForms.js";
-import ExtendedTables from "views/Tables/ExtendedTables.js";
-import FullScreenMap from "views/Maps/FullScreenMap.js";
-import GoogleMaps from "views/Maps/GoogleMaps.js";
-import GridSystem from "views/Components/GridSystem.js";
-import Icons from "views/Components/Icons.js";
-import LockScreenPage from "views/Pages/LockScreenPage.js";
-import LoginPage from "views/Pages/LoginPage.js";
-import Notifications from "views/Components/Notifications.js";
-import Panels from "views/Components/Panels.js";
-import PricingPage from "views/Pages/PricingPage.js";
-import RTLSupport from "views/Pages/RTLSupport.js";
-import ReactTables from "views/Tables/ReactTables.js";
-import RegisterPage from "views/Pages/RegisterPage.js";
-import RegularForms from "views/Forms/RegularForms.js";
-import RegularTables from "views/Tables/RegularTables.js";
-import SweetAlert from "views/Components/SweetAlert.js";
-import TimelinePage from "views/Pages/Timeline.js";
-import Typography from "views/Components/Typography.js";
-import UserProfile from "views/Pages/UserProfile.js";
-import ValidationForms from "views/Forms/ValidationForms.js";
-import VectorMap from "views/Maps/VectorMap.js";
-import Widgets from "views/Widgets/Widgets.js";
-import Wizard from "views/Forms/Wizard.js";
-
+import React from "react";
 // @material-ui/icons
 import Apps from "@material-ui/icons/Apps";
 import DashboardIcon from "@material-ui/icons/Dashboard";
@@ -37,45 +8,76 @@ import Image from "@material-ui/icons/Image";
 import Place from "@material-ui/icons/Place";
 import Timeline from "@material-ui/icons/Timeline";
 import WidgetsIcon from "@material-ui/icons/Widgets";
-//
-import EmitentList from "views/Pages/EmitentList.js";
-import EditEmitent from "views/Pages/EditEmitent.js"
+// lazy views
+const Buttons = React.lazy(() => import("views/Components/Buttons.js"));
+const Calendar = React.lazy(() => import("views/Calendar/Calendar.js"));
+const Charts = React.lazy(() => import("views/Charts/Charts.js"));
+const Dashboard = React.lazy(() => import("views/Dashboard/Dashboard.js"));
+const ErrorPage = React.lazy(() => import("views/Pages/ErrorPage.js"));
+const ExtendedForms = React.lazy(() => import("views/Forms/ExtendedForms.js"));
+const ExtendedTables = React.lazy(() => import("views/Tables/ExtendedTables.js"));
+const FullScreenMap = React.lazy(() => import("views/Maps/FullScreenMap.js"));
+const GoogleMaps = React.lazy(() => import("views/Maps/GoogleMaps.js"));
+const GridSystem = React.lazy(() => import("views/Components/GridSystem.js"));
+const Icons = React.lazy(() => import("views/Components/Icons.js"));
+const LockScreenPage = React.lazy(() => import("views/Pages/LockScreenPage.js"));
+const LoginPage = React.lazy(() => import("views/Pages/LoginPage.js"));
+const Notifications = React.lazy(() => import("views/Components/Notifications.js"));
+const Panels = React.lazy(() => import("views/Components/Panels.js"));
+const PricingPage = React.lazy(() => import("views/Pages/PricingPage.js"));
+const RTLSupport = React.lazy(() => import("views/Pages/RTLSupport.js"));
+const ReactTables = React.lazy(() => import("views/Tables/ReactTables.js"));
+const RegisterPage = React.lazy(() => import("views/Pages/RegisterPage.js"));
+const RegularForms = React.lazy(() => import("views/Forms/RegularForms.js"));
+const RegularTables = React.lazy(() => import("views/Tables/RegularTables.js"));
+const SweetAlert = React.lazy(() => import("views/Components/SweetAlert.js"));
+const TimelinePage = React.lazy(() => import("views/Pages/Timeline.js"));
+const Typography = React.lazy(() => import("views/Components/Typography.js"));
+const UserProfile = React.lazy(() => import("views/Pages/UserProfile.js"));
+const ValidationForms = React.lazy(() => import("views/Forms/ValidationForms.js"));
+const VectorMap = React.lazy(() => import("views/Maps/VectorMap.js"));
+const Widgets = React.lazy(() => import("views/Widgets/Widgets.js"));
+const Wizard = React.lazy(() => import("views/Forms/Wizard.js"));
+const EmitentList = React.lazy(() => import("views/Pages/EmitentList.js"));
+const EditEmitent = React.lazy(() => import("views/Pages/EditEmitent.js"));
 
 //Start Reference
-import ReferenceList from "views/Pages/Reference/ReferenceList.js"
-import DistrictList from "views/Pages/Reference/DistrictList"
-import HolderTypeList from "views/Pages/Reference/HolderTypeList"
-import HolderStatusList from "views/Pages/Reference/HolderStatusList"
-import EmissionTypesList from "views/Pages/Reference/EmissionTypesList"
+const ReferenceList = React.lazy(() => import("views/Pages/Reference/ReferenceList.js"));
+const DistrictList = React.lazy(() => import("views/Pages/Reference/DistrictList"));
+const HolderTypeList = React.lazy(() => import("views/Pages/Reference/HolderTypeList"));
+const HolderStatusList = React.lazy(() => import("views/Pages/Reference/HolderStatusList"));
+const EmissionTypesList = React.lazy(() => import("views/Pages/Reference/EmissionTypesList"));
 //Emitent
-import EmitentDetail from "views/Pages/Emitent/Detail/index.js"
-import EmitentStocks from "views/Pages/Emitent/Stocks/index.js"
-import EmitentStockEdit from "views/Pages/Emitent/Stocks/edit.js"
-import CancellationStocks from "views/Pages/Emitent/Stocks/cancellation.js"
+const EmitentDetail = React.lazy(() => import("views/Pages/Emitent/Detail/index.js"));
+const EmitentStocks = React.lazy(() => import("views/Pages/Emitent/Stocks/index.js"));
+const EmitentStockEdit = React.lazy(() => import("views/Pages/Emitent/Stocks/edit.js"));
+const CancellationStocks = React.lazy(() => import("views/Pages/Emitent/Stocks/cancellation.js"));
 
 
-import Transactions from "views/Pages/Log/Transactions/index"
-import TransactionDetail from "views/Pages/Log/Transactions/detail.js"
+const Transactions = React.lazy(() => import("views/Pages/Log/Transactions/index"));
+const TransactionDetail = React.lazy(() => import("views/Pages/Log/Transactions/detail.js"));
 
-import IncomingDocuments from "views/Pages/Log/IncomingDocuments/List.js"
-import IncomingDocumentDetail from "views/Pages/Log/IncomingDocuments/IncomingDocumentDetail.js"
-import IncomingDocumentEdit from "views/Pages/Log/IncomingDocuments/edit.js"
+const IncomingDocuments = React.lazy(() => import("views/Pages/Log/IncomingDocuments/List.js"));
+const IncomingDocumentDetail = React.lazy(() => import("views/Pages/Log/IncomingDocuments/IncomingDocumentDetail.js"));
+const IncomingDocumentEdit = React.lazy(() => import("views/Pages/Log/IncomingDocuments/edit.js"));
 
-import Journal from "views/Pages/Log/Journal/List.js"
-import JournalDetail from "views/Pages/Log/Journal/Detail"
+const Journal = React.lazy(() => import("views/Pages/Log/Journal/List.js"));
+const JournalDetail = React.lazy(() => import("views/Pages/Log/Journal/Detail"));
 
 
-import Holders from "views/Pages/Holders.js"
-import HolderDetail from "views/Pages/Holders/detail.js"
-import EmitentHolders from "views/Pages/EmitentHolders.js"
-import EditHolder from "views/Pages/EditHolder.js"
-import OperationTransfer from "views/Pages/Operation/transfer/index.js"
-import OperationSingle from "views/Pages/Operation/single/index.js"
+const Holders = React.lazy(() => import("views/Pages/Holders.js"));
+const HolderDetail = React.lazy(() => import("views/Pages/Holders/detail.js"));
+const EmitentHolders = React.lazy(() => import("views/Pages/EmitentHolders.js"));
+const EditHolder = React.lazy(() => import("views/Pages/EditHolder.js"));
+const OperationTransfer = React.lazy(() => import("views/Pages/Operation/transfer/index.js"));
+const OperationSingle = React.lazy(() => import("views/Pages/Operation/single/index.js"));
 
-import Dividends from "views/Pages/Dividend/List.js"
-import CalculationDividend from "views/Pages/Dividend/Calculation.js"
-import DividendDetail from "views/Pages/Dividend/DividendDetail.js"
-import DividendTransactions from "views/Pages/Dividend/DividendTransactions.js"
+const Dividends = React.lazy(() => import("views/Pages/Dividend/List.js"));
+const CalculationDividend = React.lazy(() => import("views/Pages/Dividend/Calculation.js"));
+const DividendDetail = React.lazy(() => import("views/Pages/Dividend/DividendDetail.js"));
+const DividendTransactions = React.lazy(() => import("views/Pages/Dividend/DividendTransactions.js"));
+
+const QuarterlyReport = React.lazy(() => import("views/Pages/Quarterly/Quarterly.js"));
 
 var dashRoutes = [
 
@@ -366,7 +368,7 @@ var dashRoutes = [
         layout: "/admin",
         dashboard: false
       },
-   
+
 
       {
         path: "/grid-system",
@@ -560,12 +562,12 @@ var dashRoutes = [
         dashboard: true
       },
       {
-        path: "/reports",
+        path: "/quartely-report",
         name: "Ежеквартальный отчет",
         rtlName: "أشكال عادية",
         mini: "RF",
         rtlMini: "صو",
-        component: Dividends,
+        component: QuarterlyReport,
         layout: "/admin",
         dashboard: true
       },

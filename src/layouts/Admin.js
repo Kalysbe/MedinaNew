@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import cx from "classnames";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
@@ -242,19 +242,23 @@ console.log(isAuth,'auth')
                   </CardBody>
                 </Card>
               ) : (
-                <Switch>
-                  {getRoutes(routes)}
-                  {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
-                </Switch>
+                <Suspense fallback={<div>Загрузка...</div>}>
+                  <Switch>
+                    {getRoutes(routes)}
+                    {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
+                  </Switch>
+                </Suspense>
               )}
             </div>
           </div>
         ) : (
           <div className={classes.map}>
-            <Switch>
-              {getRoutes(routes)}
-              {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
-            </Switch>
+            <Suspense fallback={<div>Загрузка карты...</div>}>
+              <Switch>
+                {getRoutes(routes)}
+                {/* <Redirect from="/admin" to="/admin/dashboard" /> */}
+              </Switch>
+            </Suspense>
           </div>
         )}
         {/* {getRoute() ? <Footer fluid /> : null} */}

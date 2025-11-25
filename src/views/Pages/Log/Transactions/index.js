@@ -95,12 +95,7 @@ export default function RegularTables() {
 
   // Исходные колонки (на экране)
   const tableHeaders = [
-    {
-      Header: "№",
-      accessor: (_, rowIndex) => rowIndex + 1,
-      Cell: ({ value }) => <strong>{value}</strong>,
-      sortType: "basic",
-    },
+
     {
       Header: "Номер",
       accessor: "id",

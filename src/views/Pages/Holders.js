@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -26,16 +26,12 @@ import Button from "components/CustomButtons/Button.js";
 import Menu from "@material-ui/core/Menu";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import TextField from "@material-ui/core/TextField";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
 
 import Report1 from './Reestr/report1.js'
 import Report2 from './Reestr/report2.js'
 import Report3 from './Reestr/report3.js'
-
 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHoldersByEmitentId } from "redux/actions/holders";
@@ -53,16 +49,12 @@ export default function RegularTables() {
   const [totalOrdinary, setTotalOrdinary] = useState(0)
   const [totalPrivileged, setTotalPrivileged] = useState(0)
 
-
-const [report, setReport] = useState(1); // только тип
-
+  const [report, setReport] = useState(1); // только тип
   const [selectedEmission, setSelectedEmission] = useState(0)
 
   const Emitent = useSelector(state => state.emitents?.store);
   const Holders = useSelector(state => state.holders?.holders);
   const Emissions = useSelector(state => state.emissions?.emissions);
-
-  
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [filterState, setFilterState] = useState({
@@ -73,25 +65,37 @@ const [report, setReport] = useState(1); // только тип
     taxType: ''
   });
 
+  // ⬅️ Живой поиск и фильтр по проценту
+  // фильтры состояния
+  const [searchTerm, setSearchTerm] = useState('');
+  const [percentFilter, setPercentFilter] = useState('');
+  const [percentCompare, setPercentCompare] = useState('='); // ⬅️ новый
+
+
   useEffect(() => {
     dispatch(fetchEmissionsByEmitentId(Emitent?.id));
   }, []);
 
   useEffect(() => {
     if (report === 3 && !selectedEmission) {
-
       // return
     }
     dispatch(fetchHoldersByEmitentId({ eid: Emitent?.id, type: report, emid: selectedEmission }));
   }, [report, selectedEmission]);
 
   useEffect(() => {
-    const holdersCount = Holders?.items.length;
+    const holdersCount = Holders?.items?.length || 0;
+
     const calculateSums = (data) => {
+      if (!data) return { common_quantity: 0, preferred_quantity: 0 };
       return data.reduce(
         (acc, item) => {
-          acc.common_quantity = (acc.common_quantity || 0) + (item.common_quantity ? parseFloat(item.common_quantity) : 0);
-          acc.preferred_quantity = (acc.preferred_quantity || 0) + (item.preferred_quantity ? parseFloat(item.preferred_quantity) : 0);
+          acc.common_quantity =
+            (acc.common_quantity || 0) +
+            (item.common_quantity ? parseFloat(item.common_quantity) : 0);
+          acc.preferred_quantity =
+            (acc.preferred_quantity || 0) +
+            (item.preferred_quantity ? parseFloat(item.preferred_quantity) : 0);
           return acc;
         },
         { common_quantity: 0, preferred_quantity: 0 }
@@ -104,10 +108,9 @@ const [report, setReport] = useState(1); // только тип
     setTotalPrivileged(newSums.preferred_quantity);
   }, [Holders]);
 
-const handleChange = (event) => {
-  setReport(event.target.value);
-};
-
+  const handleChange = (event) => {
+    setReport(event.target.value);
+  };
 
   const handleChangeEmission = (event) => {
     setSelectedEmission(event.target.value);
@@ -136,14 +139,16 @@ const handleChange = (event) => {
       status: '',
       taxType: ''
     });
+    // ⬅️ Сбрасываем и локальные фильтры
+    setSearchTerm('');
+    setPercentFilter('');
   };
 
   const handleApplyFilter = () => {
-    // Здесь будет логика применения фильтров
+    // Здесь будет логика применения серверных фильтров
     console.log('Applied filters:', filterState);
     handleFilterClose();
   };
-
 
   const handleExportClick = () => {
     if (componentRef.current?.exportToExcel) {
@@ -152,16 +157,12 @@ const handleChange = (event) => {
   };
 
   const reportLabel = {
-  1: 'Реестр акционеров',
-  2: 'Реестр владельцев именных ЦБ',
-  3: 'Реестр владельцев именных по номерам ЦБ'
-}[report];
-
+    1: 'Реестр акционеров',
+    2: 'Реестр владельцев именных ЦБ',
+    3: 'Реестр владельцев именных по номерам ЦБ'
+  }[report];
 
   const ReportViewer = ({ reportType, data, printRef }) => {
-
-    
-
     switch (reportType) {
       case 1:
         return <Report1 ref={printRef} data={data} emitent={Emitent?.name} />;
@@ -174,222 +175,300 @@ const handleChange = (event) => {
     }
   };
 
-  return (<>
-    <GridContainer>
-      <GridItem xs={12} sm={6} md={6} lg={4}>
-        <Card>
-          <CardHeader color="info" stats icon>
-            <CardIcon color="info">
-              <Icon>info_outline</Icon>
-            </CardIcon>
-            <p className={classes.cardCategory}>Количество держателей</p>
-            <h3 className={classes.cardTitle}>
-              {totalHolders}
-            </h3>
-          </CardHeader>
-          <CardFooter stats>
+  // ⬅️ Фильтрованные данные для всех трёх отчётов
+  const filteredData = useMemo(() => {
+    const items = Holders?.items || [];
 
-          </CardFooter>
-        </Card>
-      </GridItem>
-      <GridItem xs={12} sm={6} md={6} lg={4}>
-        <Card>
-          <CardHeader color="info" stats icon>
-            <CardIcon color="info">
-              <Icon>info_outline</Icon>
-            </CardIcon>
-            <p className={classes.cardCategory}>Общее кол-во простых</p>
-            <h3 className={classes.cardTitle}>{window.formatNumber(totalOrdinary)}</h3>
-          </CardHeader>
-          <CardFooter stats>
+    return items.filter(item => {
+      const name = (item.full_name || '').toLowerCase();
+      const term = searchTerm.trim().toLowerCase();
 
-          </CardFooter>
-        </Card>
-      </GridItem>
-      <GridItem xs={12} sm={6} md={6} lg={4}>
-        <Card>
-          <CardHeader color="info" stats icon>
-            <CardIcon color="info">
-              <Icon>info_outline</Icon>
-            </CardIcon>
-            <p className={classes.cardCategory}>Общее кол-во привилег</p>
-            <h3 className={classes.cardTitle}>{window.formatNumber(totalPrivileged)}</h3>
-          </CardHeader>
-          <CardFooter stats>
+      const matchesName = !term || name.includes(term);
 
-          </CardFooter>
-        </Card>
-      </GridItem>
-    </GridContainer>
-    <GridContainer>
-      <GridItem xs={12}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button
-            variant="contained"
-            color="success"
-            size="small"
-            onClick={handleExportClick}
-          >Excel</Button>
-          <ReactToPrint
-            trigger={() =>
-              <Button
-                variant="contained"
-                color="warning"
-                size="small"
-              >Печать</Button>
-            }
-            content={() => componentRef.current?.getContent()}
+      // percent может быть в разных полях
+      const rawPercent =
+        item.percentage ??
+        item.percentage ??
+        item.percentage ??
+        null;
+
+      const value = rawPercent !== null ? parseFloat(rawPercent) : NaN;
+
+      // если не введено число — не фильтруем по проценту
+      if (percentFilter === '') {
+        return matchesName;
+      }
+
+      const filterValue = parseFloat(percentFilter);
+
+      let matchesPercent = true;
+
+      if (!Number.isNaN(value)) {
+        if (percentCompare === '=') {
+          matchesPercent = value === filterValue;
+        } else if (percentCompare === '<=') {
+          matchesPercent = value <= filterValue;
+        } else if (percentCompare === '>=') {
+          matchesPercent = value >= filterValue;
+        }
+      }
+
+      return matchesName && matchesPercent;
+    });
+  }, [Holders, searchTerm, percentFilter, percentCompare]);
 
 
-          />
-        </div>
-        <Card>
-          <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div style={{ width: '50%' }}>
+  return (
+    <>
+      <GridContainer>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
+          <Card>
+            <CardHeader color="info" stats icon>
               <CardIcon color="info">
-                <Assignment />
+                <Icon>info_outline</Icon>
               </CardIcon>
-            <h4 className={classes.cardIconTitle}>{reportLabel}</h4>
+              <p className={classes.cardCategory}>Количество держателей</p>
+              <h3 className={classes.cardTitle}>
+                {totalHolders}
+              </h3>
+            </CardHeader>
+            <CardFooter stats />
+          </Card>
+        </GridItem>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
+          <Card>
+            <CardHeader color="info" stats icon>
+              <CardIcon color="info">
+                <Icon>info_outline</Icon>
+              </CardIcon>
+              <p className={classes.cardCategory}>Общее кол-во простых</p>
+              <h3 className={classes.cardTitle}>{window.formatNumber(totalOrdinary)}</h3>
+            </CardHeader>
+            <CardFooter stats />
+          </Card>
+        </GridItem>
+        <GridItem xs={12} sm={6} md={6} lg={4}>
+          <Card>
+            <CardHeader color="info" stats icon>
+              <CardIcon color="info">
+                <Icon>info_outline</Icon>
+              </CardIcon>
+              <p className={classes.cardCategory}>Общее кол-во привилег</p>
+              <h3 className={classes.cardTitle}>{window.formatNumber(totalPrivileged)}</h3>
+            </CardHeader>
+            <CardFooter stats />
+          </Card>
+        </GridItem>
+      </GridContainer>
 
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%', alignItems: 'center' }}>
-              <Button
-                style={{ marginLeft: '10px' }}
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={handleFilterClick}
-                startIcon={<FilterListIcon />}
-              >
-                Фильтр
-              </Button>
-              <Menu
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleFilterClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                PaperProps={{
-                  style: { minWidth: 400, borderRadius: 12, padding: 0, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }
-                }}
-              >
-                <Paper style={{ padding: 24, minWidth: 400, boxShadow: 'none' }}>
-                  <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 16 }}>Параметры фильтрации</div>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Тип реестра</InputLabel>
-                        <Select
-                          value={report}
-                          onChange={handleChange}
-                          label="Тип реестра"
-                        >
-                          <MenuItem value={1}>Реестр акционеров</MenuItem>
-                          <MenuItem value={2}>Реестр владельцев именных ЦБ</MenuItem>
-                          <MenuItem value={3}>Реестр владельцев именных по номерам ЦБ</MenuItem>
-                        </Select>
-
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Дата периода с"
-                        type="date"
-                        fullWidth
-                        size="small"
-                        value={filterState.dateFrom}
-                        onChange={e => handleFilterChange('dateFrom', e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Дата периода по"
-                        type="date"
-                        fullWidth
-                        size="small"
-                        value={filterState.dateTo}
-                        onChange={e => handleFilterChange('dateTo', e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                   
-                   
-                    <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-                      <Button
-                        variant="outlined"
-                        color="default"
-                        size="small"
-                        onClick={handleResetFilter}
-                        style={{ minWidth: 100 }}
-                      >
-                        Сбросить
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={handleApplyFilter}
-                        style={{ minWidth: 100 }}
-                      >
-                        Найти
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              </Menu>
-              {report === 3 && (
-                <FormControl
-                  style={{ width: '150px', marginLeft: '10px' }}
+      <GridContainer>
+        <GridItem xs={12}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              onClick={handleExportClick}
+            >
+              Excel
+            </Button>
+            <ReactToPrint
+              trigger={() =>
+                <Button
+                  variant="contained"
+                  color="warning"
+                  size="small"
                 >
-                  <InputLabel
-                    htmlFor="simple-select"
+                  Печать
+                </Button>
+              }
+              content={() => componentRef.current?.getContent()}
+            />
+          </div>
+
+          <Card>
+            <CardHeader color="info" icon style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ width: '50%', display: 'flex', alignItems: 'center' }}>
+                <CardIcon color="info">
+                  <Assignment />
+                </CardIcon>
+                <h4 className={classes.cardIconTitle}>{reportLabel}</h4>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '50%', alignItems: 'center' }}>
+                <Button
+                  style={{ marginLeft: '10px' }}
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={handleFilterClick}
+                  startIcon={<FilterListIcon />}
+                >
+                  Фильтр
+                </Button>
+                <Menu
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={Boolean(anchorEl)}
+                  onClose={handleFilterClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  PaperProps={{
+                    style: { minWidth: 400, borderRadius: 12, padding: 0, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }
+                  }}
+                >
+                  <Paper style={{ padding: 24, minWidth: 400, boxShadow: 'none' }}>
+                    <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 16 }}>Параметры фильтрации</div>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Тип реестра</InputLabel>
+                          <Select
+                            value={report}
+                            onChange={handleChange}
+                            label="Тип реестра"
+                          >
+                            <MenuItem value={1}>Реестр акционеров</MenuItem>
+                            <MenuItem value={2}>Реестр владельцев именных ЦБ</MenuItem>
+                            <MenuItem value={3}>Реестр владельцев именных по номерам ЦБ</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Дата периода с"
+                          type="date"
+                          fullWidth
+                          size="small"
+                          value={filterState.dateFrom}
+                          onChange={e => handleFilterChange('dateFrom', e.target.value)}
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Дата периода по"
+                          type="date"
+                          fullWidth
+                          size="small"
+                          value={filterState.dateTo}
+                          onChange={e => handleFilterChange('dateTo', e.target.value)}
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+                        <Button
+                          variant="outlined"
+                          color="default"
+                          size="small"
+                          onClick={handleResetFilter}
+                          style={{ minWidth: 100 }}
+                        >
+                          Сбросить
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          onClick={handleApplyFilter}
+                          style={{ minWidth: 100 }}
+                        >
+                          Найти
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Menu>
+
+                {report === 3 && (
+                  <FormControl
+                    style={{ width: '150px', marginLeft: '10px' }}
                   >
-                    Эмиссия
-                  </InputLabel>
+                    <InputLabel htmlFor="simple-select">
+                      Эмиссия
+                    </InputLabel>
+                    <Select
+                      MenuProps={{
+                        className: classes.selectMenu
+                      }}
+                      classes={{
+                        select: classes.select
+                      }}
+                      name='operation_id'
+                      value={selectedEmission}
+                      onChange={handleChangeEmission}
+                    >
+                      {Emissions?.items.map((item) => (
+                        <MenuItem
+                          key={item.id}
+                          classes={{
+                            root: classes.selectMenuItem,
+                            selected: classes.selectMenuItemSelected
+                          }}
+                          value={item.id}
+                        >
+                          {item.reg_number}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </div>
+            </CardHeader>
+
+            <CardBody>
+              {/* ⬅️ Панель живого поиска и фильтра по проценту */}
+              <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  label="Поиск по ФИО"
+                  placeholder="Введите ФИО акционера"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ maxWidth: 300 }}
+                />
+                <FormControl variant="outlined" size="small" style={{ width: 120 }}>
+                  <InputLabel>Сравнение</InputLabel>
                   <Select
-                    MenuProps={{
-                      className: classes.selectMenu
-                    }}
-                    classes={{
-                      select: classes.select
-                    }}
-                    name='operation_id'
-                    value={selectedEmission}
-                    onChange={handleChangeEmission}
+                    value={percentCompare}
+                    onChange={(e) => setPercentCompare(e.target.value)}
+                    label="Сравнение"
                   >
-                    {Emissions?.items.map((item, index) => (
-                      <MenuItem
-                        classes={{
-                          root: classes.selectMenuItem,
-                          selected: classes.selectMenuItemSelected
-                        }}
-                        value={item.id}>
-                        {item.reg_number}
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="=">= (равно)</MenuItem>
+                    <MenuItem value="<=">≤ (меньше или равно)</MenuItem>
+                    <MenuItem value=">=">≥ (больше или равно)</MenuItem>
                   </Select>
                 </FormControl>
-              )}
-            </div>
-          </CardHeader>
-          <CardBody >
-            {/* <div ref={componentRef} style={{ padding: '20px' }}> */}
-           <ReportViewer reportType={report} data={Holders.items} printRef={componentRef} />
-            {/* </div> */}
-          </CardBody>
-        </Card>
-      </GridItem>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  label="Процент"
+                  type="number"
+                  value={percentFilter}
+                  onChange={(e) => setPercentFilter(e.target.value)}
+                  style={{ maxWidth: 180 }}
+                  inputProps={{ min: 0, step: 0.01 }}
+                />
+              </div>
 
-
-    </GridContainer>
-  </>
+              <ReportViewer
+                reportType={report}
+                data={filteredData}           // ⬅️ передаём уже отфильтрованные данные
+                printRef={componentRef}
+              />
+            </CardBody>
+          </Card>
+        </GridItem>
+      </GridContainer>
+    </>
   );
 }

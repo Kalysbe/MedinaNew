@@ -21,14 +21,15 @@ import MailOutline from "@material-ui/icons/MailOutline";
 import Swal from "sweetalert2";
 import { useForm, Controller } from "react-hook-form";
 
-import { fetchAllHolders } from "redux/actions/holders";
-import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId } from "redux/actions/emissions";
+import { fetchAllHolders, fetchHolders } from "redux/actions/holders";
+import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId, fetchSecuritiesByHolderIdEmitentId } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 import { fetchDocuments } from "redux/actions/documents";
 import { transferTypes, singleTypes } from "constants/operations.js";
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
 
 import DocumentSelectorModal from "views/Pages/Log/IncomingDocuments/DocumentModal.js";
+import { use } from "react";
 
 const useStyles = makeStyles(styles);
 
@@ -43,7 +44,9 @@ export default function RegularForms() {
 
   // Получаем данные из Redux
   const Emitent = useSelector((state) => state.emitents.store);
-  const holders = useSelector((state) => state.holders.allholders);
+
+  const allHolders = useSelector((state) => state.holders.allHolders);
+
   const { operationTypes } = useSelector((state) => state.transactions);
   const { emissions } = useSelector((state) => state.emissions);
   const { documentList } = useSelector((state) => state.documents);
@@ -54,8 +57,39 @@ export default function RegularForms() {
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [localDocs, setLocalDocs] = useState(DocumentList);
+  const [Holders, setHolders] = useState([]);
 
   const [openDocModal, setOpenDocModal] = useState(false);
+
+    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      operation_id: "",
+      holder_to_id: "",
+      emission_id: "",
+      is_exchange: true,
+      emission: "",
+      quantity: "",
+      amount: "",
+      is_family: false,
+      document_id: "",
+      contract_date: new Date().toISOString().split("T")[0],
+    },
+  });
+
+
+ 
+  const watchedOperationId = watch("operation_id");
+  const watchedEmissionId = watch("emission_id");
+  const watchedQuantity = watch("quantity");
+  const watchedHolderToId = watch("holder_to_id");
+  
+  
+  const holders = useSelector((state) =>
+    watchedOperationId === 1
+      ? state.holders.allholders
+      : state.holders.holders
+  );
+   console.log(holders,watchedOperationId, "holders.items");
 
   useEffect(() => {
     setLocalDocs(DocumentList);
@@ -180,35 +214,34 @@ export default function RegularForms() {
   ];
 
   // Инициализация React Hook Form с дефолтными значениями
-  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
-    defaultValues: {
-      operation_id: "",
-      holder_to_id: "",
-      emission_id: "",
-      is_exchange: true,
-      emission: "",
-      quantity: "",
-      amount: "",
-      is_family: false,
-      document_id: "",
-      contract_date: new Date().toISOString().split("T")[0],
-    },
-  });
 
-  const watchedOperationId = watch("operation_id");
-  const watchedEmissionId = watch("emission_id");
-  const watchedQuantity = watch("quantity");
+
+
+
+
 
   useEffect(() => {
-    dispatch(fetchAllHolders());
+
+
     dispatch(fetchOperationTypes());
     dispatch(fetchDocuments(Emitent?.id));
   }, [dispatch, Emitent]);
 
+  // useEffect(() => {
+
+  // }, [watchedHolderToId])
+
   useEffect(() => {
     if (watchedOperationId === 1) {
       dispatch(fetchEmissionsByEmitentId(Emitent?.id));
+      dispatch(fetchAllHolders());
+      // setHolders(allHolders);
+    } else if (watchedOperationId === 10) {
+
+      dispatch(fetchHolders(Emitent?.id));
+      // setHolders(holders);
     }
+
   }, [watchedOperationId, dispatch, Emitent]);
 
   useEffect(() => {

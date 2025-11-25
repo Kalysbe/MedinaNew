@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
 // @material-ui/core components
@@ -89,10 +89,12 @@ export default function Pages(props) {
           className={classes.fullPage}
           style={{ backgroundImage: "url(" + getBgImage() + ")" }}
         >
-          <Switch>
-            {getRoutes(routes)}
-            <Redirect from="/auth" to="/auth/login-page" />
-          </Switch>
+          <Suspense fallback={<div>Загрузка...</div>}>
+            <Switch>
+              {getRoutes(routes)}
+              <Redirect from="/auth" to="/auth/login-page" />
+            </Switch>
+          </Suspense>
          
         </div>
       </div>

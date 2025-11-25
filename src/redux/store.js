@@ -9,6 +9,7 @@ import { dividendReducer } from './slices/dividend';
 import { referenceReducer } from './slices/reference';
 import { documentsReducer } from './slices/documents';
 import { journalReducer } from './slices/journal';
+import { quarterlyReducer } from './slices/quarterly';
 
 const store = configureStore({
     reducer: {
@@ -21,7 +22,8 @@ const store = configureStore({
         dividend:dividendReducer,
         reference: referenceReducer,
         documents: documentsReducer,
-        journal: journalReducer
+        journal: journalReducer,
+        quarterly: quarterlyReducer
     }
 })
 
