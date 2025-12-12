@@ -22,18 +22,24 @@ import {
   Typography,
   Tooltip,
   IconButton,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Paper,
+  Collapse,
+  Box,
 } from "@material-ui/core";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import ViewWeekIcon from "@material-ui/icons/ViewWeek";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import PrintIcon from "@material-ui/icons/Print";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import classNames from "classnames";
 import * as XLSX from "xlsx";
 import ReactToPrint from "react-to-print";
 
-import { fetchQuarterlyReport } from "redux/actions/quarterly";
-import { generateMockQuarterlyData } from "../../../utils/mockQuarterly";
+import { fetchQuarterlyPrint } from "redux/actions/prints";
 
 const useStyles = makeStyles((theme) => ({
   cardHeader: {
@@ -138,6 +144,12 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.5, 1),
     lineHeight: 1.3,
   },
+  operationBorder: {
+    borderLeft: "2px solid #D1D5DB",
+  },
+  baseColumnsBorder: {
+    borderRight: "2px solid #D1D5DB",
+  },
   doubleHeaderRow: {
     "& th": {
       borderBottom: "1px solid #D1D5DB",
@@ -207,6 +219,12 @@ const useStyles = makeStyles((theme) => ({
       fontWeight: 600,
     },
   },
+  printOperationBorder: {
+    borderLeft: "2px solid #D1D5DB !important",
+  },
+  printBaseColumnsBorder: {
+    borderRight: "2px solid #D1D5DB !important",
+  },
   printSummaryHeading: {
     fontSize: 16,
     fontWeight: 600,
@@ -220,6 +238,40 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
     fontSize: 13,
     color: "#4B5563",
+  },
+  operationsSelector: {
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    backgroundColor: "#F9FAFB",
+    borderRadius: 8,
+    border: "1px solid #E5E7EB",
+  },
+  operationsSelectorHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    cursor: "pointer",
+    padding: theme.spacing(1),
+    "&:hover": {
+      backgroundColor: "#F3F4F6",
+      borderRadius: 4,
+    },
+  },
+  operationsSelectorTitle: {
+    fontWeight: 600,
+    fontSize: 14,
+    color: "#111827",
+  },
+  operationsCheckboxGroup: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: theme.spacing(1),
+    padding: theme.spacing(2, 1, 1, 1),
+    maxHeight: 200,
+    overflowY: "auto",
+  },
+  operationsCheckbox: {
+    minWidth: 200,
   },
   "@media print": {
     filtersRow: {
@@ -253,10 +305,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const QUARTER_OPTIONS = [
-  { value: 1, label: "I квартал" },
-  { value: 2, label: "II квартал" },
-  { value: 3, label: "III квартал" },
-  { value: 4, label: "IV квартал" },
+  { value: 0, label: "Годовой" },
+  { value: 1, label: "1 квартал" },
+  { value: 2, label: "2 квартал" },
+  { value: 3, label: "3 квартал" },
+  { value: 4, label: "4 квартал" },
 ];
 
 const DEFAULT_COLUMN_BLUEPRINT = Array.from({ length: 28 }, (_, index) => ({
@@ -329,7 +382,10 @@ const Quarterly = () => {
   const dispatch = useDispatch();
 
   const emitent = useSelector((state) => state.emitents.store);
-  const report = useSelector((state) => state.quarterly.report);
+  const quarterlyPrint = useSelector((state) => state.prints?.prints?.quarterlyPrint) || {
+    data: {},
+    status: "idle",
+  };
   const printRef = useRef(null);
   const tableWrapperRef = useRef(null);
   const topScrollRef = useRef(null);
@@ -342,73 +398,240 @@ const Quarterly = () => {
       quarter: Math.ceil((now.getMonth() + 1) / 3),
     };
   });
-  const [dense, setDense] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [selectedOperations, setSelectedOperations] = useState(new Set());
+  const [operationsSelectorOpen, setOperationsSelectorOpen] = useState(true);
 
-  const [useMockData, setUseMockData] = useState(
-    () => window?.__MEDINA_DEBUG__?.quarterlyMockEnabled || false
-  );
+  const isLoading = quarterlyPrint?.status === "loading";
+  const hasError = quarterlyPrint?.status === "error";
+  
+  // Извлекаем данные из quarterlyPrint.data
+  const printData = quarterlyPrint?.data || {};
+  const isArrayData = Array.isArray(printData);
+  const rawData = isArrayData ? printData : (printData.rows || printData.data || printData.items || []);
+  const metaData = isArrayData ? {} : (printData.meta || {});
 
-  const isLoading = report.status === "loading";
-  const hasError = report.status === "error";
-  const rawRows = report.rows || [];
-  const rawColumns = report.columns || [];
-
-  const mockRows = useMemo(() => generateMockQuarterlyData(100), []);
-  const rows = useMockData ? mockRows : rawRows;
-  const columnsFromApi = useMockData
-    ? mockRows.length
-      ? Object.keys(mockRows[0])
-          .filter((key) => key.startsWith("column_"))
-          .map((key, idx) => ({
-            id: key,
-            label: `Поле ${idx + 1}`,
-          }))
-      : []
-    : rawColumns;
-
-  const derivedColumns = useMemo(() => {
-    if (columnsFromApi.length) {
-      return columnsFromApi.map((column, index) => ({
-        id: column.id || column.key || `column_${index}`,
-        label: column.label || column.title || column.key || `Колонка ${index + 1}`,
-        width: column.width,
-      }));
+  // Преобразуем данные из API в формат таблицы
+  const transformedData = useMemo(() => {
+    if (!Array.isArray(rawData) || rawData.length === 0) {
+      return { rows: [], columns: [], allOperationsList: [] };
     }
 
-    if (rows.length) {
-      const firstRow = rows[0];
-      return Object.keys(firstRow).map((key) => ({
-        id: key,
-        label: key,
-      }));
+    // Собираем все уникальные операции из всех эмиссий
+    const allOperations = new Set();
+    rawData.forEach((item) => {
+      if (Array.isArray(item.operations)) {
+        item.operations.forEach((op) => {
+          if (op.name) {
+            allOperations.add(op.name);
+          }
+        });
+      }
+    });
+
+    const operationsList = Array.from(allOperations).sort();
+
+    // Создаем колонки с многоуровневой структурой
+    const baseColumns = [
+      { id: "emitent", label: "Эмитент", isBase: true },
+      { id: "emission", label: "Эмиссия", isBase: true },
+      // { id: "emission_id", label: "Emission ID", isBase: true },
+    ];
+
+    // Создаем колонки для операций (каждая операция имеет 3 подстолбца)
+    const operationColumns = operationsList.map((opName) => ({
+      id: opName,
+      label: opName,
+      isOperation: true,
+      subColumns: [
+        { id: `${opName}_count`, label: "сделки", type: "count" },
+        { id: `${opName}_quantity`, label: "кол-во", type: "quantity" },
+        { id: `${opName}_volume`, label: "объем", type: "volume" },
+      ],
+    }));
+
+    // Объединяем все колонки для отображения
+    const allColumns = [...baseColumns, ...operationColumns];
+
+    // Создаем строки
+    const rows = rawData.map((item) => {
+      const row = {
+        emitent: item.emitent || "",
+        emission: item.emission || "",
+        emission_id: item.emission_id || "",
+      };
+
+      // Создаем объект для быстрого поиска операций
+      const operationsMap = {};
+      if (Array.isArray(item.operations)) {
+        item.operations.forEach((op) => {
+          if (op.name) {
+            operationsMap[op.name] = op;
+          }
+        });
+      }
+
+      // Заполняем значения для каждой операции
+      operationsList.forEach((opName) => {
+        const op = operationsMap[opName] || {};
+        row[`${opName}_count`] = op.count ?? 0;
+        row[`${opName}_quantity`] = op.quantity ?? 0;
+        row[`${opName}_volume`] = op.volume ?? 0;
+      });
+
+      return row;
+    });
+
+    return { rows, columns: allColumns, baseColumns, operationColumns, allOperationsList: operationsList };
+  }, [rawData]);
+
+  const rows = transformedData.rows;
+
+  // Инициализируем выбранные операции при первом загрузке данных
+  useEffect(() => {
+    if (transformedData.allOperationsList?.length > 0 && selectedOperations.size === 0) {
+      // По умолчанию выбираем все операции
+      setSelectedOperations(new Set(transformedData.allOperationsList));
+    }
+  }, [transformedData.allOperationsList]);
+
+  // Фильтруем операции на основе выбранных и создаем столбец "Другие"
+  const filteredTransformedData = useMemo(() => {
+    if (!transformedData.operationColumns) {
+      return transformedData;
     }
 
-    return [];
-  }, [columnsFromApi, rows]);
+    const selectedOpsSet = selectedOperations.size > 0 ? selectedOperations : new Set(transformedData.allOperationsList || []);
+    
+    // Фильтруем операции - показываем только выбранные
+    const filteredOperationColumns = transformedData.operationColumns.filter((opCol) =>
+      selectedOpsSet.has(opCol.label)
+    );
 
-  const tableColumns = useMemo(() => {
-    if (derivedColumns.length) {
-      return derivedColumns;
+    // Находим не выбранные операции
+    const unselectedOperations = transformedData.allOperationsList?.filter(
+      (opName) => !selectedOpsSet.has(opName)
+    ) || [];
+
+    // Добавляем столбец "Другие" если есть не выбранные операции
+    let otherColumn = null;
+    if (unselectedOperations.length > 0) {
+      otherColumn = {
+        id: "other",
+        label: "Другие",
+        isOperation: true,
+        isOther: true,
+        subColumns: [
+          { id: "other_count", label: "сделки", type: "count" },
+          { id: "other_quantity", label: "кол-во", type: "quantity" },
+          { id: "other_volume", label: "объем", type: "volume" },
+        ],
+      };
     }
-    return DEFAULT_COLUMN_BLUEPRINT;
-  }, [derivedColumns]);
 
-  const displayColumns = useMemo(
-    () =>
-      tableColumns.map((column, index) => ({
-        ...column,
-        primaryLabel:
-          PRIMARY_HEADER_LABELS[index] ||
-          column.label ||
-          `Колонка ${index + 1}`,
-        secondaryLabel:
-          column.label && column.label !== column.id
-            ? column.label
-            : `Показатель ${index + 1}`,
-      })),
-    [tableColumns]
-  );
+    return {
+      ...transformedData,
+      operationColumns: otherColumn ? [...filteredOperationColumns, otherColumn] : filteredOperationColumns,
+      unselectedOperations,
+    };
+  }, [transformedData, selectedOperations]);
+
+  // Обновляем строки для добавления значений столбца "Другие"
+  const rowsWithOther = useMemo(() => {
+    if (!filteredTransformedData.unselectedOperations?.length) {
+      return rows;
+    }
+
+    const unselectedOps = filteredTransformedData.unselectedOperations;
+    
+    return rows.map((row) => {
+      const newRow = { ...row };
+      
+      // Суммируем значения не выбранных операций
+      let otherCount = 0;
+      let otherQuantity = 0;
+      let otherVolume = 0;
+
+      unselectedOps.forEach((opName) => {
+        otherCount += row[`${opName}_count`] || 0;
+        otherQuantity += row[`${opName}_quantity`] || 0;
+        otherVolume += row[`${opName}_volume`] || 0;
+      });
+
+      newRow.other_count = otherCount;
+      newRow.other_quantity = otherQuantity;
+      newRow.other_volume = otherVolume;
+
+      return newRow;
+    });
+  }, [rows, filteredTransformedData.unselectedOperations]);
+
+  // Для новой структуры с операциями создаем плоский список всех колонок для отображения
+  const flatColumns = useMemo(() => {
+    // Для реальных данных используем новую структуру
+    const flat = [];
+    
+    // Базовые колонки
+    if (filteredTransformedData.baseColumns) {
+      filteredTransformedData.baseColumns.forEach((col) => {
+        flat.push({ ...col, isBase: true });
+      });
+    }
+    
+    // Колонки операций с подстолбцами
+    if (filteredTransformedData.operationColumns) {
+      filteredTransformedData.operationColumns.forEach((opCol) => {
+        opCol.subColumns.forEach((subCol) => {
+          flat.push({
+            id: subCol.id,
+            label: subCol.label,
+            operationName: opCol.label,
+            type: subCol.type,
+            isOperation: true,
+            isOther: opCol.isOther || false,
+          });
+        });
+      });
+    }
+    
+    return flat;
+  }, [filteredTransformedData]);
+
+  const displayColumns = useMemo(() => {
+    // Для новой структуры создаем отображение с группировкой
+    const result = [];
+    
+    // Базовые колонки
+    if (filteredTransformedData.baseColumns) {
+      filteredTransformedData.baseColumns.forEach((col) => {
+        result.push({
+          ...col,
+          primaryLabel: col.label,
+          secondaryLabel: col.label,
+          isBase: true,
+        });
+      });
+    }
+    
+    // Колонки операций
+    if (filteredTransformedData.operationColumns) {
+      filteredTransformedData.operationColumns.forEach((opCol) => {
+        opCol.subColumns.forEach((subCol) => {
+          result.push({
+            id: subCol.id,
+            primaryLabel: opCol.label,
+            secondaryLabel: subCol.label,
+            operationName: opCol.label,
+            type: subCol.type,
+            isOperation: true,
+            isOther: opCol.isOther || false,
+          });
+        });
+      });
+    }
+    
+    return result;
+  }, [flatColumns, filteredTransformedData]);
 
   const printColumnChunks = useMemo(() => {
     if (!displayColumns.length) {
@@ -422,15 +645,15 @@ const Quarterly = () => {
   }, [displayColumns]);
 
   const printRowChunks = useMemo(() => {
-    if (!rows.length) {
+    if (!rowsWithOther.length) {
       return [];
     }
     const chunks = [];
-    for (let i = 0; i < rows.length; i += PRINT_ROWS_PER_PAGE) {
-      chunks.push(rows.slice(i, i + PRINT_ROWS_PER_PAGE));
+    for (let i = 0; i < rowsWithOther.length; i += PRINT_ROWS_PER_PAGE) {
+      chunks.push(rowsWithOther.slice(i, i + PRINT_ROWS_PER_PAGE));
     }
     return chunks;
-  }, [rows]);
+  }, [rowsWithOther]);
 
   useEffect(() => {
     const topScroller = topScrollRef.current;
@@ -479,7 +702,7 @@ const Quarterly = () => {
         window.removeEventListener("resize", updateTopScrollWidth);
       }
     };
-  }, [rows, displayColumns]);
+  }, [rowsWithOther, displayColumns]);
 
   const quarterLabel =
     QUARTER_OPTIONS.find((option) => option.value === filters.quarter)?.label ||
@@ -493,28 +716,34 @@ const Quarterly = () => {
   };
 
   const fetchReport = useCallback(() => {
-    if (!emitent?.id || !filters.year || !filters.quarter) {
+    if (!filters.year || filters.quarter == null) {
       return;
     }
 
     dispatch(
-      fetchQuarterlyReport({
-        emitentId: emitent.id,
-        year: filters.year,
+      fetchQuarterlyPrint({
         quarter: filters.quarter,
+        year: filters.year,
       })
     );
-  }, [dispatch, emitent, filters.year, filters.quarter]);
+  }, [dispatch, filters.year, filters.quarter]);
 
   useEffect(() => {
-    if (emitent?.id && !isInitialized) {
+    if (!isInitialized) {
       fetchReport();
       setIsInitialized(true);
     }
-  }, [emitent, fetchReport, isInitialized]);
+  }, [fetchReport, isInitialized]);
+
+  // Автоматически загружаем данные при изменении фильтров
+  useEffect(() => {
+    if (isInitialized && filters.year && filters.quarter != null) {
+      fetchReport();
+    }
+  }, [filters.year, filters.quarter, isInitialized, fetchReport]);
 
   const handleExport = () => {
-    if (!rows.length || !displayColumns.length) {
+    if (!rowsWithOther.length || !displayColumns.length) {
       return;
     }
 
@@ -522,7 +751,7 @@ const Quarterly = () => {
       "№",
       ...displayColumns.map((column) => column.secondaryLabel || column.label),
     ];
-    const body = rows.map((row, idx) => [
+    const body = rowsWithOther.map((row, idx) => [
       idx + 1,
       ...displayColumns.map((column) => formatCellValue(row[column.id])),
     ]);
@@ -538,24 +767,44 @@ const Quarterly = () => {
     );
   };
 
+  const handleOperationToggle = (operationName) => {
+    setSelectedOperations((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(operationName)) {
+        newSet.delete(operationName);
+      } else {
+        newSet.add(operationName);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAllOperations = () => {
+    if (transformedData.allOperationsList) {
+      setSelectedOperations(new Set(transformedData.allOperationsList));
+    }
+  };
+
+  const handleDeselectAllOperations = () => {
+    setSelectedOperations(new Set());
+  };
+
   const summaryCards = [
-    {
-      label: "Эмитент",
-      value: emitent?.short_name || emitent?.name || "—",
-    },
+
     {
       label: "Период",
       value: `${quarterLabel} ${filters.year}`,
     },
     {
       label: "Количество записей",
-      value: rows.length,
+      value: rowsWithOther.length,
     },
     {
       label: "Дата формирования",
       value:
-        report.meta?.generated_at ||
-        report.meta?.generatedAt ||
+        metaData.generated_at ||
+        metaData.generatedAt ||
+        new Date().toLocaleDateString("ru-RU") ||
         "Будет сформировано после запроса",
     },
   ];
@@ -618,13 +867,69 @@ const Quarterly = () => {
             </Select>
           </FormControl>
 
+          {transformedData.allOperationsList?.length > 0 && (
+            <Paper className={classes.operationsSelector}>
+              <div
+                className={classes.operationsSelectorHeader}
+                onClick={() => setOperationsSelectorOpen(!operationsSelectorOpen)}
+              >
+                <Typography className={classes.operationsSelectorTitle}>
+                  Выбор операций ({selectedOperations.size || transformedData.allOperationsList.length} / {transformedData.allOperationsList.length})
+                </Typography>
+                {operationsSelectorOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </div>
+              <Collapse in={operationsSelectorOpen}>
+                <Box className={classes.operationsCheckboxGroup}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={
+                          transformedData.allOperationsList?.length > 0 &&
+                          selectedOperations.size === transformedData.allOperationsList.length
+                        }
+                        indeterminate={
+                          selectedOperations.size > 0 &&
+                          transformedData.allOperationsList?.length > 0 &&
+                          selectedOperations.size < transformedData.allOperationsList.length
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            handleSelectAllOperations();
+                          } else {
+                            handleDeselectAllOperations();
+                          }
+                        }}
+                        color="primary"
+                      />
+                    }
+                    label="Выбрать все"
+                  />
+                  {transformedData.allOperationsList.map((opName) => (
+                    <FormControlLabel
+                      key={opName}
+                      control={
+                        <Checkbox
+                          checked={selectedOperations.has(opName)}
+                          onChange={() => handleOperationToggle(opName)}
+                          color="primary"
+                        />
+                      }
+                      label={opName}
+                      className={classes.operationsCheckbox}
+                    />
+                  ))}
+                </Box>
+              </Collapse>
+            </Paper>
+          )}
+
           <div className={classes.actionsGroup}>
             <Tooltip title="Обновить данные">
               <span>
                 <IconButton
                   color="primary"
                   onClick={fetchReport}
-                  disabled={isLoading || !emitent?.id}
+                  disabled={isLoading}
                 >
                   <RefreshIcon />
                 </IconButton>
@@ -634,25 +939,9 @@ const Quarterly = () => {
               <span>
                 <IconButton
                   onClick={handleExport}
-                  disabled={!rows.length || isLoading}
+                  disabled={!rowsWithOther.length || isLoading}
                 >
                   <GetAppIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
-            <Tooltip
-              title={
-                useMockData
-                  ? "Отключить тестовые данные"
-                  : "Включить тестовые данные"
-              }
-            >
-              <span>
-                <IconButton
-                  onClick={() => setUseMockData((prev) => !prev)}
-                  color={useMockData ? "secondary" : "default"}
-                >
-                  {useMockData ? "MOCK" : "DEV"}
                 </IconButton>
               </span>
             </Tooltip>
@@ -663,7 +952,7 @@ const Quarterly = () => {
                     <span>
                       <IconButton
                         color="primary"
-                        disabled={!rows.length || isLoading}
+                        disabled={!rowsWithOther.length || isLoading}
                       >
                         <PrintIcon />
                       </IconButton>
@@ -681,20 +970,6 @@ const Quarterly = () => {
                 }
               `}
             />
-            <Tooltip title={dense ? "Обычная высота строк" : "Компактный вид"}>
-              <span>
-                <IconButton onClick={() => setDense((prev) => !prev)}>
-                  <ViewWeekIcon color={dense ? "primary" : "inherit"} />
-                </IconButton>
-              </span>
-            </Tooltip>
-            <Button
-              color="info"
-              onClick={fetchReport}
-              disabled={isLoading || !emitent?.id}
-            >
-              Сформировать
-            </Button>
           </div>
         </div>
 
@@ -721,7 +996,7 @@ const Quarterly = () => {
                   <Table
                     stickyHeader
                     className={classes.table}
-                    size={dense ? "small" : "medium"}
+                    size="small"
                   >
                     <TableHead>
                       <TableRow className={classes.doubleHeaderRow}>
@@ -737,50 +1012,83 @@ const Quarterly = () => {
                         >
                           №
                         </TableCell>
-                        {displayColumns.map((column) => (
+                        {/* Базовые колонки */}
+                        {displayColumns
+                          .filter((col) => col.isBase)
+                          .map((column, index, array) => (
+                            <TableCell
+                              key={`${column.id}-base`}
+                              className={classNames(
+                                classes.headCell,
+                                classes.stickyHeader,
+                                classes.doubleHeaderTop,
+                                index === array.length - 1 && classes.baseColumnsBorder
+                              )}
+                              rowSpan={2}
+                              style={{ minWidth: column.width || 150 }}
+                            >
+                              {column.primaryLabel}
+                            </TableCell>
+                          ))}
+                        {/* Колонки операций - верхний уровень */}
+                        {filteredTransformedData.operationColumns?.map((opCol) => (
                           <TableCell
-                            key={`${column.id}-top`}
+                            key={`${opCol.id}-top`}
                             className={classNames(
                               classes.headCell,
                               classes.stickyHeader,
-                              classes.doubleHeaderTop
+                              classes.doubleHeaderTop,
+                              classes.operationBorder,
+                              opCol.isOther && classes.doubleHeaderTop
                             )}
-                            style={{ minWidth: column.width || 150 }}
+                            colSpan={3}
+                            style={{ minWidth: 200 }}
                           >
-                            {column.primaryLabel}
+                            {opCol.label}
                           </TableCell>
                         ))}
                       </TableRow>
                       <TableRow className={classes.doubleHeaderRow}>
-                        {displayColumns.map((column) => (
-                          <TableCell
-                            key={`${column.id}-bottom`}
-                            className={classNames(
-                              classes.headCell,
-                              classes.stickyHeader,
-                              classes.doubleHeaderBottom
-                            )}
-                            style={{ minWidth: column.width || 150 }}
-                          >
-                            {column.secondaryLabel}
-                          </TableCell>
-                        ))}
+                        {/* Подзаголовки для операций */}
+                        {filteredTransformedData.operationColumns?.map((opCol) =>
+                          opCol.subColumns.map((subCol, subIndex) => (
+                            <TableCell
+                              key={`${subCol.id}-bottom`}
+                              className={classNames(
+                                classes.headCell,
+                                classes.stickyHeader,
+                                classes.doubleHeaderBottom,
+                                subIndex === 0 && classes.operationBorder
+                              )}
+                              style={{ minWidth: 100 }}
+                            >
+                              {subCol.label}
+                            </TableCell>
+                          ))
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {!rows.length && !isLoading && (
+                      {!rowsWithOther.length && !isLoading && (
                         <TableRow>
                           <TableCell
-                            colSpan={displayColumns.length + 1}
+                            colSpan={
+                              1 +
+                              (filteredTransformedData.baseColumns?.length || 0) +
+                              (filteredTransformedData.operationColumns?.reduce(
+                                (sum, op) => sum + op.subColumns.length,
+                                0
+                              ) || 0)
+                            }
                             className={classes.bodyCell}
                             style={{ textAlign: "center" }}
                           >
                             Данные не найдены. Выберите параметры и нажмите
-                            &nbsp;<strong>Сформировать</strong>.
+                            &nbsp;<strong>Обновить</strong>.
                           </TableCell>
                         </TableRow>
                       )}
-                      {rows.map((row, rowIndex) => (
+                      {rowsWithOther.map((row, rowIndex) => (
                         <TableRow
                           key={`row-${rowIndex}`}
                           className={rowIndex % 2 === 0 ? classes.zebraRow : undefined}
@@ -793,11 +1101,34 @@ const Quarterly = () => {
                           >
                             {rowIndex + 1}
                           </TableCell>
-                          {displayColumns.map((column) => (
-                            <TableCell key={column.id} className={classes.bodyCell}>
-                              {formatCellValue(row[column.id])}
-                            </TableCell>
-                          ))}
+                          {/* Базовые колонки */}
+                          {displayColumns
+                            .filter((col) => col.isBase)
+                            .map((column, index, array) => (
+                              <TableCell
+                                key={column.id}
+                                className={classNames(
+                                  classes.bodyCell,
+                                  index === array.length - 1 && classes.baseColumnsBorder
+                                )}
+                              >
+                                {formatCellValue(row[column.id])}
+                              </TableCell>
+                            ))}
+                          {/* Колонки операций */}
+                          {filteredTransformedData.operationColumns?.map((opCol) =>
+                            opCol.subColumns.map((subCol, subIndex) => (
+                              <TableCell
+                                key={subCol.id}
+                                className={classNames(
+                                  classes.bodyCell,
+                                  subIndex === 0 && classes.operationBorder
+                                )}
+                              >
+                                {formatCellValue(row[subCol.id])}
+                              </TableCell>
+                            ))
+                          )}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -807,7 +1138,7 @@ const Quarterly = () => {
               {hasError && (
                 <div className={classes.statesWrapper}>
                   <Typography color="error">
-                    {report.error || "Не удалось загрузить отчёт. Попробуйте снова."}
+                    {"Не удалось загрузить отчёт. Попробуйте снова."}
                   </Typography>
                 </div>
               )}
@@ -850,23 +1181,123 @@ const Quarterly = () => {
                           <table className={classes.printTable}>
                             <thead>
                               <tr>
-                                <th>№</th>
-                                {chunk.map((column) => (
-                                  <th key={column.id}>
-                                    {column.secondaryLabel || column.label}
-                                  </th>
-                                ))}
+                                <th rowSpan={2}>№</th>
+                                {/* Базовые колонки */}
+                                {chunk
+                                  .filter((col) => col.isBase)
+                                  .map((column, index, array) => (
+                                    <th
+                                      key={column.id}
+                                      rowSpan={2}
+                                      className={
+                                        index === array.length - 1
+                                          ? classes.printBaseColumnsBorder
+                                          : ""
+                                      }
+                                    >
+                                      {column.primaryLabel || column.label}
+                                    </th>
+                                  ))}
+                                {/* Группируем операции по названиям */}
+                                {filteredTransformedData.operationColumns &&
+                                  (() => {
+                                    const operationGroups = {};
+                                    chunk
+                                      .filter((col) => col.isOperation)
+                                      .forEach((col) => {
+                                        const opName = col.operationName;
+                                        if (!operationGroups[opName]) {
+                                          operationGroups[opName] = [];
+                                        }
+                                        operationGroups[opName].push(col);
+                                      });
+
+                                    return Object.entries(operationGroups).map(
+                                      ([opName, opColumns]) => (
+                                        <React.Fragment key={opName}>
+                                          <th
+                                            colSpan={opColumns.length}
+                                            className={classes.printOperationBorder}
+                                          >
+                                            {opName}
+                                          </th>
+                                        </React.Fragment>
+                                      )
+                                    );
+                                  })()}
+                              </tr>
+                              <tr>
+                                {/* Подзаголовки операций */}
+                                {(() => {
+                                  const operationCols = chunk.filter((col) => col.isOperation);
+                                  const processedOps = new Set();
+                                  return operationCols.map((column) => {
+                                    const opName = column.operationName;
+                                    const opCol = filteredTransformedData.operationColumns?.find(
+                                      (op) => op.label === opName
+                                    );
+                                    const subIndex = opCol?.subColumns.findIndex(
+                                      (sub) => sub.id === column.id
+                                    );
+                                    const isFirstInOp = subIndex === 0;
+                                    if (isFirstInOp) processedOps.add(opName);
+
+                                    return (
+                                      <th
+                                        key={column.id}
+                                        className={
+                                          isFirstInOp ? classes.printOperationBorder : ""
+                                        }
+                                      >
+                                        {column.secondaryLabel || column.label}
+                                      </th>
+                                    );
+                                  });
+                                })()}
                               </tr>
                             </thead>
                             <tbody>
                               {rowChunk.map((row, rowIndex) => (
                                 <tr key={`print-row-${rowChunkIndex}-${rowIndex}`}>
                                   <td>{rowStart + rowIndex}</td>
-                                  {chunk.map((column) => (
-                                    <td key={column.id}>
-                                      {formatCellValue(row[column.id])}
-                                    </td>
-                                  ))}
+                                  {/* Базовые колонки */}
+                                  {chunk
+                                    .filter((col) => col.isBase)
+                                    .map((column, index, array) => (
+                                      <td
+                                        key={column.id}
+                                        className={
+                                          index === array.length - 1
+                                            ? classes.printBaseColumnsBorder
+                                            : ""
+                                        }
+                                      >
+                                        {formatCellValue(row[column.id])}
+                                      </td>
+                                    ))}
+                                  {/* Колонки операций */}
+                                  {chunk
+                                    .filter((col) => col.isOperation)
+                                    .map((column) => {
+                                      const opCol = filteredTransformedData.operationColumns?.find(
+                                        (op) => op.label === column.operationName
+                                      );
+                                      const subIndex = opCol?.subColumns.findIndex(
+                                        (sub) => sub.id === column.id
+                                      );
+                                      return (
+                                        <td
+                                          key={column.id}
+                                          className={
+                                            subIndex === 0
+                                              ? classes.printOperationBorder
+                                              : ""
+                                          }
+                                        >
+                                          {formatCellValue(row[column.id])}
+                                        </td>
+                                      );
+                                    })}
                                 </tr>
                               ))}
                             </tbody>

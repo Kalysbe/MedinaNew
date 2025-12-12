@@ -85,7 +85,7 @@ export default function RegularForms() {
   
   
   const holders = useSelector((state) =>
-    watchedOperationId === 1
+    watchedOperationId === 29
       ? state.holders.allholders
       : state.holders.holders
   );
@@ -232,11 +232,11 @@ export default function RegularForms() {
   // }, [watchedHolderToId])
 
   useEffect(() => {
-    if (watchedOperationId === 1) {
+    if (watchedOperationId === 29) {
       dispatch(fetchEmissionsByEmitentId(Emitent?.id));
       dispatch(fetchAllHolders());
       // setHolders(allHolders);
-    } else if (watchedOperationId === 10) {
+    } else if (watchedOperationId === 28) {
 
       dispatch(fetchHolders(Emitent?.id));
       // setHolders(holders);
@@ -288,8 +288,8 @@ export default function RegularForms() {
     try {
       const emitent_id = Emitent?.id;
       let updatedData = { ...data };
-      // Если операция равна 1 и поле holder_from_id присутствует, удаляем его
-      if (data.operation_id === 1 && data.holder_from_id) {
+      // Если операция равна 29 и поле holder_from_id присутствует, удаляем его
+      if (data.operation_id === 29 && data.holder_from_id) {
         const { holder_from_id, ...rest } = data;
         updatedData = rest;
       }

@@ -551,16 +551,16 @@ var dashRoutes = [
     icon: "book",
     state: "reports",
     views: [
-      {
-        path: "/reports",
-        name: "Годовой отчет",
-        rtlName: "أشكال عادية",
-        mini: "RF",
-        rtlMini: "صو",
-        component: Dividends,
-        layout: "/admin",
-        dashboard: true
-      },
+      // {
+      //   path: "/reports",
+      //   name: "Годовой отчет",
+      //   rtlName: "أشكال عادية",
+      //   mini: "RF",
+      //   rtlMini: "صو",
+      //   component: Dividends,
+      //   layout: "/admin",
+      //   dashboard: true
+      // },
       {
         path: "/quartely-report",
         name: "Ежеквартальный отчет",

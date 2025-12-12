@@ -16,6 +16,10 @@ export const fetchTransactionPrintById = createAsyncThunk("prints/fetchTransacti
   return data;
 })
 
+export const fetchQuarterlyPrint = createAsyncThunk("prints/fetchQuarterlyPrint", async ({quarter, year}) => {
+  const { data } = await axios.get(`/prints/kvartal?quarter=${quarter}&year=${year}`);
+  return data;
+})
 
 
 

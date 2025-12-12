@@ -117,7 +117,7 @@ const styles = () => ({
   },
   "@media print": {
     page: {
-      padding: 0,
+      padding: 10,
       boxShadow: "none",
     },
     header: {
@@ -219,7 +219,7 @@ const Report1 = forwardRef(({ data = [], emitent }, ref) => {
           <Table className={classes.table}>
             <TableHead style={{ display: "table-header-group" }}>
               <TableRow>
-                <TableCell className={classes.tableHeadCell}>№</TableCell>
+                {/* <TableCell className={classes.tableHeadCell}>№</TableCell> */}
                 <TableCell className={classes.tableHeadCell}>Счёт</TableCell>
                 <TableCell className={classes.tableHeadCell}>Наименование</TableCell>
                 <TableCell className={classes.tableHeadCell}>Простых</TableCell>
@@ -231,7 +231,7 @@ const Report1 = forwardRef(({ data = [], emitent }, ref) => {
             <TableBody>
               {data.map((item, index) => (
                 <TableRow key={index} className={index % 2 ? classes.zebraRow : ""}>
-                  <TableCell className={classes.tableCell}>{index + 1}</TableCell>
+                  {/* <TableCell className={classes.tableCell}>{index + 1}</TableCell> */}
                   <TableCell className={classes.tableCell}>{item.id}</TableCell>
                   <TableCell className={classes.tableCell}>
                     <NavLink to={`holder/${item.holder_id}`} className={classes.link}>
@@ -245,7 +245,7 @@ const Report1 = forwardRef(({ data = [], emitent }, ref) => {
                 </TableRow>
               ))}
               <TableRow className={classes.totalRow}>
-                <TableCell className={classes.tableCell} colSpan={3} style={{ fontWeight: 600 }}>
+                <TableCell className={classes.tableCell} colSpan={2} style={{ fontWeight: 600 }}>
                   Итого
                 </TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(totals.common_quantity)}</TableCell>

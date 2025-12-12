@@ -7,11 +7,11 @@ export const transferTypes = [
 
 export const singleTypes = [
     {
-        "id": 1,
+        "id": 29,
         "name": "Перв. ввод"
     },
     {
-        "id": 10,
+        "id": 28,
         "name": "Блокирование"
     },
     {

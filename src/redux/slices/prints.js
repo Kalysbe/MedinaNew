@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchCardEmitent, fetchExtractReestr, fetchTransactionPrintById } from '../actions/prints'; // Импортируйте ваши асинхронные действия
+import { fetchCardEmitent, fetchExtractReestr, fetchTransactionPrintById, fetchQuarterlyPrint } from '../actions/prints'; // Импортируйте ваши асинхронные действия
 
 const initialState = {
   prints: {
@@ -12,6 +12,10 @@ const initialState = {
       status: 'loading',
     },
     transactionPrint: {
+      data: {},
+      status: 'loading',
+    },
+    quarterlyPrint: {
       data: {},
       status: 'loading',
     },
@@ -63,6 +67,20 @@ const printsSlice = createSlice({
       .addCase(fetchTransactionPrintById.rejected, (state) => {
         state.prints.transactionPrint.data = [];
         state.prints.transactionPrint.status = 'error';
+      });
+
+    builder
+      .addCase(fetchQuarterlyPrint.pending, (state) => {
+        state.prints.quarterlyPrint.data = [];
+        state.prints.quarterlyPrint.status = 'loading';
+      })
+      .addCase(fetchQuarterlyPrint.fulfilled, (state, action) => {
+        state.prints.quarterlyPrint.data = action.payload;
+        state.prints.quarterlyPrint.status = 'loaded';
+      })
+      .addCase(fetchQuarterlyPrint.rejected, (state) => {
+        state.prints.quarterlyPrint.data = [];
+        state.prints.quarterlyPrint.status = 'error';
       });
   },
 });
