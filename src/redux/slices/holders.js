@@ -10,7 +10,8 @@ import {
   fetchHolderOperation,
   fetchEmitentHolderDocuments,
   fetchEmitentHolderDocumentById,
-  fetchHolderEmitents
+  fetchHolderEmitents,
+  fetchBlockedSecuritiesHolders
 } from '../actions/holders'
 
 const initialState = {
@@ -161,6 +162,20 @@ const holdersSlice = createSlice({
       })
       .addCase(fetchHolderEmitents.rejected, (state) => {
         state.emitents = [];
+      });
+
+    builder
+      .addCase(fetchBlockedSecuritiesHolders.pending, (state) => {
+        state.holders.items = [];
+        state.holders.status = "loading";
+      })
+      .addCase(fetchBlockedSecuritiesHolders.fulfilled, (state, action) => {
+        state.holders.items = action.payload;
+        state.holders.status = "loaded";
+      })
+      .addCase(fetchBlockedSecuritiesHolders.rejected, (state) => {
+        state.holders.items = [];
+        state.holders.status = "error";
       });
     // Действия для удаления эмитента
     // builder.addCase(fetchDeleteEmitent.pending, (state, action) => {

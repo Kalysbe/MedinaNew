@@ -48,3 +48,8 @@ export const fetchEmissionCancellation = createAsyncThunk(
     }
   }
 );
+
+export const fetchBlockedSecuritiesEmissions = createAsyncThunk("emitents/fetchBlockedSecuritiesEmissions", async (eid) => {
+  const { data } = await axios.get(`/emitents/${eid}/blocked-emissions`);
+  return data;
+})

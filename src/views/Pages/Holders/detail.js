@@ -106,10 +106,10 @@ export default function RegularTables() {
 
   if (extractData?.emission?.length) {
     extractData.emission.forEach((item) => {
-      if (item.type === 'Простая') {
+      if (item.type === 'простые именные') {
         totalCountSimple += item.total_shares || 0;
         totalCountSimpleSum += item.total_shares * item.nominal || 0;
-      } else if (item.type === 'Привилегированная') {
+      } else if (item.type === 'привилегированные') {
         totalCountPreferred += item.total_shares || 0;
         totalCountPreferredSum += item.total_shares * item.nominal || 0;
       }
@@ -464,7 +464,7 @@ export default function RegularTables() {
               <p style={{ margin: '3px 0' }}><strong>Орган государственной регистрации:</strong> Чуй-Бишкекское Управление юстиции</p>
               <p style={{ margin: '3px 0' }}><strong>Регистрационный номер:</strong> 133580-3301-ООО от 09.12.2013 г.</p>
               <p style={{ margin: '3px 0' }}><strong>Лицензия №143 от 20.12.2013 г.,</strong> Гос. служба регулир. и надзора за фин. рынком КР</p>
-              <p style={{ margin: '3px 0' }}><strong>Юридический адрес:</strong> 720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</p>
+              <p style={{ margin: '3px 0' }}><strong>Юридический адрес:</strong> 720001 г. Бишкек пр. Чуй 164а, каб 202</p>
               <p style={{ margin: '3px 0' }}><strong>Тел.:</strong> 90-06-43, 31-17-65, 90-06-42</p>
             </div>
 

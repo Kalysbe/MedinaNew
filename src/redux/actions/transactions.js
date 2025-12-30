@@ -32,8 +32,9 @@ export const fetchCreateTransaction = createAsyncThunk(
     }
 );
 
-export const fetchOperationTypes = createAsyncThunk("transactions/fetchOperationTypes", async () => {
-    const { data } = await axios.get("/transactions/operations");
+export const fetchOperationTypes = createAsyncThunk("transactions/fetchOperationTypes", async (group) => {
+    const url = group ? `/transactions/operations?group=${group}` : "/transactions/operations";
+    const { data } = await axios.get(url);
     return data;
 })
 

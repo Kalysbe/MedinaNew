@@ -42,7 +42,8 @@ const useStyles = makeStyles((theme) => ({
   },
   dialogPaper: {
     zIndex: 2000,
-    maxHeight: '90vh'
+    maxHeight: '980px',
+    height: '60%'
   },
   alert: {
     background: '#f44336',

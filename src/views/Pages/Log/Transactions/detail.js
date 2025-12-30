@@ -54,11 +54,17 @@ const useStyles = makeStyles((theme) => ({
   sectionTitle: {
     margin: `${theme.spacing(2)}px 0 ${theme.spacing(1)}px`,
     fontWeight: 600,
+    "@media print": {
+      margin: "11px 0 6px",
+    },
   },
   keyValueRow: {
     display: "flex",
     flexWrap: "wrap",
     marginBottom: 6,
+    "@media print": {
+      marginBottom: 4,
+    },
   },
   printWrapper: {
     // Экранный вид
@@ -68,8 +74,8 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.background.default,
     // Печать
     "@media print": {
-      margin: 20,
-      padding: 16,
+      margin: 14,
+      padding: 11,
       border: "1px solid #000",
       borderRadius: 6,
       background: "#fff",
@@ -90,26 +96,68 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-around",
     marginTop: 36,
+    "@media print": {
+      marginTop: 25,
+    },
   },
   signatureLine: {
     borderTop: "1px solid #000",
     paddingTop: 6,
     minWidth: 220,
     textAlign: "center",
+    "@media print": {
+      paddingTop: 4,
+    },
   },
   headerBlock: {
     textAlign: "center",
     marginBottom: theme.spacing(2),
+    "@media print": {
+      marginBottom: 11,
+      "& .MuiTypography-gutterBottom": {
+        marginBottom: "0.35em !important",
+      },
+    },
   },
   subtle: {
     color: theme.palette.text.secondary,
   },
   divider: {
     margin: `${theme.spacing(2)}px 0`,
+    "@media print": {
+      margin: "11px 0",
+    },
   },
   paperRow: {
     padding: theme.spacing(1.5),
     borderRadius: 8,
+    "@media print": {
+      padding: 8,
+    },
+  },
+  compactSpacing: {
+    "@media print": {
+      margin: "-7px !important",
+      width: "calc(100% + 14px)",
+      "& > .MuiGrid-item": {
+        padding: "7px !important",
+      },
+    },
+  },
+  compactBox: {
+    "@media print": {
+      marginTop: "7px !important",
+    },
+  },
+  compactBoxSmall: {
+    "@media print": {
+      marginTop: "4px !important",
+    },
+  },
+  compactSignatureMargin: {
+    "@media print": {
+      marginTop: "13px !important",
+    },
   },
 }));
 
@@ -208,7 +256,7 @@ export default function RegularTables() {
               </Box>
             ) : (
               <>
-                <Grid container spacing={2}>
+                <Grid container spacing={2} className={classes.compactSpacing}>
                   {data.holder_from && (
                     <Grid item xs={12} md={6}>
                       <SectionCard title="Лицо передающее ценные бумаги">
@@ -247,7 +295,7 @@ export default function RegularTables() {
                 <Divider className={classes.divider} />
 
                 <SectionCard title="Передаваемые ценные бумаги">
-                  <Grid container spacing={2}>
+                  <Grid container spacing={2} className={classes.compactSpacing}>
                     <Grid item xs={12} md={6}>
                       <InfoRow label="Эмитент">{EmitentData?.full_name}</InfoRow>
                       <InfoRow label="Эмиссия">{data.emission?.reg_number}</InfoRow>
@@ -260,7 +308,7 @@ export default function RegularTables() {
                     </Grid>
                   </Grid>
                   {data.document_id && (
-                    <Box marginTop={1}>
+                    <Box marginTop={1} className={classes.compactBoxSmall}>
                       <NavLink to={`/admin/incoming-document/edit/${data.document_id}`}>
                         Входящий документ: {data.document_id}
                       </NavLink>
@@ -285,11 +333,11 @@ export default function RegularTables() {
                     <InfoRow label="Юридический адрес"><b>720001 г. Бишкек пр. Чуй 164а, каб 202, тел 90-06-43, 31-17-65, 90-06-42</b></InfoRow>
                   </Box>
 
-                  <Typography className={classes.signatureLine} style={{ width: "70%", marginTop: 18 }}>
+                  <Typography className={`${classes.signatureLine} ${classes.compactSignatureMargin}`} style={{ width: "70%" }}>
                     ФИО и подпись регистратора
                   </Typography>
 
-                  <Box display="flex" justifyContent="space-between" marginTop={2}>
+                  <Box display="flex" justifyContent="space-between" marginTop={2} className={classes.compactBox}>
                     <Typography>
                       Номер операции: <b>{id}</b>
                     </Typography>

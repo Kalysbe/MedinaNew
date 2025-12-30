@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchEmissionsByHolderId ,fetchEmissions, fetchEmissionsByEmitentId , fetchEmissionById, fetchSecuritiesByEmitentId, fetchSecuritiesByHolderIdEmitentId} from '../actions/emissions'
+import { fetchEmissionsByHolderId ,fetchEmissions, fetchEmissionsByEmitentId , fetchEmissionById, fetchSecuritiesByEmitentId, fetchSecuritiesByHolderIdEmitentId, fetchBlockedSecuritiesEmissions} from '../actions/emissions'
 
 
 const initialState = {
@@ -96,6 +96,19 @@ const emissionsSlice = createSlice({
       .addCase(fetchEmissionById.rejected, (state) => {
         state.emissionDetail.data = {};
         state.emissionDetail.status = "error";
+      });
+      builder
+      .addCase(fetchBlockedSecuritiesEmissions.pending, (state) => {
+        state.emissions.items = [];
+        state.emissions.status = "loading";
+      })
+      .addCase(fetchBlockedSecuritiesEmissions.fulfilled, (state, action) => {
+        state.emissions.items = action.payload;
+        state.emissions.status = "loaded";
+      })
+      .addCase(fetchBlockedSecuritiesEmissions.rejected, (state) => {
+        state.emissions.items = [];
+        state.emissions.status = "error";
       });
   },
 });

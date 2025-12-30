@@ -51,6 +51,11 @@ export const fetchHolderEmitents = createAsyncThunk("holders/fetchHolderEmitents
   const { data } = await axios.get(`/holders/${hid}/emitents`);
   return data;
 })
+
+export const fetchBlockedSecuritiesHolders = createAsyncThunk("holders/fetchBlockedSecuritiesHolders", async (eid) => {
+  const { data } = await axios.get(`/holders/emitent/${eid}/blocked-securities`);
+  return data;
+})
 // export const fetchDeleteEmitent = createAsyncThunk("holders/fetchDeleteEmitent", async (id) => {
 //     await axios.delete(`/holders/${id}`);
 // })

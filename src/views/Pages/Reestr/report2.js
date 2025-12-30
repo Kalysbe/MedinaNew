@@ -1,4 +1,4 @@
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import React, { useRef, useImperativeHandle, forwardRef, useState, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { NavLink } from "react-router-dom";
 import Table from "@material-ui/core/Table";
@@ -6,6 +6,7 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import * as XLSX from "xlsx";
 
 const styles = () => ({
@@ -114,6 +115,11 @@ const styles = () => ({
       display: "block",
     },
   },
+  pagination: {
+    "@media print": {
+      display: "none",
+    },
+  },
   "@media print": {
     page: {
       padding: 6,
@@ -155,33 +161,70 @@ const useStyles = makeStyles(styles);
 const Report2 = forwardRef(({ data = [], emitent }, ref) => {
   const classes = useStyles();
   const generatedAt = new Date().toLocaleDateString("ru-RU");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const totals = data.reduce(
     (acc, item) => {
       acc.common_quantity += Number(item.common_quantity) || 0;
       acc.common_nominal += Number(item.common_nominal) || 0;
+      acc.preferred_quantity += Number(item.preferred_quantity) || 0;
+      acc.preferred_nominal += Number(item.preferred_nominal) || 0;
       acc.percentage += Number(item.percentage) || 0;
       return acc;
     },
-    { common_quantity: 0, common_nominal: 0, percentage: 0 }
+    { common_quantity: 0, common_nominal: 0, preferred_quantity: 0, preferred_nominal: 0, percentage: 0 }
   );
+
+  const paginatedData = useMemo(() => {
+    return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [data, page, rowsPerPage]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const printContentRef = useRef();
 
   const exportToExcel = () => {
-    const table = printContentRef.current?.querySelector("table");
-    if (!table) return;
+    // Создаем данные для экспорта из всех данных, а не только из видимых
+    const headers = ["Счет", "Ф.И.О", "Простых", "Номинал простых", "Привилегированных", "Номинал привилегированных", "% от кол-во", "Паспорт", "Адрес проживания", "Регион"];
+    const rows = data.map(item => [
+      item.id,
+      item.full_name,
+      item.common_quantity,
+      item.common_nominal,
+      item.preferred_quantity || 0,
+      item.preferred_nominal || 0,
+      item.percentage,
+      item.passport || "",
+      item.address || "",
+      item.country || ""
+    ]);
+    
+    // Добавляем строку с итогами
+    rows.push([
+      "Итого",
+      "",
+      totals.common_quantity,
+      totals.common_nominal,
+      totals.preferred_quantity,
+      totals.preferred_nominal,
+      totals.percentage,
+      "",
+      "",
+      ""
+    ]);
 
-    const rows = Array.from(table.rows).map((row) =>
-      Array.from(row.cells)
-        .filter((cell) => !cell.classList.contains("noPrint"))
-        .map((cell) => cell.innerText)
-    );
-
-    const wsData = [rows[0], []].concat(rows.slice(1).map((r) => (r.length ? r : [""])));
+    const wsData = [headers, []].concat(rows);
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = wsData[0].map(() => ({ wch: 20 }));
+    ws["!cols"] = headers.map(() => ({ wch: 20 }));
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Отчёт");
@@ -218,6 +261,14 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
           <p className={classes.summaryValue}>{window.formatNumber(totals.common_nominal)}</p>
         </div>
         <div className={classes.summaryItem}>
+          <p className={classes.summaryLabel}>Привилегированных акций</p>
+          <p className={classes.summaryValue}>{window.formatNumber(totals.preferred_quantity)}</p>
+        </div>
+        <div className={classes.summaryItem}>
+          <p className={classes.summaryLabel}>Номинал привилегированных</p>
+          <p className={classes.summaryValue}>{window.formatNumber(totals.preferred_nominal)}</p>
+        </div>
+        <div className={classes.summaryItem}>
           <p className={classes.summaryLabel}>Доля, %</p>
           <p className={classes.summaryValue}>{window.formatNumber(totals.percentage)} %</p>
         </div>
@@ -233,6 +284,8 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
                 <TableCell className={classes.tableHeadCell}>Ф.И.О</TableCell>
                 <TableCell className={classes.tableHeadCell}>Простых</TableCell>
                 <TableCell className={classes.tableHeadCell}>Номинал простых</TableCell>
+                <TableCell className={classes.tableHeadCell}>Привилегированных</TableCell>
+                <TableCell className={classes.tableHeadCell}>Номинал привилегированных</TableCell>
                 <TableCell className={classes.tableHeadCell}>% от кол-во</TableCell>
                 <TableCell className={classes.tableHeadCell}>Паспорт</TableCell>
                 <TableCell className={classes.tableHeadCell}>Адрес проживания</TableCell>
@@ -240,7 +293,7 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item, index) => (
+              {paginatedData.map((item, index) => (
                 <TableRow key={index} className={index % 2 ? classes.zebraRow : ""}>
                   {/* <TableCell className={classes.tableCell}>{index + 1}</TableCell> */}
                   <TableCell className={classes.tableCell}>{item.id}</TableCell>
@@ -251,6 +304,8 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
                   </TableCell>
                   <TableCell className={classes.tableCell}>{window.formatNumber(item.common_quantity)}</TableCell>
                   <TableCell className={classes.tableCell}>{window.formatNumber(item.common_nominal)}</TableCell>
+                  <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_quantity)}</TableCell>
+                  <TableCell className={classes.tableCell}>{window.formatNumber(item.preferred_nominal)}</TableCell>
                   <TableCell className={classes.tableCell}>{item.percentage} %</TableCell>
                   <TableCell className={classes.tableCell}>{item.passport}</TableCell>
                   <TableCell className={classes.tableCell}>{item.address}</TableCell>
@@ -263,6 +318,8 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
                 </TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(totals.common_quantity)}</TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(totals.common_nominal)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(totals.preferred_quantity)}</TableCell>
+                <TableCell className={classes.tableCell}>{window.formatNumber(totals.preferred_nominal)}</TableCell>
                 <TableCell className={classes.tableCell}>{window.formatNumber(totals.percentage)} %</TableCell>
                 <TableCell className={classes.tableCell}></TableCell>
                 <TableCell className={classes.tableCell}></TableCell>
@@ -270,6 +327,17 @@ const Report2 = forwardRef(({ data = [], emitent }, ref) => {
               </TableRow>
             </TableBody>
           </Table>
+          <TablePagination
+            component="div"
+            count={data.length}
+            page={page}
+            onChangePage={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            labelRowsPerPage="Строк на странице:"
+            className={classes.pagination}
+          />
         </div>
       )}
     </div>

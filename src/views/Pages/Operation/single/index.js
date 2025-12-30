@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, NavLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,7 +8,7 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import SelectSearch from "react-select"; // для selectSearch
+import SelectSearch from "react-select";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
@@ -21,15 +21,13 @@ import MailOutline from "@material-ui/icons/MailOutline";
 import Swal from "sweetalert2";
 import { useForm, Controller } from "react-hook-form";
 
-import { fetchAllHolders, fetchHolders } from "redux/actions/holders";
-import { fetchSecuritiesByEmitentId, fetchEmissionsByEmitentId, fetchSecuritiesByHolderIdEmitentId } from "redux/actions/emissions";
+import { fetchAllHolders, fetchHolders, fetchBlockedSecuritiesHolders } from "redux/actions/holders";
+import { fetchEmissionsByEmitentId, fetchSecuritiesByHolderIdEmitentId, fetchBlockedSecuritiesEmissions } from "redux/actions/emissions";
 import { fetchCreateTransaction, fetchOperationTypes } from "redux/actions/transactions";
 import { fetchDocuments } from "redux/actions/documents";
-import { transferTypes, singleTypes } from "constants/operations.js";
 import styles from "assets/jss/material-dashboard-pro-react/views/regularFormsStyle";
 
 import DocumentSelectorModal from "views/Pages/Log/IncomingDocuments/DocumentModal.js";
-import { use } from "react";
 
 const useStyles = makeStyles(styles);
 
@@ -38,30 +36,24 @@ export default function RegularForms() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-
-
-
-
   // Получаем данные из Redux
   const Emitent = useSelector((state) => state.emitents.store);
-
-  const allHolders = useSelector((state) => state.holders.allHolders);
-
-  const { operationTypes } = useSelector((state) => state.transactions);
+  const operationTypes = useSelector((state) => {
+    const ops = state.transactions?.operationTypes;
+    return Array.isArray(ops) ? ops : [];
+  });
   const { emissions } = useSelector((state) => state.emissions);
   const { documentList } = useSelector((state) => state.documents);
   const DocumentList = useSelector((state) => state.documents?.documentList || []);
 
-  // Локальные состояния для вычисляемых значений
+  // Локальные состояния
   const [maxCount, setMaxCount] = useState(null);
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [localDocs, setLocalDocs] = useState(DocumentList);
-  const [Holders, setHolders] = useState([]);
-
   const [openDocModal, setOpenDocModal] = useState(false);
 
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
     defaultValues: {
       operation_id: "",
       holder_to_id: "",
@@ -76,41 +68,233 @@ export default function RegularForms() {
     },
   });
 
-
- 
   const watchedOperationId = watch("operation_id");
   const watchedEmissionId = watch("emission_id");
   const watchedQuantity = watch("quantity");
   const watchedHolderToId = watch("holder_to_id");
-  
-  
+
+  // Селектор для holders в зависимости от операции
   const holders = useSelector((state) =>
     watchedOperationId === 29
       ? state.holders.allholders
       : state.holders.holders
   );
-   console.log(holders,watchedOperationId, "holders.items");
 
+  // Обновление локальных документов
   useEffect(() => {
-    setLocalDocs(DocumentList);
+    if (DocumentList && DocumentList.length > 0) {
+      setLocalDocs(DocumentList);
+    }
   }, [DocumentList]);
 
-  // Карта опций для селектов
-  const optionsMap = {
-    holders: holders?.items || [],
-    stocks: emissions?.items || [],
-    // Для одноместной операции используем singleTypes, если требуется
-    typeOperations: singleTypes || [],
-    documents: documentList || [],
-  };
+  // Загрузка базовых данных при монтировании
+  useEffect(() => {
+    if (!Emitent?.id) return;
+    
+    dispatch(fetchOperationTypes(1));
+    dispatch(fetchDocuments(Emitent.id));
+  }, [dispatch, Emitent?.id]);
 
-  // Массив-конфигурация обязательных полей (без поля "Кто отдает")
-  const fieldsConfig = [
+  // Загрузка данных в зависимости от выбранной операции
+  useEffect(() => {
+    if (!Emitent?.id || !watchedOperationId) return;
+
+    switch (watchedOperationId) {
+      case 29:
+        dispatch(fetchEmissionsByEmitentId(Emitent.id));
+        dispatch(fetchAllHolders());
+        break;
+      case 28:
+        dispatch(fetchHolders(Emitent.id));
+        break;
+      case 64:
+        dispatch(fetchBlockedSecuritiesHolders(Emitent.id));
+        dispatch(fetchBlockedSecuritiesEmissions(Emitent.id));
+        break;
+      default:
+        break;
+    }
+  }, [watchedOperationId, dispatch, Emitent?.id]);
+
+  // Загрузка ценных бумаг для операций 64 и 28 при выборе holder
+  useEffect(() => {
+    if ((watchedOperationId === 64 || watchedOperationId === 28) && watchedHolderToId && Emitent?.id) {
+      dispatch(fetchSecuritiesByHolderIdEmitentId({
+        hid: watchedHolderToId, 
+        eid: Emitent.id
+      }));
+    }
+  }, [watchedOperationId, watchedHolderToId, dispatch, Emitent?.id]);
+
+  // Сброс полей формы при выборе операции 29
+  useEffect(() => {
+    if (watchedOperationId === 29) {
+      const resetValues = {
+        holder_to_id: "",
+        emission_id: "",
+        emission: "",
+        quantity: "",
+        amount: "",
+        is_exchange: true,
+        is_family: false,
+        document_id: "",
+      };
+      
+      Object.entries(resetValues).forEach(([key, value]) => {
+        setValue(key, value);
+      });
+      
+      setMaxCount(null);
+      setPrice(null);
+    }
+  }, [watchedOperationId, setValue]);
+
+  // Вспомогательная функция для получения количества
+  const getQuantityByOperation = useCallback((emissionValue, operationId) => {
+    if (!emissionValue) return null;
+    
+    switch (operationId) {
+      case 11:
+        return emissionValue.blocked_count;
+      case 64:
+        return emissionValue.blocked_shares;
+      case 28:
+        return emissionValue.total_shares;
+      default:
+        return emissionValue.count;
+    }
+  }, []);
+
+  // Обновление полей формы при выборе эмиссии
+  useEffect(() => {
+    if (!watchedEmissionId || !emissions?.items || emissions.items.length === 0) return;
+
+    const newEmissionValue = emissions.items.find(
+      (item) => item.id === watchedEmissionId
+    );
+    
+    if (!newEmissionValue || !newEmissionValue.reg_number) return;
+
+    const qty = getQuantityByOperation(newEmissionValue, watchedOperationId);
+    const nominal = newEmissionValue.nominal || 0;
+    
+    if (qty !== null && qty !== undefined) {
+      setValue("emission", newEmissionValue.reg_number);
+      setValue("quantity", qty);
+      setValue("amount", parseFloat((qty * nominal).toFixed(2)));
+      setMaxCount(qty);
+    }
+    
+    if (nominal) {
+      setPrice(nominal);
+    }
+  }, [watchedEmissionId, emissions?.items, watchedOperationId, setValue, getQuantityByOperation]);
+
+  // Пересчет суммы сделки при изменении количества
+  useEffect(() => {
+    if (price && watchedQuantity && !isNaN(watchedQuantity) && !isNaN(price)) {
+      const calculatedAmount = parseFloat((watchedQuantity * price).toFixed(2));
+      if (!isNaN(calculatedAmount)) {
+        setValue("amount", calculatedAmount);
+      }
+    }
+  }, [watchedQuantity, price, setValue]);
+
+  const handleDocumentSelect = useCallback((doc) => {
+    if (!doc || !doc.id) return;
+    
+    setValue("document_id", doc.id);
+    setLocalDocs((prevDocs) => {
+      const exists = prevDocs.some((d) => d.id === doc.id);
+      return exists ? prevDocs : [doc, ...prevDocs];
+    });
+    setOpenDocModal(false);
+  }, [setValue]);
+
+  const onSubmit = useCallback(async (data) => {
+    if (!Emitent?.id) {
+      Swal.fire({
+        title: "Ошибка!",
+        text: "Эмитент не выбран",
+        icon: "error",
+        confirmButtonText: "Ок",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Преобразуем все числовые поля в числа перед отправкой
+      const convertToNumber = (value) => {
+        if (value === "" || value === null || value === undefined) return null;
+        const num = Number(value);
+        return isNaN(num) ? null : num;
+      };
+      
+      let updatedData = {
+        ...data,
+        operation_id: convertToNumber(data.operation_id),
+        holder_to_id: convertToNumber(data.holder_to_id),
+        emission_id: convertToNumber(data.emission_id),
+        quantity: convertToNumber(data.quantity),
+        amount: convertToNumber(data.amount),
+        document_id: convertToNumber(data.document_id),
+        // Boolean поля оставляем как есть
+        is_exchange: Boolean(data.is_exchange),
+        is_family: Boolean(data.is_family),
+      };
+      
+      if (data.operation_id === 29 && data.holder_from_id) {
+        const { holder_from_id, ...rest } = updatedData;
+        updatedData = rest;
+      }
+      
+      const response = await dispatch(fetchCreateTransaction({ 
+        emitent_id: Number(Emitent.id), 
+        ...updatedData 
+      }));
+      
+      if (response.error) {
+        throw new Error(response.payload?.message || "Неизвестная ошибка");
+      }
+      
+      const newId = response.payload?.id;
+      if (!newId) {
+        throw new Error("Не получен ID созданной транзакции");
+      }
+      
+      await Swal.fire({
+        title: "Успешно!",
+        text: "Данные успешно отправлены",
+        icon: "success",
+        confirmButtonText: "Ок",
+      });
+      
+      history.push(`/admin/transaction/${newId}`);
+    } catch (error) {
+      Swal.fire({
+        title: "Ошибка!",
+        text: error.message || "Произошла ошибка при отправке данных на сервер",
+        icon: "error",
+        confirmButtonText: "Ок",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [Emitent?.id, dispatch, history]);
+
+  // Подготовка данных для селектов
+  const holdersOptions = useMemo(() => holders?.items || [], [holders?.items]);
+  const stocksOptions = useMemo(() => emissions?.items || [], [emissions?.items]);
+  const documentsOptions = useMemo(() => documentList || [], [documentList]);
+
+  // Конфигурация полей формы - создается динамически с учетом текущих данных
+  const fieldsConfig = useMemo(() => [
     {
       name: "operation_id",
       label: "Операция",
       component: "selectSearch",
-      options: optionsMap.typeOperations,
+      options: operationTypes,
       optionValueKey: "id",
       optionLabelKey: "name",
       grid: { xs: 12, sm: 12, md: 12 },
@@ -120,7 +304,7 @@ export default function RegularForms() {
       name: "holder_to_id",
       label: "Кто принимает",
       component: "selectSearch",
-      options: optionsMap.holders,
+      options: holdersOptions,
       optionValueKey: "id",
       optionLabelKey: "name",
       grid: { xs: 12, sm: 12, md: 6 },
@@ -130,9 +314,9 @@ export default function RegularForms() {
       name: "emission_id",
       label: "Эмиссия",
       component: "select",
-      options: optionsMap.stocks,
+      options: stocksOptions,
       optionValueKey: "id",
-      optionLabelKey: "reg_number", // отображается reg_number
+      optionLabelKey: "reg_number",
       grid: { xs: 12, sm: 12, md: 6 },
       validation: { required: "Эмиссия обязательна" },
     },
@@ -167,7 +351,18 @@ export default function RegularForms() {
       component: "input",
       type: "number",
       grid: { xs: 12, sm: 12, md: 6 },
-      validation: { required: "Количество обязательно" },
+      validation: { 
+        required: "Количество обязательно",
+        validate: (value) => {
+          if (!value || value <= 0) {
+            return "Количество должно быть больше 0";
+          }
+          if (maxCount && parseFloat(value) > parseFloat(maxCount)) {
+            return `Количество не должно превышать ${maxCount}`;
+          }
+          return true;
+        }
+      },
     },
     {
       name: "amount",
@@ -175,7 +370,7 @@ export default function RegularForms() {
       component: "input",
       type: "number",
       grid: { xs: 12, sm: 12, md: 6 },
-      validation: {}, // убираем проверку для суммы сделки
+      validation: {},
     },
     {
       name: "is_family",
@@ -197,7 +392,7 @@ export default function RegularForms() {
       name: "document_id",
       label: "Входящий документ",
       component: "selectModal",
-      options: optionsMap.documents,
+      options: documentsOptions,
       optionValueKey: "id",
       optionLabelKey: "title",
       grid: { xs: 12, sm: 12, md: 6 },
@@ -211,114 +406,7 @@ export default function RegularForms() {
       grid: { xs: 12, sm: 12, md: 6 },
       validation: { required: "Дата операции обязательна" },
     },
-  ];
-
-  // Инициализация React Hook Form с дефолтными значениями
-
-
-
-
-
-
-  useEffect(() => {
-
-
-    dispatch(fetchOperationTypes());
-    dispatch(fetchDocuments(Emitent?.id));
-  }, [dispatch, Emitent]);
-
-  // useEffect(() => {
-
-  // }, [watchedHolderToId])
-
-  useEffect(() => {
-    if (watchedOperationId === 29) {
-      dispatch(fetchEmissionsByEmitentId(Emitent?.id));
-      dispatch(fetchAllHolders());
-      // setHolders(allHolders);
-    } else if (watchedOperationId === 28) {
-
-      dispatch(fetchHolders(Emitent?.id));
-      // setHolders(holders);
-    }
-
-  }, [watchedOperationId, dispatch, Emitent]);
-
-  useEffect(() => {
-    const newEmissionValue = emissions.items.find(
-      (item) => item.id === watchedEmissionId
-    );
-    if (newEmissionValue && newEmissionValue.reg_number) {
-      setValue("emission", newEmissionValue.reg_number);
-      const qty =
-        watchedOperationId === 11
-          ? newEmissionValue.blocked_count
-          : newEmissionValue.count;
-      setValue("quantity", qty);
-      setValue("amount", parseFloat((qty * newEmissionValue.nominal).toFixed(2)));
-      setMaxCount(
-        watchedOperationId === 11
-          ? newEmissionValue.blocked_count
-          : newEmissionValue.count
-      );
-      setPrice(newEmissionValue.nominal);
-    }
-  }, [watchedEmissionId, emissions, watchedOperationId, setValue]);
-
-  const handleDocumentSelect = (doc) => {
-    setValue("document_id", doc.id);
-
-    setLocalDocs((prevDocs) => {
-      const exists = prevDocs.some((d) => d.id === doc.id);
-      return exists ? prevDocs : [doc, ...prevDocs];
-    });
-
-    setOpenDocModal(false);
-  };
-
-
-  useEffect(() => {
-    if (price && watchedQuantity) {
-      setValue("amount", parseFloat((watchedQuantity * price).toFixed(2)));
-    }
-  }, [watchedQuantity, price, setValue]);
-
-  const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      const emitent_id = Emitent?.id;
-      let updatedData = { ...data };
-      // Если операция равна 29 и поле holder_from_id присутствует, удаляем его
-      if (data.operation_id === 29 && data.holder_from_id) {
-        const { holder_from_id, ...rest } = data;
-        updatedData = rest;
-      }
-      const response = await dispatch(fetchCreateTransaction({ emitent_id, ...updatedData }));
-      if (response.error) {
-        throw new Error(response.payload.message || "Неизвестная ошибка");
-      }
-      const newId = response.payload.id;
-      Swal.fire({
-        title: "Успешно!",
-        text: "Данные успешно отправлены",
-        icon: "success",
-        confirmButtonText: "Ок",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          history.push(`/admin/transaction/${newId}`);
-        }
-      });
-    } catch (error) {
-      Swal.fire({
-        title: "Ошибка!",
-        text: error.message || "Произошла ошибка при отправке данных на сервер",
-        icon: "error",
-        confirmButtonText: "Ок",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  ], [maxCount, operationTypes, holdersOptions, stocksOptions, documentsOptions]);
 
   return (
     <Card>
@@ -408,8 +496,6 @@ export default function RegularForms() {
                               ? opt[field.extraLabelKey]
                               : null;
 
-                            // Если extraLabelKey указано, собираем строку с дополнительным полем
-                            // Иначе выводим только основное
                             const displayText = extraLabel
                               ? `${mainLabel} — ${extraLabel}`
                               : mainLabel;
@@ -438,8 +524,6 @@ export default function RegularForms() {
                   </FormControl>
                 )}
 
-
-
                 {field.component === "selectSearch" && (
                   <>
                     <InputLabel htmlFor={field.name} className={classes.selectLabel}>
@@ -451,27 +535,28 @@ export default function RegularForms() {
                         control={control}
                         rules={field.validation}
                         render={({ field: controllerField }) => {
-                          const selectedOption = field.options.find(
+                          const selectedOption = field.options?.find(
                             option => option[field.optionValueKey || "id"] === controllerField.value
                           );
                           return (
                             <SelectSearch
                               {...controllerField}
-                              options={field.options}
+                              options={field.options || []}
                               getOptionLabel={(option) =>
-                                option[field.optionLabelKey || "name"] || option.label || option.title
+                                option[field.optionLabelKey || "name"] || option.label || option.title || ""
                               }
                               getOptionValue={(option) =>
                                 option[field.optionValueKey || "id"]
                               }
                               placeholder="Выберите"
-                              value={selectedOption}
+                              value={selectedOption || null}
                               onChange={(selectedOption) => {
-                                console.log("Выбранная опция: ", selectedOption);
                                 controllerField.onChange(
                                   selectedOption ? selectedOption[field.optionValueKey || "id"] : ""
                                 );
                               }}
+                              isClearable
+                              noOptionsMessage={() => "Нет доступных опций"}
                             />
                           );
                         }}
@@ -484,6 +569,7 @@ export default function RegularForms() {
                     </FormControl>
                   </>
                 )}
+
                 {field.component === "datetime" && (
                   <>
                     <InputLabel className={classes.label}>{field.label}</InputLabel>

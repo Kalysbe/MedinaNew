@@ -221,7 +221,7 @@ export default function RegularForms() {
   useEffect(() => {
     dispatch(fetchAllHolders());
     dispatch(fetchHolders(Emitent?.id));
-    dispatch(fetchOperationTypes());
+    dispatch(fetchOperationTypes(2));
     
     dispatch(fetchDocuments(Emitent?.id));
   }, [dispatch, Emitent]);
