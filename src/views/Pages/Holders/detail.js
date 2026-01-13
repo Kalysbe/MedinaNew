@@ -117,8 +117,8 @@ export default function RegularTables() {
   }
 
   const totalSharePercent = extractData?.emission?.reduce((acc, item) => acc + (item.share_percent || 0), 0);
-  const totalCountFree = extractData?.emission?.reduce((acc, item) => acc + (item.total_shares - item.pledged_shares - item.blocked_shares || 0), 0);
-  const totalCountFreeSum = extractData?.emission?.reduce((acc, item) => acc + (item.total_shares - item.pledged_shares - item.blocked_shares || 0) * (item.nominal || 0), 0);
+  const totalCountFree = extractData?.emission?.reduce((acc, item) => acc + ((item.total_shares + item.blocked_shares) - item.pledged_shares - item.blocked_shares || 0), 0);
+  const totalCountFreeSum = extractData?.emission?.reduce((acc, item) => acc + ((item.total_shares + item.blocked_shares) - item.pledged_shares - item.blocked_shares || 0) * (item.nominal || 0), 0);
   const totalBlockedCount = extractData?.emission?.reduce((acc, item) => acc + (item.blocked_shares || 0), 0);
 
   console.log(extractData, 'datas')
@@ -374,10 +374,10 @@ export default function RegularTables() {
 
           <div ref={componentRef} className={classes.printOnly}
 
-            style={{ fontFamily: 'Arial, sans-serif', margin: '40px', lineHeight: '1.6' }}>
+            style={{ fontFamily: 'Arial, sans-serif', margin: '20px', lineHeight: '1.6' }}>
 
             {/* Заголовок */}
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
               <h3 style={{ margin: 0, padding: 0 }}>ВЫПИСКА ИЗ РЕЕСТРА</h3>
               <p style={{ margin: 0, padding: 0 }}>{today} года</p>
             </div>
@@ -451,7 +451,7 @@ export default function RegularTables() {
             <div style={{ marginBottom: '1em' }}>
 
               <p style={{ margin: '3px 0' }}><strong>Все на {today}</strong></p>
-              <p style={{ margin: '3px 0' }}><strong>Всего акций:</strong> {totalCountSimple + totalCountPreferred} </p>
+              <p style={{ margin: '3px 0' }}><strong>Всего акций:</strong> {totalCountSimple + totalCountPreferred + totalBlockedCount} </p>
               <p style={{ margin: '3px 0' }}><strong>Стоимость:</strong> {totalCountSimpleSum + totalCountPreferredSum} </p>
               <p style={{ margin: '3px 0' }}><strong>Из них свободных акций:</strong> </p>
               <p style={{ margin: '3px 0' }}><strong>Акций:</strong> {totalCountFree} </p>
